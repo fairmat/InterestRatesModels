@@ -31,7 +31,6 @@ namespace HullAndWhiteOneFactor
     public class HW1 : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
                        IParsable, IPopulable, IGreeksDerivativesInfo, IOpenCLCode
     {
-        // TODO: make these private.
         #region SerializedFields
 
         /// <summary>
