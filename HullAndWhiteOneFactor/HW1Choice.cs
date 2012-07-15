@@ -26,7 +26,8 @@ namespace HullAndWhiteOneFactor
 {
     /// <summary>
     /// Implements the IEditableChoice interface for Hull And White One factor,
-    /// in order to allow displaying an user interface.
+    /// in order to allow to be instanced from the user interface,
+    /// and be displayed.
     /// </summary>
     [Extension("/Fairmat/ProcessTypeChoice")]
     public class HW1Choice : IEditableChoice
