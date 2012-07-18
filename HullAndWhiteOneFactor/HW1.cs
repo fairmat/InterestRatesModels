@@ -18,9 +18,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.Serialization;
 using DVPLDOM;
 using DVPLI;
 using Mono.Addins;
+
 
 namespace HullAndWhiteOneFactor
 {
@@ -47,6 +49,13 @@ namespace HullAndWhiteOneFactor
         /// Standard deviation.
         /// </summary>
         private IModelParameter sigma1;
+
+
+        /// <summary>
+        /// Drift adjustment: can be used for adding risk premium or quanto adjustments
+        /// </summary>
+        [OptionalField(VersionAdded=2)]
+        private IModelParameter driftAdjustment;
 
         #endregion
 
@@ -101,6 +110,10 @@ namespace HullAndWhiteOneFactor
         /// Keeps the readable description of the zero rate.
         /// </summary>
         private const string zeroRateDescription = "Zero Rate";
+        /// <summary>
+        /// Keeps the readable description for drift adjustment
+        /// </summary>
+        private const string driftAdjustmentDescription = "Drift Adjustment";
 
         /// <summary>
         /// Default constructor. It initializes HW with
@@ -124,7 +137,23 @@ namespace HullAndWhiteOneFactor
             this.alpha1 = new ModelParameter(alpha, alphaDescription);
             this.sigma1 = new ModelParameter(sigma, sigmaDescription);
             this.zrReference = new ModelParameter(zeroRateReference, zeroRateDescription);
+            this.driftAdjustment= new ModelParameter(0, driftAdjustmentDescription);
         }
+
+
+        /// <summary>
+        /// Initialized optional fields 
+        /// </summary>
+        /// <param name='context'>
+        /// Context.
+        /// </param>
+        [OnDeserialized]
+        void OnDeserialized(StreamingContext context)
+        {
+            if(driftAdjustment==null)
+                driftAdjustment=new ModelParameter(0, driftAdjustmentDescription);
+        }
+
 
         #region IParsable Members
         /// <summary>
@@ -141,7 +170,7 @@ namespace HullAndWhiteOneFactor
             bool errors = false;
             BoolHelper.AddBool(errors, this.alpha1.Parse(p_Context));
             BoolHelper.AddBool(errors, this.sigma1.Parse(p_Context));
-
+            BoolHelper.AddBool(errors, this.driftAdjustment.Parse(p_Context));
             if (this.zrReference.Expression.IndexOf("@") == -1)
             {
                 p_Context.AddError(this.zrReference.Expression +
@@ -157,7 +186,7 @@ namespace HullAndWhiteOneFactor
                     errors = true;
 
                     p_Context.AddError("Cannot find the Zero Rate Curve! " +
-                                       this.zrReference.Expression);
+                                       zrReference.Expression);
                 }
             }
             else
@@ -338,7 +367,10 @@ namespace HullAndWhiteOneFactor
             List<IExportable> parameters = new List<IExportable>();
             parameters.Add(this.alpha1);
             parameters.Add(this.sigma1);
+            parameters.Add(this.driftAdjustment);
+
             parameters.Add(this.zrReference);
+
             return parameters;
         }
 
@@ -387,7 +419,7 @@ namespace HullAndWhiteOneFactor
         /// <param name="a">The output of the function.</param>
         public unsafe void a(int i, double* x, double* a)
         {
-            a[0] = this.semiDrift[i] - this.alpha1Temp * x[0];
+            a[0] = this.semiDrift[i] - this.alpha1Temp * x[0]+ driftAdjustment.fV();
         }
 
         /// <summary>

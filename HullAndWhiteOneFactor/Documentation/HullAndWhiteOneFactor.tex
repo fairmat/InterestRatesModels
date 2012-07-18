@@ -1,5 +1,5 @@
 \newcommand{\pluginName}{Hull-White one factor model}
-\newcommand{\pluginVersion}{1.0.15}
+\newcommand{\pluginVersion}{1.0.17}
 
 \input{../../../DocumentationTemplate/TemplateL3}
 
@@ -21,6 +21,7 @@ This plug-in implements Hull and White one factor models. For a general referenc
 	\hline
 	alpha & $\alpha$\\
 	sigma & $\sigma$\\
+	adjusted drift & $d$\\
 	\hline
 \end{tabular}
 \end{center}
@@ -32,7 +33,7 @@ This plug-in implements Hull and White one factor models. For a general referenc
 
 The Hull-White one factor model is used to describe the evolution of the short rate. It is defined by the following stochastic differential equations
 \begin{equation}
-dr(t) = (\theta(t)-\alpha r(t))dt + \sigma dW
+dr(t) = (\theta(t)-\alpha r(t)+d)dt + \sigma dW
 \end{equation}
 where $r$ is the short rate process.
 
@@ -40,6 +41,8 @@ The parameters have the following interpretation
 \begin{itemize}
 \item $\alpha$ is related to the short rate mean reversion speed, the greater its value, the stronger is the mean reversion
 \item $\sigma$ is the short rate volatility
+\item $d$ is an optional adjustment which can be added to the drift. This adjustment may be usefull
+to calculate the quanto adjustment.
 \end{itemize}
 
 \subsection{Fitting the model to initial yield curve}
