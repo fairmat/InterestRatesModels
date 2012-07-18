@@ -665,6 +665,7 @@ namespace HullAndWhiteOneFactor
                 args.Add(new Tuple<string, object>("alpha1", this.alpha1));
                 args.Add(new Tuple<string, object>("sigma1", this.sigma1));
                 args.Add(new Tuple<string, object>("semiDrift", this.semiDrift));
+                args.Add(new Tuple<string, object>("driftAdjustment", this.driftAdjustment));
                 return args;
             }
         }
@@ -678,7 +679,7 @@ namespace HullAndWhiteOneFactor
             {
                 Dictionary<string, string> sources = new Dictionary<string, string>();
                 sources.Add("B", "*b = sigma1;");
-                sources.Add("A", "*a = semiDrift[step]-alpha1*x[0];");
+                sources.Add("A", "*a = semiDrift[step] - alpha1 * x[0] + driftAdjustment;");
                 return sources;
             }
         }
