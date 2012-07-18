@@ -23,7 +23,6 @@ using DVPLDOM;
 using DVPLI;
 using Mono.Addins;
 
-
 namespace HullAndWhiteOneFactor
 {
     /// <summary>
@@ -49,7 +48,6 @@ namespace HullAndWhiteOneFactor
         /// Standard deviation.
         /// </summary>
         private IModelParameter sigma1;
-
 
         /// <summary>
         /// Drift adjustment: can be used for adding risk premium or quanto adjustments
@@ -110,6 +108,7 @@ namespace HullAndWhiteOneFactor
         /// Keeps the readable description of the zero rate.
         /// </summary>
         private const string zeroRateDescription = "Zero Rate";
+
         /// <summary>
         /// Keeps the readable description for drift adjustment
         /// </summary>
@@ -140,12 +139,11 @@ namespace HullAndWhiteOneFactor
             this.driftAdjustment= new ModelParameter(0, driftAdjustmentDescription);
         }
 
-
         /// <summary>
-        /// Initialized optional fields 
+        /// Initializes optional fields.
         /// </summary>
         /// <param name='context'>
-        /// Context.
+        /// The parameter is not used
         /// </param>
         [OnDeserialized]
         void OnDeserialized(StreamingContext context)
@@ -154,8 +152,8 @@ namespace HullAndWhiteOneFactor
                 driftAdjustment=new ModelParameter(0, driftAdjustmentDescription);
         }
 
-
         #region IParsable Members
+
         /// <summary>
         /// Ensure the parameters are correct.
         /// </summary>
@@ -186,7 +184,7 @@ namespace HullAndWhiteOneFactor
                     errors = true;
 
                     p_Context.AddError("Cannot find the Zero Rate Curve! " +
-                                       zrReference.Expression);
+                                       this.zrReference.Expression);
                 }
             }
             else
@@ -353,6 +351,7 @@ namespace HullAndWhiteOneFactor
         #endregion
 
         #region IExportableContainer Members
+
         /// <summary>
         /// Creates a list of all the sub-objects that can be edited.
         /// </summary>
@@ -368,7 +367,6 @@ namespace HullAndWhiteOneFactor
             parameters.Add(this.alpha1);
             parameters.Add(this.sigma1);
             parameters.Add(this.driftAdjustment);
-
             parameters.Add(this.zrReference);
 
             return parameters;
@@ -419,7 +417,7 @@ namespace HullAndWhiteOneFactor
         /// <param name="a">The output of the function.</param>
         public unsafe void a(int i, double* x, double* a)
         {
-            a[0] = this.semiDrift[i] - this.alpha1Temp * x[0]+ driftAdjustment.fV();
+            a[0] = this.semiDrift[i] - this.alpha1Temp * x[0] + this.driftAdjustment.fV();
         }
 
         /// <summary>
