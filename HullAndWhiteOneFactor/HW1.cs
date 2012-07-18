@@ -17,8 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.Serialization;
+using System.Text;
 using DVPLDOM;
 using DVPLI;
 using Mono.Addins;
@@ -50,9 +50,9 @@ namespace HullAndWhiteOneFactor
         private IModelParameter sigma1;
 
         /// <summary>
-        /// Drift adjustment: can be used for adding risk premium or quanto adjustments
+        /// Drift adjustment: can be used for adding risk premium or quanto adjustments.
         /// </summary>
-        [OptionalField(VersionAdded=2)]
+        [OptionalField(VersionAdded = 2)]
         private IModelParameter driftAdjustment;
 
         #endregion
@@ -110,7 +110,7 @@ namespace HullAndWhiteOneFactor
         private const string zeroRateDescription = "Zero Rate";
 
         /// <summary>
-        /// Keeps the readable description for drift adjustment
+        /// Keeps the readable description for drift adjustment.
         /// </summary>
         private const string driftAdjustmentDescription = "Drift Adjustment";
 
@@ -136,20 +136,20 @@ namespace HullAndWhiteOneFactor
             this.alpha1 = new ModelParameter(alpha, alphaDescription);
             this.sigma1 = new ModelParameter(sigma, sigmaDescription);
             this.zrReference = new ModelParameter(zeroRateReference, zeroRateDescription);
-            this.driftAdjustment= new ModelParameter(0, driftAdjustmentDescription);
+            this.driftAdjustment = new ModelParameter(0, driftAdjustmentDescription);
         }
 
         /// <summary>
         /// Initializes optional fields.
         /// </summary>
         /// <param name='context'>
-        /// The parameter is not used
+        /// The parameter is not used.
         /// </param>
         [OnDeserialized]
-        void OnDeserialized(StreamingContext context)
+        private void OnDeserialized(StreamingContext context)
         {
-            if(driftAdjustment==null)
-                driftAdjustment=new ModelParameter(0, driftAdjustmentDescription);
+            if (this.driftAdjustment == null)
+                this.driftAdjustment = new ModelParameter(0, driftAdjustmentDescription);
         }
 
         #region IParsable Members
