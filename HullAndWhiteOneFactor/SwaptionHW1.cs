@@ -117,7 +117,7 @@ namespace HullAndWhiteOneFactor
                     npayment = (int)(swapDuration[j] / deltaK);
                     swapPayDate = Vector.Linspace(swaptionMaturity[i] + deltaK, swaptionMaturity[i] + swapDuration[j], npayment);
                     FSR = ForwardSwapRate(swaptionMaturity[i], swapPayDate);
-                    result[i, j] = HWSwaption(sigma, a, 1000.0, FSR, swaptionMaturity[i], swapPayDate);
+                    result[i, j] = HWSwaption(a, sigma, 1000.0, FSR, swaptionMaturity[i], swapPayDate);
                 }
             }
 
@@ -169,7 +169,7 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// The swaptions price.
         /// </returns>
-        public double HWSwaption(double sigma, double a, double l, double k, double T, Vector s)
+        public double HWSwaption(double a, double sigma, double l, double k, double T, Vector s)
         {
             OptimizationSettings options = new OptimizationSettings();
             options.epsilon = 1e-5;
@@ -191,7 +191,7 @@ namespace HullAndWhiteOneFactor
                 PK[i] = this.CF[i] * vec[i];
             double result = 0;
             for (int i = 0; i < s.Length; i++)
-                result += ZCBPut(sigma, a, this.CF[i], PK[i], T, s[i]);
+                result += ZCBPut(a, sigma, this.CF[i], PK[i], T, s[i]);
             return result;
         }
 
@@ -206,7 +206,7 @@ namespace HullAndWhiteOneFactor
         /// </returns>
         public double Func(Vector x)
         {
-            double result = this.CF.Scalar(HWBond(this.sigma, this.a, x[0], this.T, this.t, this.dt));
+            double result = this.CF.Scalar(HWBond(this.a, this.sigma, x[0], this.T, this.t, this.dt));
             return result - this.L;
         }
 
@@ -287,10 +287,10 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// The put price.
         /// </returns>
-        public double ZCBPut(double sigma, double a, double L, double K, double T, double s)
+        private double ZCBPut(double a, double sigma, double L, double K, double T, double s)
         {
-            double h = H(sigma, a, L, K, T, s);
-            double sigmap = SigmaP(sigma, a, T, s);
+            double h = H(a, sigma, L, K, T, s);
+            double sigmap = SigmaP(a, sigma, T, s);
             return K * PZC(T) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h);
         }
 
@@ -318,9 +318,9 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// A double with the value of the H() function.
         /// </returns>
-        public double H(double sigma, double a, double L, double K, double T, double s)
+        private double H(double a, double sigma, double L, double K, double T, double s)
         {
-            double sigmap = SigmaP(sigma, a, T, s);
+            double sigmap = SigmaP(a, sigma, T, s);
             return Math.Log(L * PZC(s) / (K * PZC(T))) / sigmap + 0.5 * sigmap;
         }
 
@@ -342,7 +342,7 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// A double with the value of the SigmaP() function.
         /// </returns>
-        public double SigmaP(double sigma, double a, double T, double s)
+        private double SigmaP(double a, double sigma, double T, double s)
         {
             return sigma * (1.0 - Math.Exp(-a * (s - T))) * Math.Sqrt(0.5 * (1.0 - Math.Exp(-2.0 * a * T)) / a) / a;
         }
@@ -353,7 +353,7 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         /// <param name="k">The position where to get the value of the zero rate from.</param>
         /// <returns>The value of the zero rate at position k.</returns>
-        public double ZR(double k)
+        private double ZR(double k)
         {
             return this.zeroRateCurve.Evaluate(k);
         }
@@ -365,7 +365,7 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         /// <param name="t">The position where to get the value of discount factor from.</param>
         /// <returns>The value of the discount factor at position t.</returns>
-        public double PZC(double t)
+        private double PZC(double t)
         {
             return Math.Exp(-ZR(t) * t);
         }
