@@ -148,11 +148,11 @@ namespace HullAndWhiteOneFactor
         /// Price of a swaption in HW1 model: the holder has the right to pay
         /// the fixed rate and receive floating rate.
         /// </summary>
-        /// <param name='sigma'>
-        /// HW1 sigma.
-        /// </param>
         /// <param name='a'>
-        /// HW1 alpha.
+        /// Hull-White alpha parameter.
+        /// </param>
+        /// <param name='sigma'>
+        /// Hull-White sigma parameter.
         /// </param>
         /// <param name='l'>
         /// The Notional.
@@ -266,11 +266,11 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Calculates the value of a put option on a zero coupon bond.
         /// </summary>
-        /// <param name='sigma'>
-        /// Hull-White sigma parameter.
-        /// </param>
         /// <param name='a'>
         /// Hull-White alpha parameter.
+        /// </param>
+        /// <param name='sigma'>
+        /// Hull-White sigma parameter.
         /// </param>
         /// <param name='L'>
         /// Zero coupon notional.
@@ -297,11 +297,11 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Calculates H() function to be used in ZCBPut() method.
         /// </summary>
-        /// <param name='sigma'>
-        /// Hull-White sigma parameter.
-        /// </param>
         /// <param name='a'>
         /// Hull-White alpha parameter.
+        /// </param>
+        /// <param name='sigma'>
+        /// Hull-White sigma parameter.
         /// </param>
         /// <param name='L'>
         /// Zero coupon notional.
@@ -327,11 +327,11 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Calculates SigmaP() function to be used in ZCBPut() method.
         /// </summary>
-        /// <param name='sigma'>
-        /// Hull-White sigma parameter.
-        /// </param>
         /// <param name='a'>
         /// Hull-White alpha parameter.
+        /// </param>
+        /// <param name='sigma'>
+        /// Hull-White sigma parameter.
         /// </param>
         /// <param name='T'>
         /// The maturity of the option.
