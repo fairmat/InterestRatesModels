@@ -1,0 +1,178 @@
+\newcommand{\pluginName}{Pelsser Model}
+\newcommand{\pluginVersion}{1.0.11}
+
+\input{../../../DocumentationTemplate/TemplateL3}
+
+\begin{document}
+
+\PluginTitle{\pluginName}{\pluginVersion}
+
+\section{Introduction}
+This plug-in implements the one-factor squared Gaussian model. For general references on the squared Gaussian model see Pelsser~\cite{BookPelsser}~and~\cite{ArtPelsser}.
+\section{How to use the plug-in}
+\begin{itemize}
+  \item In the Fairmat user interface when you create a new stochastic process you will find the additional option ``Pelsser~Squared~Gaussian model''.
+  \item The stochastic process is defined by the parameters shown in table below.
+
+\begin{center}
+\begin{tabular}{|l|l|c|}
+  \hline
+  % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+ \multirow{2}{*}{\textbf{Description}}& \textbf{Fairmat}&\textbf{Documentation}\\
+                     & \textbf{notation}&\textbf{notation}\\
+                     \hline
+ mean reversion rate    (scalar)        & a1        & $a$\\
+ diffusion parameter    (scalar)        & sigma1    & $\sigma$\\
+% market price of risk      (scalar)        & lambda0   & $\lambda(t,\omega)$\\
+   \hline
+\end{tabular}
+\end{center}
+See section~\ref{id} about parameters' meaning.
+\end{itemize}
+
+\section{Implementation Details}
+\label{id}
+
+\subsection{Introduction on one-factor Squared Gaussian model}
+The one-factor squared Gaussian model assumes that the spot interest rate is a quadratic function of the underlying process. This type of models is known as \emph{squared Gaussian models} and it provides the advantage that the interest rates never become negative. The squared Gaussian is a \emph{no-arbitrage} model, so it can be fitted to the initial term-structure of interest rates.
+
+\subsection{Spot Rate Process}
+The dynamics of the one-factor squared Gaussian model under the equivalent martingale measure are given by
+\begin{equation}
+\label{y}
+\begin{sistema}
+dy = -ay \, dt + \sigma \, dW^*\\
+r = {\left( y + \alpha(t) \right)}^2
+\end{sistema}
+\end{equation}
+where $W^*$ denotes Brownian Motion under the equivalent martingale measure. Furthermore, $a$ and $\sigma$ are constants and $\alpha(t)$ is an arbitrary function of time which allows the model to be fitted to the initial term-structure of interest rates.
+
+If we apply It\^o's Lemma to~(\ref{y}), we can derive the following evolution of the spot rate (under the equivalent martingale measure)
+\begin{equation}
+dr = \theta^{*}(t,r) \, dt + 2 \sigma \sqrt{r} \, dW^{*} \, ,
+\end{equation}
+where
+\begin{equation}
+\theta^{*}(t,r) = \sigma^2 +2 \left(\frac{\partial}{\partial t}\alpha(t) + a \alpha(t) \right)\sqrt{r} - 2 a r.
+\end{equation}
+This model is in general \emph{not} a square root process, only in the case $\alpha(t)\equiv0$ it reduces to a square root model with dimension $d=1$.
+
+
+The existence and uniqueness of the equivalent martingale measure (or \emph{risk-neutral} measure) is equivalent to the following restriction on the drift-term $\theta$ of the spot rate process
+\begin{equation}
+ dr=\theta(t,\omega)dt+2\sigma \sqrt{r} dW
+\end{equation}
+where $W$ denotes Brownian Motion under the ``real~world'' probability-measure. The drift term $\theta$ is restricted to be $\theta(t,\omega) = \theta^*(t,r)+\lambda(t,\omega)2\sigma\sqrt{r}$, where $\lambda(t,\omega)$ denotes the market price of risk.
+
+Given the dynamics of the spot interest rate specified in~(\ref{y}), the price at time $t$ of any interest rate derivative security in terms of $y$ can be written as function $h(t,y)$, and this must satisfy the partial differential equation (PDE)
+\begin{equation}
+\label{pde}
+\frac{\partial}{\partial t}h(t,y) - ay\frac{\partial}{\partial y}h(t,y) + \frac{1}{2}\sigma^2\frac{\partial^2}{\partial y^2}h(t,y)
+- {\left( y+\alpha(t)\right)}^2 h(t,y) = 0
+\end{equation}
+
+
+\subsection{Analytical Formul\ae}
+The price $h(t,y; T)$ at time $t$ of an interest rate derivative that has a payoff $H\left(y(T)\right)$ at maturity $T$, can be calculate by solving the PDE~(\ref{pde}) subject to the boundary condition $h\left(T,y(T); T\right) = H\left(y(T)\right)$ at time $T$. Using the Feynman-Kac formula one can show that $h(t,y; T)$ can be expressed as the expectation of the discounted payoff
+\begin{eqnarray}
+%h(t,y; T) & = & \displaystyle E^* \left( \left. e^{\displaystyle{-\int_{t}^{T} r(s) \, ds}} H\left(y(T)\right) \, \right| \, \mathcal{F}_t \right) \nonumber \\
+%          & = & \displaystyle E^* \left( \left. e^{\displaystyle{-\int_{t}^{T} r(s) \, ds}} H\left(y(T)\right) \, \right| \, \mathcal{F}_t \right)
+h(t,y; T) & = & \displaystyle E^* \left( e^{\displaystyle{-\int_{t}^{T} r(s) \, ds}} H\left(y(T)\right) \, \Bigg| \, \mathcal{F}_t \right) \nonumber \\
+          & = & \displaystyle E^* \left( e^{\displaystyle{-\int_{t}^{T} r(s) \, ds}} H\left(y(T)\right) \, \Bigg| \, \mathcal{F}_t \right)
+\end{eqnarray}
+where $E^*(\cdot | \mathcal{F}_t)$ is the expectation, conditional on the information available at time $t$, with respect to the process $y$ under the risk-neutral measure. Since the discounting term and the payoff term are two correlated stochastic variables, the expectation $E^*$ is, in general, difficult to evaluate. It is also possible to compute prices as
+\begin{equation}
+h(t,y; T) = P(t,T,y)\, E^T\left(H(y(T))|\mathcal{F}_t \right)
+\end{equation}
+where $P(t,T,y)$ denotes the price of a discount bond with maturity $T$, and $E^T$ denotes the expectation under the so-called $T$-forward-risk-adjusted~measure.
+
+
+\subsection{Bond Price formula}
+As was shown by Pelsser~\cite{BookPelsser} the price of a discount bond $P(t,T,y)$ is given by
+\begin{equation}
+P(t,T,y) = \displaystyle{e}^{\displaystyle{A(t,T) - B(t,T) y - C(t,T) y^2 }} \, .
+\end{equation}
+where
+\begin{eqnarray}
+D(t,T) & = & \dfrac{2\gamma e^{\gamma(T-t)}}{(a+\gamma)e^{2\gamma(T-t)}+(\gamma - a)} \nonumber \\
+C(t,T) & = & \dfrac{e^{2\gamma(T-t)}-1}{(a+\gamma)e^{2\gamma(T-t)}+(\gamma - a)} \nonumber \\
+B(t,T) & = & 2 D(t,T) \displaystyle{ \int_t^T \dfrac{\alpha(s)}{D(s,T)} \, ds }\nonumber \\
+A(t,T) & = & \displaystyle{\int_t^T \frac{1}{2}\sigma^2 B(s,T)^2 - \sigma^2 C(s,T) - \alpha(s)^2 \, ds  } \nonumber \\
+\gamma & = & \sqrt{a^2+2\sigma^2} \, .
+\end{eqnarray}
+
+\subsection{Fitting the Model to the Initial Yield-Curve}
+Yield-curve models take the initial yield-curve as an input, and price all interest rate derivatives off this curve using no-arbitrage arguments. The model we are considering can be fitted to the initial yield-curve by choosing $\alpha(t)$ such that the initial discount bond prices $P(0,T,0)$ are priced correctly.\\
+Using the identity
+\begin{equation}
+f(t,T)= - \dfrac{ \partial }{ \partial T } \log{P(t,T,y)} \, ,
+\end{equation}
+the prices of all instantaneous forward rate $f(0,T)$ can be calculated from the discount bond prices. The value of $\alpha(t)$ can be related to $f(0,T)$, and we obtain
+\begin{equation}
+f(0,T) = \Sigma(0,T) + {\left( \alpha(T) - \sigma^2 \int_0^T D(s,T) B(s,T) \, ds \right)}^2 \, ,
+\end{equation}
+where
+$$ \Sigma(0,T) = \sigma^2 C(0,T) \, .$$
+
+
+If $f(0,T) \geq \Sigma(0,T)$, we can define
+\begin{equation}
+F(T) = \sqrt{f(0,T) - \Sigma(0,T)} \, ,
+\end{equation}
+and it can be demonstrated that
+\begin{equation}
+\alpha(T) = F(T) + 2 \int_0^T e^{\displaystyle{-a(T-s)}} \Sigma(0,s) F(s) \, ds \, .
+\end{equation}
+
+\section{Calibration}
+
+Parameter estimation is carried out by fitting cap prices, starting from a matrix of Black-caps volatilities (the standard market model~\cite{Hull:OptFutDer}).
+\subsection{Objective Function}
+The estimator tries to minimize the differences between the Black-caps prices and the prices of caps with the ``Pelsser squared gaussian'' model (see section~\ref{OP}), i.e. the following objective function
+\begin{equation}
+\displaystyle\sum_{i=1}^n {\Big( {{Pelsser}^i(\alpha,\sigma)} - {Black}^i \Big)}^2  \, ,
+\end{equation}
+where ${{Pelsser}^i(\alpha,\sigma)}$ is the price of the $i^{th}$-cap by ``Pelsser squared gaussian'' model, ${Black}^i$ the price of the $i^{th}$~cap by the Black model, and $n$ the number of all caps into the caps-volatility matrix.
+
+
+\subsection{Option Prices with the Pelsser model}
+\label{OP}
+Let us consider a European call option on a discount bond~\cite{ArtPelsser}. Let $C(t, T, \mathcal{T}, K, y)$ denote the price at time $t$ of a call option that gives at time $T$ the right to buy a discount bond with maturity $\mathcal{T}$ for a price $K$, with $ t < T < \mathcal{T}$. Suppose that at time $T$ the value of $y(T)$ is equal to $z$, then the payoff of this option is equal to
+$$ \max{\left\lbrace P(T, \mathcal{T}, z) - K, 0 \right\rbrace } \, .$$
+The payout of the option in non-zero if
+$$ P(T, \mathcal{T}, z) = \displaystyle{e}^{\displaystyle{A(t,T) - B(t,T) z - C(t,T) z^2 }} \, > \, K .$$
+\begin{comment}
+where
+\begin{eqnarray}
+D(t,T) & = & \dfrac{2\gamma e^{\gamma(T-t)}}{(a+\gamma)e^{2\gamma(T-t)}+(\gamma - a)} \nonumber \\
+C(t,T) & = & \dfrac{e^{2\gamma(T-t)}-1}{(a+\gamma)e^{2\gamma(T-t)}+(\gamma - a)} \nonumber \\
+B(t,T) & = & 2 D(t,T) \displaystyle{ \int_t^T \dfrac{\alpha(s)}{D(s,T)} \, ds }\nonumber \\
+A(t,T) & = & \displaystyle{\int_t^T \frac{1}{2}\sigma^2 B(s,T)^2 - \sigma^2 C(s,T) - \alpha(s)^2 \, ds  } \nonumber \\
+\gamma & = & \sqrt{a^2+2\sigma^2} \, .
+\end{eqnarray}
+\end{comment}
+This is true if
+$$ l = \dfrac{-B(T,\mathcal{T})-\sqrt{d}}{2 C(T,\mathcal{T})} \, < \, z \, < \, \dfrac{-B(T,\mathcal{T})+\sqrt{d}}{2 C(T,\mathcal{T})} = h $$
+where
+$$ d = {B(T,\mathcal{T})}^2 + 4C(T,\mathcal{T})(A(T,\mathcal{T})-\log{K}) \, . $$
+If $d > 0$ (discriminant), we can express the price $C(t, T, \mathcal{T}, K, y)$ in terms of cumulative normal distribution functions $\Phi$ as follows
+
+\begin{eqnarray}
+C(t, T, \mathcal{T}, K, y) & = & P(t, \mathcal{T}, y) \left[ \Phi \left( \dfrac{h \tau - \nu}{\sqrt{\tau \Sigma(t,T)}} \right) - \Phi \left( \dfrac{l \tau - \nu}{\sqrt{\tau \Sigma(t,T)}} \right) \right]  \\
+                           &   & - P(t, T, y) K \left[ \Phi \left( \dfrac{h - \mu(t,T,y)}{\sqrt{ \Sigma(t,T)}} \right) - \Phi \left( \dfrac{l - \mu(t,T,y)}{\sqrt{\Sigma(t,T)}} \right) \right]  \nonumber
+\end{eqnarray}
+with
+\begin{eqnarray}
+\nu        &  =  & \mu(t,T,y) - B(T,\mathcal{T})\Sigma(t,T)  \nonumber \\
+\tau       &  =  & 1 + 2 C(T,\mathcal{T})\Sigma(t,T)  \nonumber \\
+\mu(t,T,y) &  =  & D(t,T) y - {\sigma}^2 \int_{t}^{T} D(s,T)B(s,T) \, ds  \nonumber \\
+\Sigma(t,T)&  =  & {\sigma}^2 \int_{t}^{T} {D(s,T)}^2 \, ds  \, . \nonumber
+\end{eqnarray}
+The price for a put option on a discount bond can be derived in a similar fashion.
+With the analytical formulae for call- and put-options on discount bonds, prices can be calculated for the interest rate derivatives that are currently traded.
+For the calibration of parameters, of the Pelsser squared gaussian model, caps and floors can be decomposed as portfolios of puts and calls on discount bonds, see e.g. Hull and White~\cite{Hull:OptFutDer}.
+
+\bibliographystyle{unsrt}
+\bibliography{../../../DocumentationTemplate/bibliography}
+
+\end{document}
