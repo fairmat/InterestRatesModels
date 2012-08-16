@@ -52,8 +52,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="CoreExtensions">
       <HintPath>..\..\DVPLReferences\CoreExtensions.dll</HintPath>
       <Private>False</Private>
@@ -74,16 +72,8 @@
       <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="DVPLSolverC">
-      <HintPath>..\..\DVPLReferences\DVPLSolverC.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="DVPLUtils">
       <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SolverBase">
-      <HintPath>..\..\DVPLReferences\SolverBase.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Fairmat.Optimization">
@@ -108,7 +98,6 @@
     <Compile Include="SwaptionHW1Estimator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Documentation\Description.txt" />
     <None Include="Documentation\HullAndWhiteOneFactor.tex" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
