@@ -150,7 +150,7 @@ namespace Pelsser
         /// Gets or sets the cacheDates, which are the cached values of dates
         /// passed during the Setup.
         /// </summary>
-        internal double[] CacheDates
+        public double[] CacheDates
         {
             get
             {

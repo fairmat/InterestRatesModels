@@ -31,7 +31,7 @@ namespace Pelsser.Calibration
     /// <summary>
     /// Caplet prices using pelsser g s model.
     /// </summary>
-    internal class Caplet
+    public class Caplet
     {
         /// <summary>
         /// Keeps the data of a context for this caplet calibrator
@@ -188,7 +188,7 @@ namespace Pelsser.Calibration
         /// <param name="deltaK">Amount to use as increase factor.</param>
         /// <param name="tOss">The Maturities.</param>
         /// <returns>A <see cref="Matrix"/> with the caplet prices.</returns>
-        internal Matrix PGSMCaplets(SquaredGaussianModel model, Vector mat, Vector fwd, Vector rk, double deltaK, Vector tOss)
+        public Matrix PGSMCaplets(SquaredGaussianModel model, Vector mat, Vector fwd, Vector rk, double deltaK, Vector tOss)
         {
             double s = model.sigma1.fV();
             int col = rk.Length;
