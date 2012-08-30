@@ -239,10 +239,10 @@ namespace HullAndWhiteOneFactor
         /// The vector of reference dates.
         /// </param>
         /// <param name='i'>
-        /// The index at which the state variables must be sampled.
+        /// The index at which the state variable must be sampled.
         /// </param>
         /// <param name='t'>
-        /// The date in years/fractions at at which the state variables must be sampled.
+        /// The date in years/fractions at at which the state variable must be sampled.
         /// </param>
         /// <param name='s'>
         /// The maturity of the bond.
