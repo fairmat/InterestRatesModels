@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HullAndWhiteOneFactor", "Hu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pelsser", "Pelsser\Pelsser.csproj", "{635FA926-8F6C-4B69-9C1C-527115B5E608}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterestRatesModels.Tests", "InterestRatesModels.Tests\InterestRatesModels.Tests.csproj", "{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,11 +21,15 @@ Global
 		{635FA926-8F6C-4B69-9C1C-527115B5E608}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{635FA926-8F6C-4B69-9C1C-527115B5E608}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{635FA926-8F6C-4B69-9C1C-527115B5E608}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj
+		{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj
 	EndGlobalSection
 EndGlobal
