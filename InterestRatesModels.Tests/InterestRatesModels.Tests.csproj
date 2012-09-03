@@ -31,17 +31,52 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DVPLDOM">
+      <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLDOME">
+      <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLI">
+      <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLInterfaces">
+      <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLSolverC">
+      <HintPath>..\..\DVPLReferences\DVPLSolverC.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLUtils">
+      <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Addins">
+      <HintPath>..\..\DVPLReferences\Mono.Addins.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\DVPLReferences\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HullAndWhiteOneFactor\TestCapsHW1.cs" />
+    <Compile Include="HullAndWhiteOneFactor\TestHW1.cs" />
+    <Compile Include="Pelsser\TestPelsser.cs" />
+    <Compile Include="Pelsser\TestPelsserSetup.cs" />
+    <Compile Include="Pelsser\TestPelsserBondPut.cs" />
+    <Compile Include="Pelsser\TestPelsserCaplet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestCommon.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="HullAndWhiteOneFactor\" />
-    <Folder Include="Pelsser\" />
+    <ProjectReference Include="..\HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj">
+      <Project>{0355501D-5C61-4EDF-B640-B83A1E741085}</Project>
+      <Name>HullAndWhiteOneFactor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Pelsser\Pelsser.csproj">
+      <Project>{635FA926-8F6C-4B69-9C1C-527115B5E608}</Project>
+      <Name>Pelsser</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
