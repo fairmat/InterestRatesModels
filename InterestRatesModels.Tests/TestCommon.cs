@@ -17,8 +17,14 @@
 
 namespace TestCommon
 {
+    /// <summary>
+    /// Contains some methods used to initialize unit tests for Fairmat.
+    /// </summary>
     public static class TestInitialization
     {
+        /// <summary>
+        /// Generic system initialization.
+        /// </summary>
         public static void CommonInitialization()
         {
             DVPLI.PluginsManager.Init();
