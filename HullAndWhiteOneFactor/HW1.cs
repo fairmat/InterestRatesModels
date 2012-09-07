@@ -140,7 +140,7 @@ namespace HullAndWhiteOneFactor
         }
 
         /// <summary>
-        /// Initializes optional fields.
+        /// Initializes optional fields after deserialization.
         /// </summary>
         /// <param name='context'>
         /// The parameter is not used.
