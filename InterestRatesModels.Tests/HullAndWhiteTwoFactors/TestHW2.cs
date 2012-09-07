@@ -22,7 +22,7 @@ using DVPLSolver;
 using Fairmat.Statistics;
 using NUnit.Framework;
 
-namespace TestVari
+namespace HullAndWhiteTwoFactors
 {
     /// <summary>
     /// This test compares the price of a call option on a zero coupon
