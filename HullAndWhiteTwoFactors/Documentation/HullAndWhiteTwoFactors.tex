@@ -1,0 +1,103 @@
+\newcommand{\pluginName}{Hull-White two factor model}
+\newcommand{\pluginVersion}{1.0.5}
+
+\input{../../../DocumentationTemplate/TemplateL3}
+
+\begin{document}
+
+\PluginTitle{\pluginName}{\pluginVersion}
+
+\section{Introduction}
+This plug-in implements Hull and White two factor models. For a general reference on this model see \cite{Hull:OptFutDer}.
+
+\section{How to use the plug-in}
+
+\begin{itemize}
+  \item In the Fairmat user interface when you create a new stochastic process you will find the additional option ``Hull-White two factors''.
+  \item The stochastic process is defined by the parameters shown in the following table.
+  
+\begin{center}
+\begin{tabular}{|l|c|}
+  \hline
+	\textbf{Fairmat}&\textbf{Documentation}\\
+	\textbf{notation}&\textbf{notation}\\
+	\hline
+	alpha1 & $\alpha_1$ \\
+	sigma1 & $\sigma_1$\\
+	alpha2 & $\alpha_2$ \\
+	sigma2 & $\sigma_2$\\
+	rho & $\rho$\\
+	\hline
+\end{tabular}
+\end{center}
+\end{itemize}
+
+\section{Implementation Details}
+
+\subsection{Process dynamics}
+
+The Hull-White two factor model is used to describe the evolution of the short rate. It is defined by the following stochastic differential equations
+\begin{align}
+& dr(t) = \left[ \theta(t) + u(t) - \alpha_1 r(t)\right]dt + \sigma_1 dW_1(t)\label{eq:dr}\\
+& du(t) = -\alpha_2 u(t)dt + \sigma_2 dW_2(t)\\
+& \mathbb{E}[dW_1(t)dW_2(t)] = \rho dt
+\end{align}
+where $r$ represents the short rate process while the second process $u$ represents a stochastic shift in the mean reverting value of $r$. This means that at a certain time $t$ the drift part of equation (\ref{eq:dr}) will tend to drive the short rate $r$ to the value of $[\theta(t) + u(t)]/\alpha_1$.
+
+By definition the $u$ process starts with a null value.
+
+The parameters have the following interpretation
+\begin{itemize}
+\item $\alpha_1$ is related to the short rate mean reversion speed, the greater its value, the stronger is the mean reversion
+\item $\sigma_1$ is the short rate volatility
+\item $\alpha_2$ is the speed of mean reversion of the mean reversion level
+\item $\sigma_2$ is the volatility of the mean reversion level
+\end{itemize}
+
+\subsection{Fitting the model to initial yield curve}
+
+The function $\theta(t)$ is determined by the starting yield curve in the same way as in the Hull-White one factor model so that it is given by
+\begin{equation}
+\theta(T) = \alpha_1 F(0,T)+\frac{\partial}{\partial T}F(0,T)+\frac{\sigma_1^2}{2\alpha_1}\left[1-e^{-2\alpha_1T}\right]
+\end{equation}
+where $F(0,T)$ is the function of instantaneous forward rate.
+
+\subsection{Bond price formula}
+
+The price of a zero coupon bough at time $t$ which pays a unit amount at time $T$ is given by
+
+\begin{equation}
+P(t,T) = A(t,T) \exp\left[ -B(t,T)r(t) - C(t,T)u(t) \right]
+\end{equation}
+where
+\begin{align}
+& B(t,T) = \frac{1}{\alpha_1}\left[ 1 - e^{-\alpha_1(T-t)} \right]\\
+& C(t,T) = \frac{1}{\alpha_1(\alpha_1-\alpha_2)}e^{-\alpha_1(T-t)} - \frac{1}{\alpha_2(\alpha_1-\alpha_2)}e^{-\alpha_2(T-t)} + \frac{1}{\alpha_1\alpha_2}
+\end{align}
+The function $A$ is more complicated. Given that $F(t,T)$ is the instantaneous forward rate at time $t$ for maturity $T$ and having defined the functions\footnote{For the sake of simplicity we are omitting the variables from which this functions depend, so that for example $\eta$ stands for $\eta(t,T)$ and so on for all the gamma functions}
+\begin{align}
+ & \eta = \frac{\sigma_1^2}{4\alpha_1}\left[ 1-e^{-2\alpha_1 t} \right]B(t,T)^2 - \rho\sigma_1\sigma_2\left[ B(0,t)C(0,t)B(t,T) + \gamma_4 - \gamma_2 \right]\nonumber\\
+ & \qquad\qquad\qquad\qquad\qquad\qquad\qquad -\frac{1}{2}\sigma_2^2 \left[ C(0,t)^2 B(t,T) + \gamma_6 - \gamma_5\right] \nonumber\\
+ & \gamma_1 = \frac{e^{-(\alpha_1+\alpha_2)T}[e^{(\alpha_1+\alpha_2)t} - 1] }{(\alpha_1+\alpha_2)(\alpha_1-\alpha_2)} - \frac{e^{-2\alpha_1 T} [e^{2\alpha_1 t} -1 ]}{2\alpha_1(\alpha_1-\alpha_2)} \nonumber \\
+ & \gamma_2 = \frac{1}{\alpha_1\alpha_2}\left[ \gamma_1 + C(t,T) - C(0,T) + \frac{1}{2} B(t,T)^2 - \frac{1}{2}B(0,T)^2 + \frac{t}{\alpha_1} \right.\nonumber\\
+ & \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad \left. - \frac{e^{-\alpha_1(T-t)} - e^{-\alpha_1T} }{\alpha_1^2} \right] \nonumber\\
+ & \gamma_3 = -\frac{e^{-(\alpha_1+\alpha_2)t} -1}{(\alpha_1-\alpha_2)(\alpha_1+\alpha_2)} + \frac{e^{-2\alpha_1 t} - 1}{2\alpha_1 (\alpha_1-\alpha_2)} \nonumber\\
+ & \gamma_4 = \frac{1}{\alpha_1\alpha_2} \left[ \gamma_3 - C(0,t) - \frac{1}{2}B(0,t)^2 + \frac{t}{\alpha_1} + \frac{e^{-\alpha_1 t} -1}{\alpha_1^2} \right] \nonumber\\
+ & \gamma_5 = \frac{1}{2\alpha_2} \left[ C(t,T)^2 - C(0,T)^2 + 2\gamma_2 \right] \nonumber\\
+ & \gamma_6 = \frac{1}{\alpha_2} \left[ \gamma_4 - \frac{1}{2}C(0,t)^2 \right] \nonumber
+\end{align}
+$A(t,T)$ is given by
+\begin{equation}
+A(t,T) = \frac{P(0,T)}{P(0,t)}e^{B(t,T)F(0,t) - \eta(t,T)}.
+\end{equation}
+
+Note that in the bond price formula both stochastic processes $r$ and $u$ appear. In the Hull-White one factor model the second term is not present and for this reason rates calculated at different maturities are perfectly correlated. For the presence of the $u(t)$ term in the two factor model rates at different maturities are not perfectly correlated as in the one factor model. This is the reason why it's usually better to use the two factor model when pricing a derivative whose payoff depends on rates at different maturities.
+
+\section{Calibration}
+
+The Hull-White two factor process can be calibrated on swaption prices using the SwaptionsEstimator Fairmat plug-in. For further details see the SwaptionEstimator documentation.
+
+\bibliographystyle{unsrt}
+\bibliography{../../DocumentationTemplate/bibliography}
+
+\end{document}
