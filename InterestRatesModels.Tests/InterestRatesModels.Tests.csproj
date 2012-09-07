@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="HullAndWhiteOneFactor\TestCapsHW1.cs" />
     <Compile Include="HullAndWhiteOneFactor\TestHW1.cs" />
+    <Compile Include="HullAndWhiteTwoFactors\TestHW2.cs" />
     <Compile Include="Pelsser\TestPelsser.cs" />
     <Compile Include="Pelsser\TestPelsserSetup.cs" />
     <Compile Include="Pelsser\TestPelsserBondPut.cs" />
