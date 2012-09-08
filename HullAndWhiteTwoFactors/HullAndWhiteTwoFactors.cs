@@ -402,6 +402,7 @@ namespace HullAndWhiteTwoFactors
             base.alpha1 = this._a1.fV();
             base.sigma1 = this._s1.fV();
             base.alpha2 = this._a2.fV();
+            this.alpha2minus1 = alpha2 - alpha1;
             if (!GenericSolverParameters.m_ConsiderCorrMatrixAsCholesky)
             {
                 base.sigma2 = this._s2.fV();
