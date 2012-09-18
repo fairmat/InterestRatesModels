@@ -735,8 +735,8 @@ namespace HullAndWhiteTwoFactors
         /// <summary>
         /// Gets details about the structure of the functions A and B of the Markov
         /// process.
-        /// In this case drift and volatility are only state dependant and not time
-        /// dependant.
+        /// In this case drift is state dependant and not time dependant and
+        /// volatility is neither state or time dependent.
         /// </summary>
         public DynamicInfo DynamicInfo
         {
