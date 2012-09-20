@@ -161,7 +161,7 @@ namespace HullAndWhiteOneFactor
         /// The underlying project.
         /// </param>
         /// <returns>
-        /// True if the parameter were correct.
+        /// False if there were no parse errors.
         /// </returns>
         public bool Parse(IProject p_Context)
         {
@@ -655,7 +655,7 @@ namespace HullAndWhiteOneFactor
 
         /// <summary>
         /// Gets the arguments needed for an OpenCL simulation.
-        /// Alpha1, sigma1 and semi_drift are used in this context.
+        /// Alpha1, sigma1 and semidrift, driftAdjustment are used in this context.
         /// </summary>
         public List<Tuple<string, object>> Arguments
         {

@@ -208,7 +208,7 @@ namespace Pelsser
         /// The underlying project.
         /// </param>
         /// <returns>
-        /// True if the parameter were correct.
+        /// False if there were no parse errors.
         /// </returns>
         public bool Parse(IProject p_Context)
         {
