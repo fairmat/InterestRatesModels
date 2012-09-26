@@ -195,6 +195,32 @@ namespace HullAndWhiteOneFactor
             return result;
         }
 
+        public double HWSwaption2(double a, double sigma, double l, double k, double T, Vector s)
+        {
+            OptimizationSettings options = new OptimizationSettings();
+            //options.epsilon = 1e-5;
+            options.epsilon = 1e-10;
+
+            this.dt = s[0] - T;
+            this.CF = k * this.dt + (new Vector(s.Length));
+            this.CF[s.Length - 1] = this.CF[s.Length - 1] + 1;
+            this.a = a;
+            this.sigma = sigma;
+            this.t = T;
+            this.T = s;
+            this.L = l;
+            SolutionInfo sol = Fairmat.Optimization.Helper.FSolve(new ObjFunction(Func2), (Vector)new double[1] { 0.01 },
+                (Vector)new double[1] { -1.0 }, (Vector)new double[1] { 1.0 }, options);
+            double RK = (double)sol.x;
+
+            Vector X = HWBond2(a, sigma, RK, this.T, this.t, 0.001);
+            double result = 0;
+            for (int i = 0; i < s.Length; i++)
+                result += CF[i]*ZCBPut(a, sigma, 1.0, X[i], T, s[i]);
+            result = result * l;
+            return result;
+        }
+
         /// <summary>
         /// Function to be used in the FSolve() problem of HWSwaption() method.
         /// </summary>
@@ -208,6 +234,12 @@ namespace HullAndWhiteOneFactor
         {
             double result = this.CF.Scalar(HWBond(this.a, this.sigma, x[0], this.T, this.t, this.dt));
             return result - this.L;
+        }
+
+        public double Func2(Vector x)
+        {
+            double result = this.CF.Scalar(HWBond2(this.a, this.sigma, x[0], this.T, this.t, 0.001));
+            return result - 1.0;
         }
 
         /// <summary>
@@ -263,6 +295,29 @@ namespace HullAndWhiteOneFactor
             return result;
         }
 
+        private Vector HWBond2(double a, double sigma, double r, Vector T, double t, double dt)
+        {
+            double Pt = PZC(t);
+            Vector PT;
+            Vector BT;
+            Vector AT;
+            Vector result;
+            PT = new Vector(T.Length);
+            BT = new Vector(T.Length);
+            double f = -( Math.Log(PZC(t + dt)) - Math.Log(PZC(t)) ) / ( dt );
+            AT = new Vector(T.Length);
+            result = new Vector(T.Length);
+            for (int i = 0; i < T.Length; i++)
+            {
+                PT[i] = PZC(T[i]);
+                BT[i] = (1.0 - Math.Exp(-a * (T[i] - t))) / a;
+                AT[i] = (PT[i] / Pt)*Math.Exp(BT[i]*f - sigma * sigma * (1.0 - Math.Exp(-2 * a * t)) * BT[i] * BT[i] / (4 * a));
+                result[i] = AT[i] * Math.Exp(-BT[i] * r);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Calculates the value of a put option on a zero coupon bond.
         /// </summary>
@@ -294,6 +349,12 @@ namespace HullAndWhiteOneFactor
             return K * PZC(T) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h);
         }
 
+        private double ZCBPut2(double a, double sigma, double L, double K, double T, double s)
+        {
+            double h = H(a, sigma, L, K, T, s);
+            double sigmap = SigmaP(a, sigma, T, s);
+            return K * PZC(T) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h);
+        }
         /// <summary>
         /// Calculates H() function to be used in ZCBPut() method.
         /// </summary>
