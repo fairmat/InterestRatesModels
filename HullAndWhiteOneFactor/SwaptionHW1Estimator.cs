@@ -114,6 +114,11 @@ namespace HullAndWhiteOneFactor
             Matrix fsr;
             blackSwaptionPrice = 1000.0 * swbm.SwaptionsSurfBM(optionMaturity, swapDuration, swaptionsVolatility, deltak, out fsr);
 
+            Console.WriteLine("SwaptionHWEstimator: Black prices");
+            Console.WriteLine(blackSwaptionPrice);
+
+            Console.WriteLine(string.Format("Calibrating on {0} swaptions prices",blackSwaptionPrice.R*blackSwaptionPrice.C));
+
             SwaptionHW1 swhw1 = new SwaptionHW1(zr);
             SwaptionHW1OptimizationProblem problem = new SwaptionHW1OptimizationProblem(swhw1, blackSwaptionPrice, optionMaturity, swapDuration, deltak);
 
@@ -121,7 +126,7 @@ namespace HullAndWhiteOneFactor
             IOptimizationAlgorithm solver2 = new SteepestDescent();
 
             DESettings o = new DESettings();
-            o.NP = 20;
+            o.NP = 25;
             o.MaxIter = 10;
             o.Verbosity = 1;
             SolutionInfo solution = null;
@@ -132,6 +137,7 @@ namespace HullAndWhiteOneFactor
             o.epsilon = 10e-8;
             o.h = 10e-8;
             o.MaxIter = 1000;
+            o.accourate_numerical_derivatives=true;//we can permit that given that is fast
 
             if (solution != null)
                 solution = solver2.Minimize(problem, o, solution.x);
