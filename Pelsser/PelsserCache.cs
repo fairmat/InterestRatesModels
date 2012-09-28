@@ -24,17 +24,17 @@ namespace Pelsser
 {
     /// <summary>
     /// Dictionary Key for accessing <see cref="PelsserCache"/>,
-    /// which is optimized to memorize integrals parametrized by two dates.
+    /// which is optimized to memorize integrals parameterized by two dates.
     /// </summary>
     public struct PelsserKey
     {
         /// <summary>
-        /// The first date parameter which will act as index togheter with s.
+        /// The first date parameter which will act as index together with s.
         /// </summary>
         public double t;
 
         /// <summary>
-        /// The second date parameter which will act as index togheter with t.
+        /// The second date parameter which will act as index together with t.
         /// </summary>
         public double s;
 

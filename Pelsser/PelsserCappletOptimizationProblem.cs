@@ -140,7 +140,7 @@ namespace Pelsser.Calibration
         }
 
         /// <summary>
-        /// Creates a representation of the Pelssers constraints.
+        /// Creates a representation of the Pelsser constraints.
         /// </summary>
         /// <remarks>
         /// The method is static in order to be used by other classes.

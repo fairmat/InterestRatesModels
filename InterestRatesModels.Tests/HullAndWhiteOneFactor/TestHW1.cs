@@ -38,7 +38,7 @@ namespace HullAndWhiteOneFactor
         {
             TestCommon.TestInitialization.CommonInitialization();
         }
-        
+
         [Test]
         public void Test()
         {
@@ -109,6 +109,10 @@ namespace HullAndWhiteOneFactor
         }
     }
 
+    /// <summary>
+    /// Tests HW1 dynamics calculating a caplet price through simulation
+    /// and compares it with the price calculated through closed formula.
+    /// </summary>
     [TestFixture]
     public class TestHW1Caplet
     {
@@ -117,12 +121,10 @@ namespace HullAndWhiteOneFactor
         {
             TestCommon.TestInitialization.CommonInitialization();
         }
-        
+
         [Test]
         public void Test()
         {
-            // Tests HW1 dinamics calculating a caplet price through simulation
-            // and compares it with the price calculated through closed formula.
             Engine.MultiThread = true;
 
             Document doc = new Document();
@@ -184,13 +186,13 @@ namespace HullAndWhiteOneFactor
 
             OptionTree op = new OptionTree(rov);
 
-            // 1) FUNZIONE RATE, con questa il prezzo viene più alto di quello teorico
+            // 1) RATE FUNCTION, with this the price is higher than the theoretical one
             // op.PayoffInfo.PayoffExpression = "tau*max(rate(TT;tau;@v1) - strike; 0)";
-            // 2) RICAVO RATE DA bond = exp(-rate*t),
-            // con questa il prezzo viene più alto di quello teorico ma più vicino che 1)
+            // 2) OBTAIN RATE FROM bond = exp(-rate*t),
+            // with this the price is higher than the theoretical one but it's more near than 1)
             // op.PayoffInfo.PayoffExpression = "tau*max(-ln(bond(TT;TT+tau;@v1))/tau - strike; 0)";
-            // 3) CONVERTO RATE da discreto a continuo tramite (1+r_d) = exp(r_c)
-            // con questa il prezzo viene in accordo con quello teorico
+            // 3) CONVERT RATE from discrete to continuous through (1+r_d) = exp(r_c)
+            // In this way the price is the same as the theoretical one.
             op.PayoffInfo.PayoffExpression = "tau*max(ln(1+rate(TT;tau;@v1)) - strike; 0)";
 
             op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)MaturityOpt;
@@ -225,7 +227,7 @@ namespace HullAndWhiteOneFactor
             Console.WriteLine("Standard Deviation = " + SampleDevSt.ToString());
             double tol = 4.0 * SampleDevSt;
 
-            Assert.Less(Math.Abs(ThPrice - SamplePrice),tol);
+            Assert.Less(Math.Abs(ThPrice - SamplePrice), tol);
         }
     }
 
@@ -237,12 +239,12 @@ namespace HullAndWhiteOneFactor
         {
             TestCommon.TestInitialization.CommonInitialization();
         }
-        
+
         [Test]
         public void Test()
         {
             // Tests HW1 dynamics comparing the price of a call option on a bond
-            // calculated through simulation and the theorethical one.
+            // calculated through simulation and the theoretical one.
             Engine.MultiThread = true;
             Document doc = new Document();
             ProjectROV rov = new ProjectROV(doc);
@@ -295,7 +297,7 @@ namespace HullAndWhiteOneFactor
             StochasticProcessExtendible s = new StochasticProcessExtendible(rov, process);
             rov.Processes.AddProcess(s);
 
-            // discounting
+            // Set the discounting.
             RiskFreeInfo rfi = rov.GetDiscountingModel() as RiskFreeInfo;
             rfi.ActualizationType = EActualizationType.Stochastic;
             rfi.m_deterministicRF = (ModelParameter)"@V1";

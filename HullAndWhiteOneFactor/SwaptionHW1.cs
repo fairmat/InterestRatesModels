@@ -182,6 +182,7 @@ namespace HullAndWhiteOneFactor
             this.t = T;
             this.T = s;
             this.L = l;
+
             //Finds the short rate r* which normalize bonds (see Brigo and Mercurio pg 77)
             SolutionInfo sol = Fairmat.Optimization.Helper.FSolve(new ObjFunction(Func), (Vector)new double[1] { 0.01 },
                 (Vector)new double[1] { -1.0 }, (Vector)new double[1] { 1.0 }, options);

@@ -29,7 +29,7 @@ using Pelsser;
 namespace Pelsser.Calibration
 {
     /// <summary>
-    /// Caplet prices using pelsser g s model.
+    /// Caplet prices using Pelsser Squared Gaussian model.
     /// </summary>
     public class Caplet
     {

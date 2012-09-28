@@ -25,7 +25,7 @@ using ParallelVectors;
 namespace Pelsser
 {
     /// <summary>
-    /// Implementation of the Pelsser's squared gaussian model for interest rates.
+    /// Implementation of the Pelsser's Squared Gaussian model for interest rates.
     /// </summary>
     [Serializable]
     public class SquaredGaussianModel : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
@@ -607,7 +607,7 @@ namespace Pelsser
         /// <summary>
         /// Calculates the instantaneous forward.
         /// </summary>
-        /// <param name="t">The time where to calculate the instaneous forward.</param>
+        /// <param name="t">The time where to calculate the instantaneous forward.</param>
         /// <param name="dt">
         /// The delta of time to consider to calculate the instantaneous forward.
         /// </param>

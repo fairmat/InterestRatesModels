@@ -280,7 +280,7 @@ namespace HullAndWhiteOneFactor
         }
 
         /// <summary>
-        /// Gets a value indicating whether a markov based simulation is implemented, in this
+        /// Gets a value indicating whether a Markov based simulation is implemented, in this
         /// case it does so it always returns true.
         /// </summary>
         public bool ImplementsMarkovBasedSimulation
@@ -421,7 +421,7 @@ namespace HullAndWhiteOneFactor
         }
 
         /// <summary>
-        /// This function defines the volatility in the HW markov process.
+        /// This function defines the volatility in the HW Markov process.
         /// The formula to calculate the B component is
         /// B = sigma.
         /// </summary>
