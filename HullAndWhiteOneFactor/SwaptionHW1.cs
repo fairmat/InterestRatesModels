@@ -158,7 +158,7 @@ namespace HullAndWhiteOneFactor
         /// The Notional.
         /// </param>
         /// <param name='k'>
-        /// The Strike (usually the forward swap rate)
+        /// The Strike (usually the forward swap rate).
         /// </param>
         /// <param name='T'>
         /// The maturity.
@@ -176,14 +176,14 @@ namespace HullAndWhiteOneFactor
 
             this.dt = s[0] - T;
             this.CF = k * l * this.dt + (new Vector(s.Length));
-            this.CF[s.Length - 1]+=l; 
+            this.CF[s.Length - 1] += l;
             this.a = a;
             this.sigma = sigma;
             this.t = T;
             this.T = s;
             this.L = l;
 
-            //Finds the short rate r* which normalize bonds (see Brigo and Mercurio pg 77)
+            // Finds the short rate r* which normalize bonds (see Brigo and Mercurio pg 77).
             SolutionInfo sol = Fairmat.Optimization.Helper.FSolve(new ObjFunction(Func), (Vector)new double[1] { 0.01 },
                 (Vector)new double[1] { -1.0 }, (Vector)new double[1] { 1.0 }, options);
             double RK = (double)sol.x;

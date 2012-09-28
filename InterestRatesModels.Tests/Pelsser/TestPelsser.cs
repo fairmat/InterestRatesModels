@@ -85,7 +85,6 @@ namespace Pelsser
                 Console.WriteLine(rov.m_RuntimeErrorList[0]);
             }
 
-
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
@@ -115,12 +114,10 @@ namespace Pelsser
         /// <returns>The Matrix to pass to Bond.</returns>
         private Matrix DynamicParam(double y, SquaredGaussianModel process)
         {
-
             double alphaT = process.F(process.CacheDates[0], process.CacheDates[1] - process.CacheDates[0]) +
                                 2 * Math.Exp(-process.a1.V() * process.CacheDates[0]) * process.Int(0, process.CacheDates[0]);
             return new Matrix(new double[] { Math.Pow(y + alphaT, 2) });
         }
-
     }
 
     [TestFixture]
@@ -136,16 +133,17 @@ namespace Pelsser
         public void Test()
         {
             // Comparison with the benchmark of the expected value of P(1,2)
-            double MCPrice, MCDevST;
-            PelsserBond.Calculate(1.0, 2.0, 2.0, 100000, 200, out MCPrice, out MCDevST);
+            double mcPrice;
+            double mcDevST;
+            PelsserBond.Calculate(1.0, 2.0, 2.0, 100000, 200, out mcPrice, out mcDevST);
 
             // The benchmark value with 35000 paths
-            double RightValue = 0.95121;
-            Console.WriteLine("Benchmark  Bond = " + RightValue);
-            Console.WriteLine("Fairmat Bond = " + MCPrice);
-            Console.WriteLine("Standard Deviation = " + MCDevST);
-            double tol = 5.0 * MCDevST;
-            Assert.Less(Math.Abs(RightValue - MCPrice), tol);
+            double theoreticalValue = 0.95121;
+            Console.WriteLine("Benchmark  Bond = " + theoreticalValue);
+            Console.WriteLine("Fairmat Bond = " + mcPrice);
+            Console.WriteLine("Standard Deviation = " + mcDevST);
+            double tol = 5.0 * mcDevST;
+            Assert.Less(Math.Abs(theoreticalValue - mcPrice), tol);
         }
     }
 
@@ -162,16 +160,17 @@ namespace Pelsser
         public void Test()
         {
             // Comparison with the benchmark of the expected value of  P(5,6)
-            double MCPrice, MCDevST;
-            PelsserBond.Calculate(5.0, 6.0, 6.0, 100000, 200, out MCPrice, out MCDevST);
+            double mcPrice;
+            double mcDevST;
+            PelsserBond.Calculate(5.0, 6.0, 6.0, 100000, 200, out mcPrice, out mcDevST);
 
             // The benchmark value with 35000 paths
-            double RightValue = 0.95109;
-            Console.WriteLine("Benchmark  Bond = " + RightValue);
-            Console.WriteLine("Fairmat Bond = " + MCPrice);
-            Console.WriteLine("Standard Deviation = " + MCDevST);
-            double tol = 5.0 * MCDevST;
-            Assert.Less(Math.Abs(RightValue - MCPrice), tol);
+            double theoreticalValue = 0.95109;
+            Console.WriteLine("Benchmark  Bond = " + theoreticalValue);
+            Console.WriteLine("Fairmat Bond = " + mcPrice);
+            Console.WriteLine("Standard Deviation = " + mcDevST);
+            double tol = 5.0 * mcDevST;
+            Assert.Less(Math.Abs(theoreticalValue - mcPrice), tol);
         }
     }
 
@@ -188,25 +187,25 @@ namespace Pelsser
         public void Test()
         {
             // Try several different simulation dates with the same bound.
-            double MCDevST;
-            int NProve = 21;
+            double mcDevST;
+            int numTries = 21;
             double min, max, val;
             min = 0.0;
             max = 2.0;
-            Vector VecTime = Vector.Linspace(min, max, NProve);
-            Vector VecPrice = new Vector(NProve);
-            for (int j = 0; j < NProve; j++)
+            Vector timeVector = Vector.Linspace(min, max, numTries);
+            Vector priceVector = new Vector(numTries);
+            for (int j = 0; j < numTries; j++)
             {
-                PelsserBond.Calculate(0.0, 1.0, VecTime[j], 10000, 100, out val, out MCDevST);
-                VecPrice[j] = val;
+                PelsserBond.Calculate(0.0, 1.0, timeVector[j], 10000, 100, out val, out mcDevST);
+                priceVector[j] = val;
             }
 
             // The benchmark value with 35000 paths
-            double RightValue = 0.95121;
-            Console.WriteLine("Benchmark  Bond = " + RightValue);
+            double theoreticalValue = 0.95121;
+            Console.WriteLine("Benchmark  Bond = " + theoreticalValue);
             Console.WriteLine("Fairmat Bond = ");
-            for (int j = 0; j < NProve; j++)
-                Console.WriteLine("Simulation Time = " + VecTime[j] + "\t Bond Price = " + VecPrice[j]);
+            for (int j = 0; j < numTries; j++)
+                Console.WriteLine("Simulation Time = " + timeVector[j] + "\t Bond Price = " + priceVector[j]);
         }
     }
 
@@ -231,15 +230,15 @@ namespace Pelsser
         protected bool Run(double h)
         {
             // Try several different simulation dates with the same bond.
-            double MCDevST;
+            double mcDevST;
             double val;
-            PelsserBond.Calculate(0.0, 1.0, h, 10000, 100, out val, out MCDevST);
+            PelsserBond.Calculate(0.0, 1.0, h, 10000, 100, out val, out mcDevST);
 
-            double RightValue = 0.951228651454765;
+            double theoreticalValue = 0.951228651454765;
 
-            double diff = RightValue - val;
+            double diff = theoreticalValue - val;
             Console.WriteLine("Simulation horizon\t" + h);
-            Console.WriteLine("Diff:\t" + (100 * diff / RightValue) + "%");
+            Console.WriteLine("Diff:\t" + (100 * diff / theoreticalValue) + "%");
             if (Math.Abs(diff) > 10e-6)
                 return false;
             return true;
@@ -274,9 +273,8 @@ namespace Pelsser
 
     public class PelsserBond
     {
-        public static void Calculate(double t1, double t2, double SimEnd, int NSim, int NSteps, out double Val, out double StDev)
+        public static void Calculate(double t1, double t2, double simEnd, int numSim, int numSteps, out double val, out double stDev)
         {
-
             Engine.MultiThread = true;
 
             Document doc = new Document();
@@ -291,8 +289,8 @@ namespace Pelsser
             rov.Symbols.Add(zerorate);
 
             // To be changed to 350000.
-            int n_sim = NSim;
-            int n_steps = NSteps;
+            int n_sim = numSim;
+            int n_steps = numSteps;
             SquaredGaussianModel process = new SquaredGaussianModel();
             process.a1 = (ModelParameter)0.1;
             process.sigma1 = (ModelParameter)0.01;
@@ -308,7 +306,9 @@ namespace Pelsser
 
             OptionTree op = new OptionTree(rov);
             op.PayoffInfo.PayoffExpression = "bond(" + t1.ToString() + ";" + t2.ToString() + ";@v1)";
-            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)SimEnd;//Here put the simulation maturity
+
+            // Here we put the simulation maturity.
+            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)simEnd;
             op.PayoffInfo.European = true;
             rov.Map.Root = op;
 
@@ -326,8 +326,8 @@ namespace Pelsser
             }
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            Val = price.m_Value;
-            StDev = price.m_StdErr / Math.Sqrt((double)NSim);
+            val = price.m_Value;
+            stDev = price.m_StdErr / Math.Sqrt((double)numSim);
         }
     }
 }

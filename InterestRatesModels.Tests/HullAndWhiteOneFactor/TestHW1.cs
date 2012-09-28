@@ -139,12 +139,12 @@ namespace HullAndWhiteOneFactor
             double r0 = 0.015;
             double a1 = 0.02;
             double sigma1 = 0.01;
-            double MaturityOpt = 5.0;
+            double maturityOpt = 5.0;
             double strike = 0.005;
             double tau = 0.5;
             double strike2 = 1.0 / (1.0 + strike * tau);
 
-            ModelParameter PT = new ModelParameter(MaturityOpt, "TT");
+            ModelParameter PT = new ModelParameter(maturityOpt, "TT");
             PT.VarName = "TT";
             rov.Symbols.Add(PT);
 
@@ -195,7 +195,7 @@ namespace HullAndWhiteOneFactor
             // In this way the price is the same as the theoretical one.
             op.PayoffInfo.PayoffExpression = "tau*max(ln(1+rate(TT;tau;@v1)) - strike; 0)";
 
-            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)MaturityOpt;
+            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)maturityOpt;
             op.PayoffInfo.European = true;
             rov.Map.Root = op;
 
@@ -215,19 +215,20 @@ namespace HullAndWhiteOneFactor
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double SamplePrice = price.m_Value;
+            double samplePrice = price.m_Value;
 
-            double SampleDevSt = price.m_StdErr / Math.Sqrt(2.0 * (double)n_sim);
+            double sampleDevSt = price.m_StdErr / Math.Sqrt(2.0 * (double)n_sim);
 
-            // calculation of the theoretical value of the cap
+            // Calculation of the theoretical value of the caplet.
             CapHW1 cap = new CapHW1(zerorate);
-            double ThPrice = cap.HWCaplet(a1, sigma1, MaturityOpt, MaturityOpt + tau, strike2);
-            Console.WriteLine("Theoretical Price = " + ThPrice.ToString());
-            Console.WriteLine("Monte Carlo Price = " + SamplePrice);
-            Console.WriteLine("Standard Deviation = " + SampleDevSt.ToString());
-            double tol = 4.0 * SampleDevSt;
+            double theoreticalPrice = cap.HWCaplet(a1, sigma1, maturityOpt,
+                                                   maturityOpt + tau, strike2);
+            Console.WriteLine("Theoretical Price = " + theoreticalPrice.ToString());
+            Console.WriteLine("Monte Carlo Price = " + samplePrice);
+            Console.WriteLine("Standard Deviation = " + sampleDevSt.ToString());
+            double tol = 4.0 * sampleDevSt;
 
-            Assert.Less(Math.Abs(ThPrice - SamplePrice), tol);
+            Assert.Less(Math.Abs(theoreticalPrice - samplePrice), tol);
         }
     }
 
@@ -258,11 +259,11 @@ namespace HullAndWhiteOneFactor
             double r0 = 0.015;
             double a1 = 0.02;
             double sigma1 = 0.01;
-            double MaturityOpt = 5.0;
+            double maturityOpt = 5.0;
             double strike = 0.98192;
             double tau = 1.0;
 
-            ModelParameter PT = new ModelParameter(MaturityOpt, "TT");
+            ModelParameter PT = new ModelParameter(maturityOpt, "TT");
             PT.VarName = "TT";
             rov.Symbols.Add(PT);
 
@@ -305,7 +306,7 @@ namespace HullAndWhiteOneFactor
             OptionTree op = new OptionTree(rov);
             op.PayoffInfo.PayoffExpression = "Max(bond(TT;TT+tau;@v1)-strike;0)";
 
-            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)MaturityOpt;
+            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)maturityOpt;
             op.PayoffInfo.European = true;
             rov.Map.Root = op;
 
@@ -325,24 +326,23 @@ namespace HullAndWhiteOneFactor
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double SamplePrice = price.m_Value;
+            double samplePrice = price.m_Value;
 
-            double SampleDevSt = price.m_StdErr / Math.Sqrt((double)n_sim);
+            double sampleDevSt = price.m_StdErr / Math.Sqrt((double)n_sim);
 
             // Calculation of the theoretical value of the call.
             CapHW1 cap = new CapHW1(zerorate);
 
-            double d1 = cap.D1(a1, sigma1, MaturityOpt, MaturityOpt + tau, strike);
-            double d2 = cap.D2(a1, sigma1, MaturityOpt, MaturityOpt + tau, strike);
-            double ThPrice = ZCB(zerorate, MaturityOpt + tau) * SpecialFunctions.NormCdf(d1) - strike * ZCB(zerorate, MaturityOpt) * SpecialFunctions.NormCdf(d2);
+            double d1 = cap.D1(a1, sigma1, maturityOpt, maturityOpt + tau, strike);
+            double d2 = cap.D2(a1, sigma1, maturityOpt, maturityOpt + tau, strike);
+            double theoreticalPrice = ZCB(zerorate, maturityOpt + tau) * SpecialFunctions.NormCdf(d1) - strike * ZCB(zerorate, maturityOpt) * SpecialFunctions.NormCdf(d2);
 
-            Console.WriteLine("Theoretical Price = " + ThPrice.ToString());
-            Console.WriteLine("Monte Carlo Price = " + SamplePrice);
-            Console.WriteLine("Standard Deviation = " + SampleDevSt.ToString());
-            double tol = 4.0 * SampleDevSt;
+            Console.WriteLine("Theoretical Price = " + theoreticalPrice.ToString());
+            Console.WriteLine("Monte Carlo Price = " + samplePrice);
+            Console.WriteLine("Standard Deviation = " + sampleDevSt.ToString());
+            double tol = 4.0 * sampleDevSt;
 
-
-            Assert.Less(Math.Abs(ThPrice - SamplePrice), tol);
+            Assert.Less(Math.Abs(theoreticalPrice - samplePrice), tol);
         }
 
         private double ZCB(AFunction zr, double t)

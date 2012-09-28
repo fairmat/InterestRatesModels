@@ -54,13 +54,13 @@ namespace Pelsser.Calibration
             rov.Symbols.Add(zerorate);
 
             int n_sim = 4000;
-            double MaturityOpt = 6.5;
+            double maturityOpt = 6.5;
 
-            // Simulation steps for a year. With StepPerYear = 150 the test will be passed.
+            // Simulation steps for a year. With stepPerYear = 150 the test will be passed.
             // But notice that the price calculated through Monte Carlo is unstable when
             // changing this value, even till 1000 steps per year.
-            int StepsPerYear = 150;
-            int n_steps = StepsPerYear * ((int)MaturityOpt);
+            int stepsPerYear = 150;
+            int n_steps = stepsPerYear * ((int)maturityOpt);
             double strike = 0.01;
             double tau = 0.5;
 
@@ -72,7 +72,7 @@ namespace Pelsser.Calibration
             StochasticProcessExtendible s = new StochasticProcessExtendible(rov, process);
             rov.Processes.AddProcess(s);
 
-            ModelParameter PT = new ModelParameter(MaturityOpt, "TT");
+            ModelParameter PT = new ModelParameter(maturityOpt, "TT");
             PT.VarName = "TT";
             rov.Symbols.Add(PT);
 
@@ -92,7 +92,7 @@ namespace Pelsser.Calibration
             // Set the payoff.
             OptionTree op = new OptionTree(rov);
             op.PayoffInfo.PayoffExpression = "tau*max(rate(TT;tau;@v1) - strike; 0)";
-            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)(MaturityOpt + tau);
+            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)(maturityOpt + tau);
             op.PayoffInfo.European = true;
             rov.Map.Root = op;
 
@@ -112,15 +112,17 @@ namespace Pelsser.Calibration
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double MCPrice = price.m_Value;
-            double MCDevST = price.m_StdErr / Math.Sqrt((double)n_sim);
+            double mcPrice = price.m_Value;
+            double mcDevST = price.m_StdErr / Math.Sqrt((double)n_sim);
 
             Caplet cplt = new Caplet();
-            Vector Mat, fwd, Rk, CapMatV;
-            double delta_k, CapMat;
+            Vector Mat, fwd, Rk;
+            Vector capMatV;
+            double delta_k;
+            double capMat;
             delta_k = 0.5;
-            CapMat = MaturityOpt + tau;
-            int nmat = 2 * ((int)CapMat) + 1;
+            capMat = maturityOpt + tau;
+            int nmat = 2 * ((int)capMat) + 1;
             Mat = new Vector(nmat);
             fwd = new Vector(nmat);
             Mat[0] = 0;
@@ -134,19 +136,19 @@ namespace Pelsser.Calibration
             fwd = fwd / tau;
             Rk = new Vector(1);
             Rk[0] = strike;
-            CapMatV = new Vector(2);
-            CapMatV[0] = MaturityOpt;
-            CapMatV[1] = MaturityOpt + tau;
-            Matrix Cap = cplt.PGSMCaplets(process, Mat, fwd, Rk, delta_k, CapMatV);
+            capMatV = new Vector(2);
+            capMatV[0] = maturityOpt;
+            capMatV[1] = maturityOpt + tau;
+            Matrix caplet = cplt.PGSMCaplets(process, Mat, fwd, Rk, delta_k, capMatV);
 
-            double ThPrice = Cap[1, 0] - Cap[0, 0];
+            double theoreticalPrice = caplet[1, 0] - caplet[0, 0];
 
-            Console.WriteLine("\nTheoretical Price = " + ThPrice.ToString());
-            Console.WriteLine("Monte Carlo Price = " + MCPrice);
-            Console.WriteLine("Standard Deviation = " + MCDevST);
+            Console.WriteLine("\nTheoretical Price = " + theoreticalPrice.ToString());
+            Console.WriteLine("Monte Carlo Price = " + mcPrice);
+            Console.WriteLine("Standard Deviation = " + mcDevST);
 
-            double tol = 4.0 * MCDevST;
-            Assert.Less(Math.Abs(ThPrice - MCPrice), tol);
+            double tol = 4.0 * mcDevST;
+            Assert.Less(Math.Abs(theoreticalPrice - mcPrice), tol);
         }
     }
 }

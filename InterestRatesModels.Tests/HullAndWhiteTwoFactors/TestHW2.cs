@@ -58,11 +58,11 @@ namespace HullAndWhiteTwoFactors
             double a2 = 0.1;
             double sigma2 = 0.0165;
             double correlation = 0.6;
-            double MaturityOpt = 5.0;
+            double maturityOpt = 5.0;
             double strike = 0.927;
             double tau = 2.0;
 
-            ModelParameter PT = new ModelParameter(MaturityOpt, "TT");
+            ModelParameter PT = new ModelParameter(maturityOpt, "TT");
             PT.VarName = "TT";
             rov.Symbols.Add(PT);
 
@@ -120,7 +120,7 @@ namespace HullAndWhiteTwoFactors
 
             OptionTree op = new OptionTree(rov);
             op.PayoffInfo.PayoffExpression = "max(bond(TT;TT+tau;@v1)-strike;0)";
-            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)MaturityOpt;
+            op.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)maturityOpt;
             op.PayoffInfo.European = true;
             rov.Map.Root = op;
 
@@ -140,38 +140,39 @@ namespace HullAndWhiteTwoFactors
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double SampleMean = price.m_Value;
-            double SampleDevSt = price.m_StdErr / Math.Sqrt((double)n_sim);
-            double ThPrice = HW2BondCall(zerorate, MaturityOpt, MaturityOpt + tau, strike, a1, sigma1, a2, sigma2, correlation);
+            double sampleMean = price.m_Value;
+            double sampleDevSt = price.m_StdErr / Math.Sqrt((double)n_sim);
+            double theoreticalPrice = HW2BondCall(zerorate, maturityOpt, maturityOpt + tau, strike,
+                                                  a1, sigma1, a2, sigma2, correlation);
 
-            Console.WriteLine("\nTheoretical Price = " + ThPrice.ToString());
-            Console.WriteLine("Monte Carlo Price = " + SampleMean.ToString());
-            Console.WriteLine("Standard Deviation = " + SampleDevSt.ToString());
+            Console.WriteLine("\nTheoretical Price = " + theoreticalPrice.ToString());
+            Console.WriteLine("Monte Carlo Price = " + sampleMean.ToString());
+            Console.WriteLine("Standard Deviation = " + sampleDevSt.ToString());
 
             bool result;
             double fact = 4.0;
-            result = (Math.Abs(SampleMean - ThPrice) < fact * SampleDevSt);
+            result = (Math.Abs(sampleMean - theoreticalPrice) < fact * sampleDevSt);
 
             Assert.IsTrue(result);
         }
 
         private double HW2BondCall(AFunction zr, double t, double s, double K, double a, double sigma1, double b, double sigma2, double rho)
         {
-            double a1 = SpecialFunctions.NormCdf(d1(zr, a, sigma1, b, sigma2, rho, t, s, K));
-            double a2 = SpecialFunctions.NormCdf(d2(zr, a, sigma1, b, sigma2, rho, t, s, K));
+            double a1 = SpecialFunctions.NormCdf(D1(zr, a, sigma1, b, sigma2, rho, t, s, K));
+            double a2 = SpecialFunctions.NormCdf(D2(zr, a, sigma1, b, sigma2, rho, t, s, K));
             return ZCB(zr, s) * a1 - K * ZCB(zr, t) * a2;
         }
 
-        private double d1(AFunction zr, double a, double sigma1, double b, double sigma2, double rho, double t, double s, double K)
+        private double D1(AFunction zr, double a, double sigma1, double b, double sigma2, double rho, double t, double s, double K)
         {
             double sp = SigmaP2(a, sigma1, b, sigma2, rho, t, s);
             return (Math.Log(ZCB(zr, s) / (ZCB(zr, t) * K)) / sp + sp / 2.0);
         }
 
-        private double d2(AFunction zr, double a, double sigma1, double b, double sigma2, double rho, double t, double s, double K)
+        private double D2(AFunction zr, double a, double sigma1, double b, double sigma2, double rho, double t, double s, double K)
         {
             double sp = SigmaP2(a, sigma1, b, sigma2, rho, t, s);
-            return (d1(zr, a, sigma1, b, sigma2, rho, t, s, K) - sp);
+            return (D1(zr, a, sigma1, b, sigma2, rho, t, s, K) - sp);
         }
 
         private double SigmaP(double a, double sigma1, double b, double sigma2, double rho, double t, double s)
@@ -179,27 +180,27 @@ namespace HullAndWhiteTwoFactors
             // This is calculated by following the Technical note number 14 by
             // J.Hull "Options, futures and other derivatives"
             // note: there is some error, it gives negative values for sigma squared.
-            double SigmaSquared, U, V, term1, term2, term3;
+            double sigmaSquared, U, V, term1, term2, term3;
             U = (Math.Exp(-a * s) - Math.Exp(-a * t)) / (a * (a - b));
             V = (Math.Exp(-b * s) - Math.Exp(-b * t)) / (b * (a - b));
             term1 = sigma1 * sigma1 * Math.Pow(B(s - t, a), 2.0) * (1.0 - Math.Exp(-2.0 * a * t)) / (2.0 * a);
             term2 = sigma2 * sigma2 * (U * U * (Math.Exp(2.0 * a * t) - 1.0) / (2.0 * a) + V * V * (Math.Exp(2.0 * b * t) - 1.0) / (2.0 * b) - 2.0 * U * V * (Math.Exp(2.0 * (a + b) * t) - 1.0) / (a + b));
             term3 = 2.0 * rho * sigma1 * sigma2 * (Math.Exp(-a * t) - Math.Exp(-a * s)) * (U * (Math.Exp(2.0 * a * t) - 1.0) / (2.0 * a) - V * (Math.Exp((a + b) * t) - 1.0) / (a + b)) / a;
-            SigmaSquared = term1 + term2 + term3;
-            return Math.Sqrt(SigmaSquared);
+            sigmaSquared = term1 + term2 + term3;
+            return Math.Sqrt(sigmaSquared);
         }
 
         private double SigmaP2(double a, double sigma1, double b, double sigma2, double rho, double t, double s)
         {
             // This is calculated by following formula 4.2 of Brigo-Mercurio "Interest rate models"
-            double SigmaSquared, sigma3, sigma4, term1, term2, term3;
+            double sigmaSquared, sigma3, sigma4, term1, term2, term3;
             sigma3 = Math.Sqrt(sigma1 * sigma1 + sigma2 * sigma2 / Math.Pow(a - b, 2.0) + 2.0 * rho * sigma1 * sigma2 / (b - a));
             sigma4 = sigma2 / (a - b);
             term1 = sigma3 * sigma3 * Math.Pow(1.0 - Math.Exp(-a * (s - t)), 2.0) * (1.0 - Math.Exp(-2.0 * a * t)) / (2 * a * a * a);
             term2 = sigma2 * sigma2 * Math.Pow(1.0 - Math.Exp(-b * (s - t)), 2.0) * (1.0 - Math.Exp(-2.0 * b * t)) / (2.0 * b * b * b * (a - b) * (a - b));
             term3 = 2.0 * (sigma1 * rho - sigma4) * sigma4 * (1.0 - Math.Exp(-a * (s - t))) * (1.0 - Math.Exp(-b * (s - t))) * (1.0 - Math.Exp(-(a + b) * t)) / (a * b * (a + b));
-            SigmaSquared = term1 + term2 + term3;
-            return Math.Sqrt(SigmaSquared);
+            sigmaSquared = term1 + term2 + term3;
+            return Math.Sqrt(sigmaSquared);
         }
 
         private double B(double t, double a)
