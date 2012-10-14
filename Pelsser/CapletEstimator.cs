@@ -33,7 +33,7 @@ namespace Pelsser.Calibration
     /// Implementation of Pelsser Calibration against caps matrices.
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class CapletEstimator : IEstimator
+    public class CapletEstimator : IEstimator, IDescription
     {
         #region IEstimator Members
 
@@ -183,5 +183,10 @@ namespace Pelsser.Calibration
         }
 
         #endregion
+
+        public string Description
+        {
+            get { return "Calibrate against Caplet prices"; }
+        }
     }
 }
