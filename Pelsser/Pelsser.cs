@@ -376,6 +376,12 @@ namespace Pelsser
                     dt = dates[i + 1] - current;
                 INT += Int(dates[i - 1], current);
 
+                if (double.IsNaN(INT))
+                {
+                    throw new Exception(string.Format("Pelsser model: error while initializing: a={0} s={1}, Int({2},{3})",
+                                                      this.alpha1Temp, this.sigma1Temp, dates[i - 1], current));
+                }
+
                 this.alphaT[i] = F(current, dt) + 2 * Math.Exp(-this.alpha1Temp * current) * INT;
                 this.cDeltaT[i] = C(current);
                 this.dDeltaT[i] = D(current);
@@ -383,11 +389,7 @@ namespace Pelsser
 
             DateTime t1 = DateTime.Now;
 
-            if (double.IsNaN(INT))
-            {
-                throw new Exception(string.Format("Pelsser model: error while initializing: a={0} s={1}, M={2}",
-                                                  this.alpha1Temp, this.sigma1Temp, dates[dates.Length - 1]));
-            }
+           
 
             DateTime t2 = DateTime.Now;
         }
@@ -641,13 +643,14 @@ namespace Pelsser
         }
 
         /// <summary>
-        /// Calculates the sigma function(t, T) of the model.
+        /// Represents the variance  of the model.
         /// </summary>
         /// <param name="deltaT">The delta between T and t.</param>
         /// <returns>The result of the sigma function of the model.</returns>
         protected double SIG(double deltaT)
         {
             return this.sigma1Temp * this.sigma1Temp * C(deltaT);
+            //return this.sigma1Temp*this.sigma1Temp/(2*this.alpha1Temp)*(1-Math.Exp(-2*this.alpha1Temp*deltaT));
         }
 
         /// <summary>

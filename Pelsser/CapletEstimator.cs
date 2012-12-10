@@ -112,6 +112,8 @@ namespace Pelsser.Calibration
 
             if (blackCaps.IsNAN())
             {
+                Console.WriteLine("Black caps matrix has non real values:");
+                Console.WriteLine(blackCaps);
                 throw new Exception("Cannot calculate Black caps");
             }
 
