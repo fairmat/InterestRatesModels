@@ -30,7 +30,7 @@ namespace HullAndWhiteOneFactor
     /// Implementation of HW1 Calibration against caps matrices.
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class CapsHWEstimator : IEstimator, IMenuItemDescription
+    public class CapsHWEstimator : IEstimator, IMenuItemDescription,IEstimatorEx2
     {
         /// <summary>
         /// Gets the tooltip for the implemented calibration function.
@@ -80,14 +80,20 @@ namespace HullAndWhiteOneFactor
             return new Type[] { typeof(InterestRateMarketData) };
         }
 
+        public EstimationResult Estimate(List<object> data, IEstimationSettings settings)
+        {
+            return Estimate(data, settings, null);
+        }
+
         /// <summary>
         /// Attempts a calibration through <see cref="CapsHW1OptimizationProblem"/>
         /// using caps matrices.
         /// </summary>
         /// <param name="data">The data to be used in order to perform the calibration.</param>
         /// <param name="settings">The parameter is not used.</param>
+        /// <param name="controller">The controller which may be used to cancel the process.</param>
         /// <returns>The results of the calibration.</returns>
-        public EstimationResult Estimate(List<object> data, IEstimationSettings settings)
+        public EstimationResult Estimate(List<object> data, IEstimationSettings settings, IController controller = null)
         {
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
 
@@ -163,8 +169,11 @@ namespace HullAndWhiteOneFactor
             o.epsilon = 10e-8;
             o.h = 10e-8;
             o.MaxIter = 1000;
+            o.controller = controller;
 
             solution = solver2.Minimize(problem, o, x0);
+            if (solution.errors)
+                return new EstimationResult(solution.message);
             Console.WriteLine("Solution:");
             Console.WriteLine(solution);
             string[] names = new string[] { "Alpha", "Sigma" };
@@ -177,5 +186,7 @@ namespace HullAndWhiteOneFactor
         }
 
         #endregion
+
+        
     }
 }

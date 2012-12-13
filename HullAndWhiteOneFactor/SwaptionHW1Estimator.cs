@@ -30,7 +30,7 @@ namespace HullAndWhiteOneFactor
     /// Implementation of HW1 Calibration (swaption matrix based).
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class SwaptionHWEstimator : IEstimator, IMenuItemDescription
+    public class SwaptionHWEstimator : IEstimator,IEstimatorEx2,IMenuItemDescription
     {
         /// <summary>
         /// Gets the tooltip for the implemented calibration function.
@@ -80,14 +80,20 @@ namespace HullAndWhiteOneFactor
             return new Type[] { typeof(InterestRateMarketData) };
         }
 
+
+        public EstimationResult Estimate(List<object> data, IEstimationSettings settings)
+        {
+            return Estimate(data, settings, null);
+        }
         /// <summary>
         /// Attempts a calibration through <see cref="SwaptionHW1OptimizationProblem"/>
         /// using swaption matrices.
         /// </summary>
         /// <param name="data">The data to be used in order to perform the calibration.</param>
         /// <param name="settings">The parameter is not used.</param>
+        /// <param name="controller">The controller which may be used to cancel the process.</param>
         /// <returns>The results of the calibration.</returns>
-        public EstimationResult Estimate(List<object> data, IEstimationSettings settings)
+        public EstimationResult Estimate(List<object> data, IEstimationSettings settings, IController controller = null)
         {
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
 
@@ -129,10 +135,13 @@ namespace HullAndWhiteOneFactor
             o.NP = 25;
             o.MaxIter = 10;
             o.Verbosity = 1;
+            o.controller = controller;
             SolutionInfo solution = null;
 
             Vector x0 = new Vector(new double[] { 0.1, 0.1 });
             solution = solver.Minimize(problem, o, x0);
+            if (solution.errors)
+                return new EstimationResult(solution.message);
 
             o.epsilon = 10e-8;
             o.h = 10e-8;
@@ -145,7 +154,8 @@ namespace HullAndWhiteOneFactor
                 solution = solver2.Minimize(problem, o, solution.x);
             else
                 solution = solver2.Minimize(problem, o, x0);
-
+            if (solution.errors)
+                return new EstimationResult(solution.message);
             Console.WriteLine("Solution:");
             Console.WriteLine(solution);
             string[] names = new string[] { "Alpha", "Sigma" };

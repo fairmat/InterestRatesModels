@@ -107,7 +107,7 @@ namespace Pelsser.Calibration
                 bounds.Lb = new DVPLI.Vector(2);
                 bounds.Ub = new DVPLI.Vector(2);
 
-                bounds.Lb[0] = -1;
+                bounds.Lb[0] = 1e-8;
                 bounds.Lb[1] = 1e-6;
 
                 bounds.Ub[0] = 1;

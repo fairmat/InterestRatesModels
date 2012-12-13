@@ -33,7 +33,7 @@ namespace Pelsser.Calibration
     /// Implementation of Pelsser Calibration against caps matrices.
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class CapletEstimator : IEstimator, IDescription
+    public class CapletEstimator : IEstimator,IEstimatorEx2, IDescription
     {
         #region IEstimator Members
 
@@ -61,14 +61,20 @@ namespace Pelsser.Calibration
            return new Type[] { typeof(InterestRateMarketData) };
         }
 
+        public EstimationResult Estimate(List<object> data, IEstimationSettings settings)
+        {
+            return Estimate(data, settings, null);
+        }
+
         /// <summary>
         /// Attempts a calibration through <see cref="PelsserCappletOptimizationProblem"/>
         /// using caps matrices.
         /// </summary>
         /// <param name="data">The data to be used in order to perform the calibration.</param>
         /// <param name="settings">The parameter is not used.</param>
+        /// <param name="controller">The controller which may be used to cancel the process.</param>
         /// <returns>The results of the calibration.</returns>
-        public EstimationResult Estimate(List<object> data, IEstimationSettings settings)
+        public EstimationResult Estimate(List<object> data, IEstimationSettings settings,IController controller=null)
         {
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
             EstimationResult result;
@@ -151,7 +157,7 @@ namespace Pelsser.Calibration
             o.TargetCost = 0.05;
             o.MaxIter = 10;
             o.Verbosity = Math.Max(1, Engine.Verbose);
-
+            o.controller = controller;
             // Parallel evaluation is not supported for this calibration.
             o.Parallel = false;
             o.Debug = true;
@@ -160,6 +166,8 @@ namespace Pelsser.Calibration
             Vector x0 = (Vector)new double[] { 0.1, 0.1 };
 
             solution = solver.Minimize(problem, o, x0);
+            if (solution.errors)
+                return new EstimationResult(solution.message);
 
             o.epsilon = 10e-6;
             o.h = 10e-7;
@@ -171,6 +179,9 @@ namespace Pelsser.Calibration
                 solution = solver2.Minimize(problem, o, solution.x);
             else
                 solution = solver2.Minimize(problem, o, x0);
+            
+            if (solution.errors)
+                return new EstimationResult(solution.message);
 
             Console.WriteLine(solution);
 
