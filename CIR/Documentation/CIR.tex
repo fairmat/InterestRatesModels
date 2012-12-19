@@ -1,0 +1,152 @@
+\newcommand{\pluginName}{CIR Model}
+\newcommand{\pluginVersion}{1.0}
+
+\input{../../../DocumentationTemplate/TemplateL3}
+
+\begin{document}
+
+\PluginTitle{\pluginName}{\pluginVersion}
+
+\section{Introduction}
+This plug-in implements the Cox-Ingersoll-Ross (CIR) model. Once installed the plug-in offers the possibility of calibrating CIR processes and pricing contracts using this model. 
+
+\section{How to use the plug-in}
+
+
+In the Fairmat user interface when you create a new stochastic process you will find the additional option ``CIR process''.
+
+The CIR stochastic process is defined by the parameters shown in table below:
+\begin{center}
+\begin{tabular}{|l|c|}
+  \hline
+\textbf{Fairmat}&\textbf{Documentation}\\
+\textbf{notation}&\textbf{notation}\\
+                     \hline
+ k 	& $k$\\
+ Theta	& $\theta$\\
+ Sigma 	& $\sigma$\\
+ r0	& $r_0$\\
+   \hline
+\end{tabular}
+\end{center}
+$k$ is the mean reversion speed, $\theta$ is the long term mean, $\sigma$ is the volatility and $r_0$ is the starting value for the short rate CIR process.
+
+You can set the model values shown in the table above directly on the ``Parameters'' tab of the CIR process window by double clicking on them, or you can calibrate
+the model using the cap matrix calibration.
+
+\section{Implementation Details}
+\subsection{The CIR process}
+The CIR model is used to describe the evolution of a short rate. It is defined by the following stochastic differential equations
+\begin{equation}
+dr(t) = k(\theta -r(t))dt + \sigma\sqrt{r(t)}dW.
+\end{equation}
+The parameters have the following interpretation:
+\begin{itemize}
+\item $k$ is the speed of mean reversion
+\item $\theta$ is the long term mean
+\item $\sigma$ regulates the volatility
+\end{itemize}
+The diffusion term proportional to $\sqrt{r(t)}$ ensures that the process has positive values if the constrain $2k\theta>\sigma^2$ (known as the Feller condition) is satisfied.
+
+Since $\sigma$ is multiplied by the square of the short rate, its value is not comparable with the volatility parameter of the Vasicek model.
+
+The random variable $r(t)$ has a noncentral chi-square distribution with mean and variance given by
+\begin{align}
+\mathbb{E}[r(t)] & = r(s)e^{-k(t-s)} + \theta(1-e^{-k(t-s)})\label{eq:rmean}\\
+\mathrm{Var}[r(t)] & = r(s)\frac{\sigma^2}{k}\left[ e^{-k(t-s)} - e^{-2k(t-s)} \right] + \frac{\theta\sigma^2}{2k}\left[ 1 - e^{-k(t-s)} \right]^2
+\end{align}
+where $r(s)$ is a previous known value. From (\ref{eq:rmean}) it's easy to see that
+\begin{equation}
+\lim_{t\rightarrow +\infty}\mathbb{E}[r(t)] = \theta
+\end{equation}
+making clear the interpretation of $\theta$ as the long term mean.
+
+The price in $t$ of a zero coupon bond with maturity $T$ is given by
+\begin{equation}\label{eq:zcprice}
+P(t,T) = A(t,T)e^{-B(t,T)r(t)}
+\end{equation}
+where
+\begin{align}
+A(t,T) & = \left[\frac{ 2he^{(k+h)(T-t)/2} }{ 2h + (k+h) (e^{(T-t)h}-1) }\right]^{\frac{2k\theta}{\sigma^2}}\\
+B(t,T) & = \frac{ 2(e^{(T-t)h} -1) }{ 2h + (k+h) (e^{(T-t)h}-1) }
+\end{align}
+with $h = \sqrt{k^2 + 2\sigma^2}$.
+
+\subsection{Simulation and discretization scheme}
+
+Applying a straight Euler-Maruyama method to simulate a CIR process we obtain this formula
+\begin{equation}
+r_{t+1} = r_t + k(\theta - r_t)\Delta t + \sigma\sqrt{r_t}\sqrt{\Delta t} N(0,1)
+\end{equation}
+where $\Delta t = t_{n+1}-t_n$ and $N(0,1)$ represents a realization of a standard normal random variable. It is clear that $r_{t+1}$ is normally distributed and then, even if the parameters satisfy the Feller condition, it is possible for the discretized version of the process to reach negative values.
+
+This forces the use of a different discretization scheme. In Fairmat simulations are carried out using this one
+\begin{equation}
+r_{t+1} = r_t + k\left(\theta - r_t^+\right)\Delta t + \sigma\sqrt{r_t^+\Delta t} N(0,1)\label{eq:rdisc}
+\end{equation}
+where we have used the notation $r_t^+=\max\{r_t,0\}$.
+
+Equation (\ref{eq:rdisc}) can still generate negative values for $r_{t+1}$ but when this happens the next simulation step will have the diffusion term suppressed letting the drift term take the process toward positive values.
+
+There is a small bias in the process discretization for the fact that every step is normally distributed while the continuous process is chi-square distributed. To reduce bias error it is appropriate to simulate using small time steps, so try to evaluate your contract with different time steps to be sure this does not affect your valuation.
+
+\section{Calibration}
+
+From formula (\ref{eq:zcprice}) it is clear that the shape of the term structure at time $t$ is completely determined by the parameters $k, \theta, \sigma$ and by the value of the short rate $r(t)$. The CIR model cannot thus completely fit a zero coupon curve observed in the market. Moreover, trying to fit as best as possible the zero coupon market curve, one frequently comes across an objective function with many local minima and often obtains non meaningful parameters (for example too high mean reversion level).
+
+For these reasons, to calibrate the CIR model it is better to completely abandon the idea of fitting a given term structure and instead try to find the parameters that fit some financial instrument best (for example caps or swaptions).
+
+\subsection{Closed formula for caps}
+
+Let's indicate with $F_{\chi^2}(x, \nu, \lambda)$ the cumulative distribution function of the noncentral chi-squared distribution with $\nu$ degrees of freedom and non centrality parameter $\lambda$.
+
+It can be demonstrated that in the framework of the CIR model the price in $t$ of a call option with maturity $T>t$ and strike price $X$ on a zero coupon bond maturing at $S>T$ is given by
+\begin{equation}
+\mathrm{ZBC}^{\mathrm{CIR}}(t,T,S,X) = P(t,S)F_{\chi^2}(x_1, \nu, \lambda_1) - X P(t,T)F_{\chi^2}(x_2, \nu, \lambda_2)
+\end{equation}
+where
+\begin{align}
+x_1 & = 2\bar{r}[\rho + \psi + B(T,S)]\\
+x_2 & = 2\bar{r}[\rho + \psi]\\
+\nu & = \frac{4k\theta}{\sigma^2}\\
+\lambda_1 & = \frac{2\rho^2 r(t) e^{(T-t)h}}{\rho + \psi + B(T,S)}\\
+\lambda_2 & = \frac{2\rho^2 r(t) e^{(T-t)h}}{\rho + \psi}
+\end{align}
+with $\rho, \psi, \bar{r}$ defined as
+\begin{align}
+\rho & = \frac{2h}{\sigma^2[e^{(T-t)h} - 1]}\\
+\psi & = \frac{k+h}{\sigma^2}\\
+\bar{r} & = \frac{\ln[A(T,S)/X]}{B(T,S)}
+\end{align}
+Using put-call parity the price of the corresponding put option on a zero coupon bond can be expressed as
+\begin{equation}
+\mathrm{ZBP}^{\mathrm{CIR}}(t,T,S,X) = \mathrm{ZBC}^{\mathrm{CIR}}(t,T,S,X) - P(t,S) + X P(t,T).
+\end{equation}
+This last expression can be used to find the price in $t$ of a unitary nominal value caplet with strike $X$ on the Libor rate $L(T,S)$ paying out in $S$
+\begin{equation}
+\mathrm{Caplet}^{\mathrm{CIR}}(t,T,S,X) = N\cdot\mathrm{ZBP}^{\mathrm{CIR}}(t,T,S,1/N)
+\end{equation}
+with
+\begin{equation}
+N = 1 + X\tau
+\end{equation}
+where $\tau$ is the year fraction between $T$ and $S$ measured following the caplet day-count convention. The price of a cap can be off course calculated summing up caplet prices.
+
+\subsection{Objective function}
+
+As shown in the previous section the price of a cap option with strike $K$ and maturity $T$ priced within the CIR model can be considered as a function $\mathrm{Cap}^{\mathrm{CIR}}(r_0, k, \theta, \sigma, K, T)$.
+
+The value of $r_0$ is fixed extrapolating it from the market zero rate while, given a matrix of cap prices taken from the market $\mathrm{Cap}^{\mathrm{Mkt}}_{i,j}$ where the indexes represent different maturities $T_i$ and strike $K_j$, the other three parameters $k, \theta, \sigma$ are fixed searching the minimum of the function
+\begin{equation}
+f(k, \theta, \sigma) = \sum_{ij}\Big[\mathrm{Cap}^{\mathrm{CIR}}(r_0, k, \theta, \sigma, K_j, T_i) - \mathrm{Cap}^{\mathrm{Mkt}}_{i,j}\Big]^2.
+\end{equation}
+For a more detailed reference on the CIR model see \cite{Brigo:InterestRateModels}.
+
+In Fairmat, the necessary information for the calibration is obtained from the \texttt{InterestRateMarketData} data structure which contains contains the zero rate to find the $r_0$ value and a matrix of Black volatilities needed to  calculate the cap prices.
+
+
+\bibliographystyle{unsrt}
+\bibliography{../../../DocumentationTemplate/bibliography}
+\end{document}
+
+
