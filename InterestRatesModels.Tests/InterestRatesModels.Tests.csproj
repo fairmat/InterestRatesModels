@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CoreExtensions">
+      <HintPath>..\..\DVPLReferences\CoreExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="DVPLDOM">
       <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
     </Reference>
@@ -58,6 +61,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CIR\TestCIR.cs" />
     <Compile Include="HullAndWhiteOneFactor\TestCapsHW1.cs" />
     <Compile Include="HullAndWhiteOneFactor\TestHW1.cs" />
     <Compile Include="HullAndWhiteTwoFactors\TestHW2.cs" />
@@ -70,6 +74,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\CIR\CIR.csproj">
+      <Project>{01681786-2D92-410E-B121-6616D0C9F6E5}</Project>
+      <Name>CIR</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj">
       <Project>{0355501D-5C61-4EDF-B640-B83A1E741085}</Project>
       <Name>HullAndWhiteOneFactor</Name>
