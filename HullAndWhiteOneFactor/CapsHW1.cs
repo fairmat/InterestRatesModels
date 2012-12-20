@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Text;
 using DVPLDOM;
 using DVPLI;
+using Fairmat.Math;
 
 namespace HullAndWhiteOneFactor
 {
@@ -186,7 +187,7 @@ namespace HullAndWhiteOneFactor
         {
             double d1 = D1(a, sigma, T, s, K);
             double d2 = D2(a, sigma, T, s, K);
-            return (K * PZC(T) * Fairmat.Statistics.SpecialFunctions.NormCdf(-d2)) - (PZC(s) * Fairmat.Statistics.SpecialFunctions.NormCdf(-d1));
+            return (K * PZC(T) * SpecialFunctions.NormCdf(-d2)) - (PZC(s) * SpecialFunctions.NormCdf(-d1));
         }
 
         /// <summary>
@@ -214,7 +215,7 @@ namespace HullAndWhiteOneFactor
         {
             double d1 = D1(a, sigma, T, s, K);
             double d2 = D2(a, sigma, T, s, K);
-            return (PZC(s) * Fairmat.Statistics.SpecialFunctions.NormCdf(d1)) - (K * PZC(T) * Fairmat.Statistics.SpecialFunctions.NormCdf(d2));
+            return (PZC(s) * SpecialFunctions.NormCdf(d1)) - (K * PZC(T) * SpecialFunctions.NormCdf(d2));
         }
 
         /// <summary>

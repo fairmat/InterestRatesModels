@@ -25,6 +25,7 @@ using DVPLI.TaskScheduler;
 using DVPLUtils;
 using Fairmat.Statistics;
 using Pelsser;
+using Fairmat.Math;
 
 namespace Pelsser.Calibration
 {

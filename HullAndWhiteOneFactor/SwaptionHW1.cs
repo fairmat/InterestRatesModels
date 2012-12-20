@@ -21,6 +21,7 @@ using System.Text;
 using DVPLDOM;
 using DVPLI;
 using Fairmat.Optimization;
+using Fairmat.Math;
 
 namespace HullAndWhiteOneFactor
 {
@@ -410,7 +411,7 @@ namespace HullAndWhiteOneFactor
         {
             double h = H(a, sigma, L, K, T, s);
             double sigmap = SigmaP(a, sigma, T, s);
-            return K * PZC(T) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h);
+            return K * PZC(T) * SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * SpecialFunctions.NormCdf(-h);
         }
 
         /// <summary>
@@ -442,7 +443,7 @@ namespace HullAndWhiteOneFactor
         {
             double h = H(a, sigma, L, K, T, s);
             double sigmap = SigmaP(a, sigma, T, s);
-            return K * PZC(T) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * Fairmat.Statistics.SpecialFunctions.NormCdf(-h);
+            return K * PZC(T) * SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * SpecialFunctions.NormCdf(-h);
         }
 
         /// <summary>
