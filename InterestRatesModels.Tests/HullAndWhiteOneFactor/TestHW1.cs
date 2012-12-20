@@ -21,7 +21,7 @@ using System.Text;
 using DVPLDOM;
 using DVPLI;
 using DVPLSolver;
-using Fairmat.Statistics;
+using Fairmat.Math;
 using Mono.Addins;
 using NUnit.Framework;
 

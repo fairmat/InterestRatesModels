@@ -19,7 +19,7 @@ using System;
 using DVPLDOM;
 using DVPLI;
 using DVPLSolver;
-using Fairmat.Statistics;
+using Fairmat.Math;
 using NUnit.Framework;
 
 namespace HullAndWhiteTwoFactors
