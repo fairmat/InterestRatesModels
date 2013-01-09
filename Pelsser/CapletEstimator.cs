@@ -154,7 +154,7 @@ namespace Pelsser.Calibration
 
             DESettings o = new DESettings();
             o.NP = 25;
-            o.TargetCost = 0.05;
+            o.TargetCost = 0.01;
             o.MaxIter = 10;
             o.Verbosity = Math.Max(1, Engine.Verbose);
             o.controller = controller;
