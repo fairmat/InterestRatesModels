@@ -153,8 +153,8 @@ namespace Pelsser.Calibration
             IOptimizationAlgorithm solver2 = new SteepestDescent();
 
             DESettings o = new DESettings();
-            o.NP = 25;
-            o.TargetCost = 0.01;
+            o.NP = 30;
+            o.TargetCost = 0.009;
             o.MaxIter = 10;
             o.Verbosity = Math.Max(1, Engine.Verbose);
             o.controller = controller;
