@@ -38,6 +38,7 @@ namespace Pelsser
         /// <summary>
         /// Reference to the zero rate.
         /// </summary>
+        [ExternalSymbolReference("ZR", typeof(PFunction))]
         public IModelParameter zr;
 
         /// <summary>

@@ -38,6 +38,7 @@ namespace HullAndWhiteTwoFactors
         /// <summary>
         /// Reference to a zero rate curve.
         /// </summary>
+        [ExternalSymbolReference("ZR", typeof(PFunction))]
         public IModelParameter _zr;
 
         /// <summary>
