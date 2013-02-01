@@ -38,7 +38,7 @@ namespace HullAndWhiteOneFactor
         /// Reference to the zero rate.
         /// </summary>
         [ExternalSymbolReference("ZR", typeof(PFunction))]
-        private IModelParameter zrReference;
+        public IModelParameter zrReference;
 
         /// <summary>
         /// Rate of mean reversion.
