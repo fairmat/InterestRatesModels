@@ -88,9 +88,9 @@ namespace Pelsser
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            Console.WriteLine("Bond Test Value = " + price.m_Value.ToString());
+            Console.WriteLine("Bond Test Value = " + price.value.ToString());
 
-            Assert.LessOrEqual(Math.Abs(0.6702 - price.m_Value), .01);
+            Assert.LessOrEqual(Math.Abs(0.6702 - price.value), .01);
 
             // Try to do some simple tests and check the results.
             double b0_10 = process.Bond(DynamicParam(0, process), process.CacheDates, 0, 0, 10);
@@ -326,8 +326,8 @@ namespace Pelsser
             }
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            val = price.m_Value;
-            stDev = price.m_StdErr / Math.Sqrt((double)numSim);
+            val = price.value;
+            stDev = price.stdDev / Math.Sqrt((double)numSim);
         }
     }
 }

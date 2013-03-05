@@ -112,8 +112,8 @@ namespace Pelsser.Calibration
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double mcPrice = price.m_Value;
-            double mcDevST = price.m_StdErr / Math.Sqrt((double)n_sim);
+            double mcPrice = price.value;
+            double mcDevST = price.stdDev / Math.Sqrt((double)n_sim);
 
             Caplet cplt = new Caplet();
             Vector Mat, fwd, Rk;
