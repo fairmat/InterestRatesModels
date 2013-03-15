@@ -140,8 +140,8 @@ namespace HullAndWhiteTwoFactors
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double sampleMean = price.m_Value;
-            double sampleDevSt = price.m_StdErr / Math.Sqrt((double)n_sim);
+            double sampleMean = price.value;
+            double sampleDevSt = price.stdDev / Math.Sqrt((double)n_sim);
             double theoreticalPrice = HW2BondCall(zerorate, maturityOpt, maturityOpt + tau, strike,
                                                   a1, sigma1, a2, sigma2, correlation);
 

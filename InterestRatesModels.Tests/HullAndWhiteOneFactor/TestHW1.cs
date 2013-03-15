@@ -61,7 +61,7 @@ namespace HullAndWhiteOneFactor
 
             Assert.IsFalse(r.HasErrors);
 
-            double v = r.m_ResultList[0].m_Value;
+            double v = r.m_ResultList[0].value;
             Console.WriteLine("v = " + v.ToString());
 
             Assert.Less(Math.Abs(v - 0.9136), 0.0001);
@@ -215,9 +215,9 @@ namespace HullAndWhiteOneFactor
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double samplePrice = price.m_Value;
+            double samplePrice = price.value;
 
-            double sampleDevSt = price.m_StdErr / Math.Sqrt(2.0 * (double)n_sim);
+            double sampleDevSt = price.stdDev / Math.Sqrt(2.0 * (double)n_sim);
 
             // Calculation of the theoretical value of the caplet.
             CapHW1 cap = new CapHW1(zerorate);
@@ -326,9 +326,9 @@ namespace HullAndWhiteOneFactor
             Assert.IsFalse(rov.HasErrors);
 
             ResultItem price = rov.m_ResultList[0] as ResultItem;
-            double samplePrice = price.m_Value;
+            double samplePrice = price.value;
 
-            double sampleDevSt = price.m_StdErr / Math.Sqrt((double)n_sim);
+            double sampleDevSt = price.stdDev / Math.Sqrt((double)n_sim);
 
             // Calculation of the theoretical value of the call.
             CapHW1 cap = new CapHW1(zerorate);
