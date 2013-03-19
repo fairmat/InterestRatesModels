@@ -87,6 +87,15 @@ namespace Pelsser.Calibration
                 return result;
             }
 
+            // Backup the dates
+            DateTime effectiveDate = DateTime.Now.Date;
+            DateTime valuationDate = DateTime.Now.Date;
+            if (Document.ActiveDocument != null)
+            {
+                effectiveDate = Document.ActiveDocument.ContractDate;
+                valuationDate = Document.ActiveDocument.SimulationStartDate;
+            }
+
             // Creates the Context.
             Document doc = new Document();
             ProjectROV prj = new ProjectROV(doc);
@@ -192,6 +201,13 @@ namespace Pelsser.Calibration
             result.ZRY = (double[])dataset.ZRMarket.ToArray();
             result.Objects = new object[1];
             result.Objects[0] = solution.obj;
+
+            // Restore the dates
+            if (Document.ActiveDocument != null)
+            {
+                Document.ActiveDocument.ContractDate = effectiveDate;
+                Document.ActiveDocument.SimulationStartDate = valuationDate;
+            }
 
             return result;
         }
