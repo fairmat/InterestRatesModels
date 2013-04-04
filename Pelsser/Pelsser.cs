@@ -52,9 +52,9 @@ namespace Pelsser
         public IModelParameter sigma1;
 
         /// <summary>
-        /// Unused but required for compatibility.
+        /// Market price of risk.
         /// </summary>
-        private IModelParameter lamda0;
+        public IModelParameter lamda0;
 
         #endregion
 
@@ -148,6 +148,11 @@ namespace Pelsser
         private static string sigma1Description = "Sigma";
 
         /// <summary>
+        /// Keeps the readable description of the sigma1 model variable.
+        /// </summary>
+        private static string lambda0Description = "Lambda";
+
+        /// <summary>
         /// Gets or sets the cacheDates, which are the cached values of dates
         /// passed during the Setup.
         /// </summary>
@@ -167,12 +172,12 @@ namespace Pelsser
         /// <summary>
         /// Default constructor. Builds a new SquaredGaussianModel with these default values:
         /// * sigma = 0.06.
-        /// * lamba = -0.9.
+        /// * lambda = 0.4.
         /// * alpha = 0.09.
         /// * no zero rate reference.
         /// </summary>
         public SquaredGaussianModel()
-            : this(0.06, -0.9, 0.09, string.Empty)
+            : this(0.06, 0.4, 0.09, string.Empty)
         {
         }
 
@@ -188,6 +193,7 @@ namespace Pelsser
             this.sigma1 = new ModelParameter(sigma, sigma1Description);
             this.a1 = new ModelParameter(a1, a1Description);
             this.zr = new ModelParameter(zeroRateReference, zrDescription);
+            this.lamda0 = new ModelParameter(lambda, lambda0Description);
         }
 
         /// <summary>
@@ -389,9 +395,6 @@ namespace Pelsser
             }
 
             DateTime t1 = DateTime.Now;
-
-           
-
             DateTime t2 = DateTime.Now;
         }
 
@@ -456,6 +459,7 @@ namespace Pelsser
             List<IExportable> parameters = new List<IExportable>();
             parameters.Add(this.a1);
             parameters.Add(this.sigma1);
+            parameters.Add(this.lamda0);
             parameters.Add(this.zr);
             return parameters;
         }
@@ -488,7 +492,7 @@ namespace Pelsser
         /// <param name="a">The output of the function.</param>
         public unsafe void a(int i, double* x, double* a)
         {
-            a[0] = -this.alpha1Temp * x[0];
+            a[0] = -this.alpha1Temp * x[0] + this.lamda0.fV() * this.sigma1Temp;
         }
 
         /// <summary>
@@ -827,6 +831,7 @@ namespace Pelsser
             bool found;
             this.a1 = new ModelParameter(PopulateHelper.GetValue("alpha1", "a", names, values, out found), a1Description);
             this.sigma1 = new ModelParameter(PopulateHelper.GetValue("sigma1", "sigma", names, values, out found), sigma1Description);
+            this.lamda0 = new ModelParameter(PopulateHelper.GetValue("lambda0", "lambda", names, values, out found), lambda0Description);
         }
 
         #endregion
