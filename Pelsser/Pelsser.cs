@@ -54,7 +54,7 @@ namespace Pelsser
         /// <summary>
         /// Market price of risk.
         /// </summary>
-        public IModelParameter lambda0;
+        public IModelParameter lamda0;
 
         #endregion
 
@@ -193,7 +193,7 @@ namespace Pelsser
             this.sigma1 = new ModelParameter(sigma, sigma1Description);
             this.a1 = new ModelParameter(a1, a1Description);
             this.zr = new ModelParameter(zeroRateReference, zrDescription);
-            this.lambda0 = new ModelParameter(lambda, lambda0Description);
+            this.lamda0 = new ModelParameter(lambda, lambda0Description);
         }
 
         /// <summary>
@@ -459,7 +459,7 @@ namespace Pelsser
             List<IExportable> parameters = new List<IExportable>();
             parameters.Add(this.a1);
             parameters.Add(this.sigma1);
-            parameters.Add(this.lambda0);
+            parameters.Add(this.lamda0);
             parameters.Add(this.zr);
             return parameters;
         }
@@ -492,7 +492,7 @@ namespace Pelsser
         /// <param name="a">The output of the function.</param>
         public unsafe void a(int i, double* x, double* a)
         {
-            a[0] = -this.alpha1Temp * x[0] + this.lambda0.fV() * this.sigma1Temp;
+            a[0] = -this.alpha1Temp * x[0] + this.lamda0.fV() * this.sigma1Temp;
         }
 
         /// <summary>
@@ -831,7 +831,7 @@ namespace Pelsser
             bool found;
             this.a1 = new ModelParameter(PopulateHelper.GetValue("alpha1", "a", names, values, out found), a1Description);
             this.sigma1 = new ModelParameter(PopulateHelper.GetValue("sigma1", "sigma", names, values, out found), sigma1Description);
-            this.lambda0 = new ModelParameter(PopulateHelper.GetValue("lambda0", "lambda", names, values, out found), lambda0Description);
+            this.lamda0 = new ModelParameter(PopulateHelper.GetValue("lambda0", "lambda", names, values, out found), lambda0Description);
         }
 
         #endregion
