@@ -106,7 +106,7 @@ namespace Pelsser.Calibration
                 // Alpha must be positive, given the term alphaT[i] = F(current, dt) + 2 * Math.Exp(-alpha1Temp * current) * INT;
                 Bounds bounds = new Bounds();
                 bounds.Lb = new DVPLI.Vector() { 1e-8, 1e-6 };
-                bounds.Ub = new DVPLI.Vector(2) { 1, .1 };
+                bounds.Ub = new DVPLI.Vector() { 1, .1 };
             
                 return bounds;
             }
