@@ -274,6 +274,9 @@ namespace Pelsser
         {
             // Get the value of the short rate.
             double y = Math.Sqrt(dynamic[i, 0]) - this.alphaT0[i];
+
+
+
             PelsserKey k = new PelsserKey(t, s);
             PelsserCache cachedValue = null;
             lock (this.cache)
@@ -543,7 +546,7 @@ namespace Pelsser
         {
             for (int j = 0; j < dates.Length; j++)
             {
-                outDynamic[j, 0] = Math.Pow(outDynamic[j, 0] + this.alphaT[j], 2);
+                outDynamic[j, 0] = Math.Pow(outDynamic[j, 0] + this.alphaT0[j], 2);
             }
         }
 
