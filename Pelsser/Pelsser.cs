@@ -459,6 +459,9 @@ namespace Pelsser
             List<IExportable> parameters = new List<IExportable>();
             parameters.Add(this.a1);
             parameters.Add(this.sigma1);
+            /// Manage the case in which lamda0 is null
+            if (this.lamda0 == null)
+                this.lamda0 = new ModelParameter(0.0, lambda0Description);
             parameters.Add(this.lamda0);
             parameters.Add(this.zr);
             return parameters;
