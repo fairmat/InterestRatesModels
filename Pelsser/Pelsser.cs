@@ -148,7 +148,7 @@ namespace Pelsser
         private static string sigma1Description = "Sigma";
 
         /// <summary>
-        /// Keeps the readable description of the sigma1 model variable.
+        /// Keeps the readable description of the lamda0 model variable.
         /// </summary>
         private static string lambda0Description = "Lambda";
 

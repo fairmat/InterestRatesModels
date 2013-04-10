@@ -51,6 +51,11 @@ namespace HullAndWhiteOneFactor
         private IModelParameter sigma1;
 
         /// <summary>
+        /// Market price of risk.
+        /// </summary>
+        public IModelParameter lambda0;
+
+        /// <summary>
         /// Drift adjustment: can be used for adding risk premium or quanto adjustments.
         /// </summary>
         [OptionalField(VersionAdded = 2)]
@@ -92,6 +97,11 @@ namespace HullAndWhiteOneFactor
         private const string zeroRateDescription = "Zero Rate";
 
         /// <summary>
+        /// Keeps the readable description of the lambda0 model variable.
+        /// </summary>
+        private static string lambda0Description = "Lambda";
+        
+        /// <summary>
         /// Temporary variable for the transformation (mDailyDates).
         /// </summary>
         [NonSerialized]
@@ -107,8 +117,25 @@ namespace HullAndWhiteOneFactor
         /// alpha 0.001, sigma 0.001 and an empty zeroRateReference.
         /// </summary>
         public HW1()
-            : this(0.001, 0.001, string.Empty)
+            : this(0.001, 0.001, 0.0, string.Empty)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the HW1 class given alpha, sigma, lambda and a zero rate reference.
+        /// </summary>
+        /// <param name="alpha">The rate of the mean reversion to be used to initialize HW.</param>
+        /// <param name="sigma">The standard deviation to be used to initialize HW.</param>
+        /// <param name="lambda">The market price of risk to be used to initialize HW.</param>
+        /// <param name="zeroRateReference">
+        /// Reference to the zero rate to be used to initialize HW.
+        /// </param>
+        public HW1(double alpha, double sigma, double lambda, string zeroRateReference)
+        {
+            this.alpha1 = new ModelParameter(alpha, alphaDescription);
+            this.sigma1 = new ModelParameter(sigma, sigmaDescription);
+            this.lambda0 = new ModelParameter(lambda, lambda0Description);
+            this.zrReference = new ModelParameter(zeroRateReference, zeroRateDescription);
         }
 
         /// <summary>
@@ -120,11 +147,8 @@ namespace HullAndWhiteOneFactor
         /// Reference to the zero rate to be used to initialize HW.
         /// </param>
         public HW1(double alpha, double sigma, string zeroRateReference)
+            : this(alpha, sigma, 0.0, zeroRateReference)
         {
-            this.alpha1 = new ModelParameter(alpha, alphaDescription);
-            this.sigma1 = new ModelParameter(sigma, sigmaDescription);
-            this.zrReference = new ModelParameter(zeroRateReference, zeroRateDescription);
-            this.driftAdjustment = new ModelParameter(0, driftAdjustmentDescription);
         }
 
         /// <summary>
@@ -156,7 +180,6 @@ namespace HullAndWhiteOneFactor
             bool errors = false;
             BoolHelper.AddBool(errors, this.alpha1.Parse(p_Context));
             BoolHelper.AddBool(errors, this.sigma1.Parse(p_Context));
-            BoolHelper.AddBool(errors, this.driftAdjustment.Parse(p_Context));
             if (this.zrReference.Expression.IndexOf("@") == -1)
             {
                 p_Context.AddError(this.zrReference.Expression +
@@ -338,7 +361,7 @@ namespace HullAndWhiteOneFactor
             List<IExportable> parameters = new List<IExportable>();
             parameters.Add(this.alpha1);
             parameters.Add(this.sigma1);
-            parameters.Add(this.driftAdjustment);
+            parameters.Add(this.lambda0);
             parameters.Add(this.zrReference);
 
             return parameters;
@@ -383,7 +406,7 @@ namespace HullAndWhiteOneFactor
         /// <param name="a">The output of the function.</param>
         public unsafe void a(int i, double* x, double* a)
         {
-            a[0] = -this.alpha1Temp * x[0];
+            a[0] = -this.alpha1Temp * x[0] + this.lambda0.fV() * this.sigma1Temp;
         }
 
         /// <summary>
@@ -565,7 +588,7 @@ namespace HullAndWhiteOneFactor
                 List<Tuple<string, object>> args = new List<Tuple<string, object>>();
                 args.Add(new Tuple<string, object>("alpha1", this.alpha1));
                 args.Add(new Tuple<string, object>("sigma1", this.sigma1));
-                args.Add(new Tuple<string, object>("driftAdjustment", this.driftAdjustment));
+                args.Add(new Tuple<string, object>("lambda0", this.lambda0));
                 return args;
             }
         }
