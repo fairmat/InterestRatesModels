@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin
-[assembly: Addin("Hull-White one factor model", "1.0.19", Category = "Stochastic Process")]
+[assembly: Addin("Hull-White one factor model", "1.1.0", Category = "Stochastic Process")]
 [assembly: AddinDependency("Fairmat", "1.0")]
 [assembly: AddinAuthor("Fairmat SRL")]
 [assembly: AddinDescription("A no-arbitrage model which is the industry standard " +
