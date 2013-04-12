@@ -53,7 +53,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Market price of risk.
         /// </summary>
-        public IModelParameter lambda0;
+        private IModelParameter lambda0;
 
         /// <summary>
         /// Drift adjustment: can be used for adding risk premium or quanto adjustments.
@@ -100,7 +100,7 @@ namespace HullAndWhiteOneFactor
         /// Keeps the readable description of the lambda0 model variable.
         /// </summary>
         private static string lambda0Description = "Lambda";
-        
+
         /// <summary>
         /// Temporary variable for the transformation (mDailyDates).
         /// </summary>
@@ -335,15 +335,24 @@ namespace HullAndWhiteOneFactor
         public void Setup(double[] dates)
         {
             this.alphaT = new double[dates.Length];
-            ///double dt = dates[1] - dates[0];
-            double dt = 0.001;
             for (int i = 0; i < dates.Length; i++)
             {
-                this.alphaT[i] = this.F(dates[i], dt) + this.sigma1Temp * this.sigma1Temp * Math.Pow(1.0 - Math.Exp(-this.alpha1Temp * dates[i]), 2.0) / (2.0 * this.alpha1Temp * this.alpha1Temp);
+                this.alphaT[i] = this.alphaTFunc(dates[i]);
             }
         }
 
         #endregion
+
+        /// <summary>
+        /// Calculates the value of alpha function at time t
+        /// </summary>
+        /// <param name="t">Time at which calculate alpha</param>
+        /// <returns>Alpha function value</returns>
+        private double alphaTFunc(double t)
+        {
+            double dt = 0.001;
+            return this.F(t, dt) + this.sigma1Temp * this.sigma1Temp * Math.Pow(1.0 - Math.Exp(-this.alpha1Temp * t), 2.0) / (2.0 * this.alpha1Temp * this.alpha1Temp);
+        }
 
         #region IExportableContainer Members
 
@@ -602,7 +611,7 @@ namespace HullAndWhiteOneFactor
             {
                 Dictionary<string, string> sources = new Dictionary<string, string>();
                 sources.Add("B", "*b = sigma1;");
-                sources.Add("A", "*a = semiDrift[step] - alpha1 * x[0] + driftAdjustment;");
+                sources.Add("A", "*a = -alpha1 * x[0] + lambda0.fV() * sigma1;");
                 return sources;
             }
         }
@@ -623,8 +632,8 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Handles the conversion, after the simulation, from y to the short rate r.
         /// </summary>
-        /// <param name="Dates">Simulation dates.</param>
-        /// <param name="OutDynamic">The input and output components of the transformation.</param>
+        /// <param name="dates">Simulation dates.</param>
+        /// <param name="outDynamic">The input and output components of the transformation.</param>
         public void Transform(double[] dates, IMatrixSlice outDynamic)
         {
             for (int j = 0; j < dates.Length; j++)
