@@ -614,7 +614,7 @@ namespace HullAndWhiteOneFactor
             {
                 Dictionary<string, string> sources = new Dictionary<string, string>();
                 sources.Add("B", "*b = sigma1;");
-                sources.Add("A", "*a = -alpha1 * x[0] + lambda0.fV() * sigma1;");
+                sources.Add("A", "*a = -alpha1 * x[0] + lambda0 * sigma1;");
                 return sources;
             }
         }
