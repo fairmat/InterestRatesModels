@@ -37,7 +37,6 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Reference to the zero rate.
         /// </summary>
-        [ExternalSymbolReference("ZR", typeof(PFunction))]
         private IModelParameter zrReference;
 
         /// <summary>
@@ -64,6 +63,27 @@ namespace HullAndWhiteOneFactor
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Gets or Sets the reference to the zero rate.
+        /// Used to expose to the <see cref="ExternalSymbolReference"/> API.
+        /// </summary>
+        [ExternalSymbolReference("ZR", typeof(PFunction))]
+        public IModelParameter ZRReference
+        {
+            get
+            {
+                return zrReference;
+            }
+
+            set
+            {
+                zrReference = value;
+            }
+        }
+
+        #endregion Properties
         /// <summary>
         /// Temporary zero rate function, used to optimize the simulation.
         /// </summary>
