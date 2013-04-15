@@ -84,6 +84,7 @@ namespace HullAndWhiteOneFactor
         }
 
         #endregion Properties
+
         /// <summary>
         /// Temporary zero rate function, used to optimize the simulation.
         /// </summary>
