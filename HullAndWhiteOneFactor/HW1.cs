@@ -53,6 +53,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Market price of risk.
         /// </summary>
+        [OptionalField(VersionAdded = 3)]
         private IModelParameter lambda0;
 
         /// <summary>
@@ -162,6 +163,8 @@ namespace HullAndWhiteOneFactor
         {
             if (this.driftAdjustment == null)
                 this.driftAdjustment = new ModelParameter(0, driftAdjustmentDescription);
+            if (this.lambda0 == null)
+                this.lambda0= new ModelParameter(0, lambda0Description);
         }
 
         #region IParsable Members
