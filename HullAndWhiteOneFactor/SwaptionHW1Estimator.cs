@@ -164,6 +164,8 @@ namespace HullAndWhiteOneFactor
             result.ZRX = (double[])dataset.ZRMarketDates.ToArray();
             result.ZRY = (double[])dataset.ZRMarket.ToArray();
 
+            double obj = problem.Obj(solution.x);
+
             return result;
         }
         #endregion
