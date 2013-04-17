@@ -28,7 +28,7 @@ namespace CIRProcess
     /// Implements the estimator for CIR Cap calibration.
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class CapCIREstimator : IEstimator, IEstimatorEx2, IMenuItemDescription
+    public class CapCIREstimator : IEstimator, IMenuItemDescription
     {
         /// <summary>
         /// Gets the tooltip for the implemented calibration function.
@@ -71,23 +71,11 @@ namespace CIRProcess
         /// InterestRateMarketData is the only required type for this estimator.
         /// </summary>
         /// <param name="settings">The parameter is not used.</param>
-        /// <param name="multivariateRequest">The parameter is not used.</param>
+        /// <param name="query">The parameter is not used.</param>
         /// <returns>An array containing the type InterestRateMarketData.</returns>
-        public Type[] GetRequirements(IEstimationSettings settings, bool multivariateRequest)
+        public EstimateRequirement[] GetRequirements(IEstimationSettings settings, EstimateQuery query)
         {
-            return new Type[] { typeof(InterestRateMarketData) };
-        }
-
-        /// <summary>
-        /// Attempts a calibration through <see cref="CapsCIROptimizationProblem"/>
-        /// using caps matrices.
-        /// </summary>
-        /// <param name="data">The data to be used in order to perform the calibration.</param>
-        /// <param name="settings">The parameter is not used.</param>
-        /// <returns>The results of the calibration.</returns>
-        public EstimationResult Estimate(List<object> data, IEstimationSettings settings)
-        {
-            return Estimate(data, settings, null);
+            return new EstimateRequirement[] { new EstimateRequirement(typeof(InterestRateMarketData)) };
         }
 
         /// <summary>
@@ -98,7 +86,7 @@ namespace CIRProcess
         /// <param name="settings">The parameter is not used.</param>
         /// <param name="controller">A controller used for the optimization process.</param>
         /// <returns>The results of the calibration.</returns>
-        public EstimationResult Estimate(List<object> data, IEstimationSettings settings, IController controller = null)
+        public EstimationResult Estimate(List<object> data, IEstimationSettings settings = null, IController controller = null, Dictionary<string, object> properties = null)
         {
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
 

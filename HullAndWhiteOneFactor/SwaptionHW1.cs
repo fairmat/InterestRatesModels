@@ -117,8 +117,8 @@ namespace HullAndWhiteOneFactor
                 {
                     npayment = (int)(swapDuration[j] / deltaK);
                     swapPayDate = Vector.Linspace(swaptionMaturity[i] + deltaK, swaptionMaturity[i] + swapDuration[j], npayment);
-                    FSR = ForwardSwapRate(swaptionMaturity[i], swapPayDate);
-                    result[i, j] = HWSwaption(a, sigma, 1000.0, FSR, swaptionMaturity[i], swapPayDate);
+                    FSR = this.ForwardSwapRate(swaptionMaturity[i], swapPayDate);
+                    result[i, j] = this.HWSwaption(a, sigma, 1000.0, FSR, swaptionMaturity[i], swapPayDate);
                 }
             }
 
@@ -139,63 +139,10 @@ namespace HullAndWhiteOneFactor
         /// </returns>
         public double ForwardSwapRate(double t, Vector T)
         {
-            double den = (T[0] - t) * PZC(T[0]);
+            double den = (T[0] - t) * this.PZC(T[0]);
             for (int i = 0; i < (T.Length - 1); i++)
-                den += (T[i + 1] - T[i]) * PZC(T[i + 1]);
-            return (PZC(t) - PZC(T[T.Length - 1])) / den;
-        }
-
-        /// <summary>
-        /// Price of a swaption in HW1 model: the holder has the right to pay
-        /// the fixed rate and receive floating rate.
-        /// </summary>
-        /// <param name='a'>
-        /// Hull-White alpha parameter.
-        /// </param>
-        /// <param name='sigma'>
-        /// Hull-White sigma parameter.
-        /// </param>
-        /// <param name='l'>
-        /// The Notional.
-        /// </param>
-        /// <param name='k'>
-        /// The Strike (usually the forward swap rate).
-        /// </param>
-        /// <param name='T'>
-        /// The maturity.
-        /// </param>
-        /// <param name='s'>
-        /// Vector of swaption payment dates.
-        /// </param>
-        /// <returns>
-        /// The swaptions price.
-        /// </returns>
-        public double HWSwaption(double a, double sigma, double l, double k, double T, Vector s)
-        {
-            OptimizationSettings options = new OptimizationSettings();
-            options.epsilon = 1e-5;
-
-            this.dt = s[0] - T;
-            this.CF = k * l * this.dt + (new Vector(s.Length));
-            this.CF[s.Length - 1] += l;
-            this.a = a;
-            this.sigma = sigma;
-            this.t = T;
-            this.T = s;
-            this.L = l;
-
-            // Finds the short rate r* which normalize bonds (see Brigo and Mercurio pg 77).
-            SolutionInfo sol = Fairmat.Optimization.Helper.FSolve(new ObjFunction(Func), (Vector)new double[1] { 0.01 },
-                (Vector)new double[1] { -1.0 }, (Vector)new double[1] { 1.0 }, options);
-            double RK = (double)sol.x;
-            Vector PK = new Vector(s.Length);
-            Vector vec = HWBond(a, sigma, RK, this.T, this.t, this.dt);
-            for (int i = 0; i < this.CF.Length; i++)
-                PK[i] = this.CF[i] * vec[i];
-            double result = 0;
-            for (int i = 0; i < s.Length; i++)
-                result += ZCBPut(a, sigma, this.CF[i], PK[i], T, s[i]);
-            return result;
+                den += (T[i + 1] - T[i]) * this.PZC(T[i + 1]);
+            return (this.PZC(t) - this.PZC(T[T.Length - 1])) / den;
         }
 
         /// <summary>
@@ -224,10 +171,9 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// The swaptions price.
         /// </returns>
-        public double HWSwaption2(double a, double sigma, double l, double k, double T, Vector s)
+        public double HWSwaption(double a, double sigma, double l, double k, double T, Vector s)
         {
             OptimizationSettings options = new OptimizationSettings();
-            //options.epsilon = 1e-5;
             options.epsilon = 1e-10;
 
             this.dt = s[0] - T;
@@ -238,31 +184,16 @@ namespace HullAndWhiteOneFactor
             this.t = T;
             this.T = s;
             this.L = l;
-            SolutionInfo sol = Fairmat.Optimization.Helper.FSolve(new ObjFunction(Func2), (Vector)new double[1] { 0.01 },
+            SolutionInfo sol = Fairmat.Optimization.Helper.FSolve(new ObjFunction(this.Func), (Vector)new double[1] { 0.01 },
                 (Vector)new double[1] { -1.0 }, (Vector)new double[1] { 1.0 }, options);
             double RK = (double)sol.x;
 
-            Vector X = HWBond2(a, sigma, RK, this.T, this.t, 0.001);
+            Vector X = this.HWBond(a, sigma, RK, this.T, this.t);
             double result = 0;
             for (int i = 0; i < s.Length; i++)
-                result += CF[i] * ZCBPut(a, sigma, 1.0, X[i], T, s[i]);
+                result += this.CF[i] * this.ZCBPut(a, sigma, 1.0, X[i], T, s[i]);
             result = result * l;
             return result;
-        }
-
-        /// <summary>
-        /// Function to be used in the FSolve() problem of HWSwaption() method.
-        /// </summary>
-        /// <param name='x'>
-        /// Vector of length 1 representing the variable on which the FSolve problem is performed.
-        /// </param>
-        /// <returns>
-        /// The value of the function given the provided vector x.
-        /// </returns>
-        public double Func(Vector x)
-        {
-            double result = this.CF.Scalar(HWBond(this.a, this.sigma, x[0], this.T, this.t, this.dt));
-            return result - this.L;
         }
 
         /// <summary>
@@ -275,63 +206,10 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// The value of the function given the provided vector x.
         /// </returns>
-        public double Func2(Vector x)
+        public double Func(Vector x)
         {
-            double result = this.CF.Scalar(HWBond2(this.a, this.sigma, x[0], this.T, this.t, 0.001));
+            double result = this.CF.Scalar(this.HWBond(this.a, this.sigma, x[0], this.T, this.t));
             return result - 1.0;
-        }
-
-        /// <summary>
-        /// Calculates a vector of zero coupon bond prices
-        /// (discount factors) within the Hull-White model.
-        /// </summary>
-        /// <param name='a'>
-        /// Hull-White alpha parameter.
-        /// </param>
-        /// <param name='sigma'>
-        /// Hull-White sigma parameter.
-        /// </param>
-        /// <param name='r'>
-        /// Short rate value.
-        /// </param>
-        /// <param name='T'>
-        /// Vector of bond maturity.
-        /// </param>
-        /// <param name='t'>
-        /// Time at which the valuation is done.
-        /// </param>
-        /// <param name='dt'>
-        /// Time interval between bond coupons.
-        /// </param>
-        /// <returns>
-        /// The vector of bond prices.
-        /// </returns>
-        private Vector HWBond(double a, double sigma, double r, Vector T, double t, double dt)
-        {
-            double Pt = PZC(t);
-            double Pdt = PZC(t + dt);
-            double Bdt = (1.0 - Math.Exp(-a * dt)) / a;
-
-            Vector PT;
-            Vector BT;
-            Vector Bh;
-            Vector Ah;
-            Vector result;
-            PT = new Vector(T.Length);
-            BT = new Vector(T.Length);
-            Bh = new Vector(T.Length);
-            Ah = new Vector(T.Length);
-            result = new Vector(T.Length);
-            for (int i = 0; i < T.Length; i++)
-            {
-                PT[i] = PZC(T[i]);
-                BT[i] = (1.0 - Math.Exp(-a * (T[i] - t))) / a;
-                Bh[i] = dt * BT[i] / Bdt;
-                Ah[i] = Math.Exp(Math.Log(PT[i] / Pt) - Math.Log(Pdt / Pt) * BT[i] / Bdt - sigma * sigma * (1.0 - Math.Exp(-2 * a * t)) * BT[i] * (BT[i] - Bdt) / (4 * a));
-                result[i] = Ah[i] * Math.Exp(-Bh[i] * r);
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -354,32 +232,17 @@ namespace HullAndWhiteOneFactor
         /// <param name='t'>
         /// Time at which the valuation is done.
         /// </param>
-        /// <param name='dt'>
-        /// Time interval between bond coupons.
-        /// </param>
         /// <returns>
         /// The vector of bond prices.
         /// </returns>
-        private Vector HWBond2(double a, double sigma, double r, Vector T, double t, double dt)
+        private Vector HWBond(double a, double sigma, double r, Vector T, double t)
         {
-            double Pt = PZC(t);
-            Vector PT;
-            Vector BT;
-            Vector AT;
-            Vector result;
-            PT = new Vector(T.Length);
-            BT = new Vector(T.Length);
-            double f = -(Math.Log(PZC(t + dt)) - Math.Log(PZC(t))) / (dt);
-            AT = new Vector(T.Length);
-            result = new Vector(T.Length);
+            double y = r - this.alphaTFunc(t);
+            Vector result = new Vector(T.Length);
             for (int i = 0; i < T.Length; i++)
             {
-                PT[i] = PZC(T[i]);
-                BT[i] = (1.0 - Math.Exp(-a * (T[i] - t))) / a;
-                AT[i] = (PT[i] / Pt) * Math.Exp(BT[i] * f - sigma * sigma * (1.0 - Math.Exp(-2 * a * t)) * BT[i] * BT[i] / (4 * a));
-                result[i] = AT[i] * Math.Exp(-BT[i] * r);
+                result[i] = Math.Exp(A(t, T[i], a, sigma, this.zeroRateCurve) - y * B(T[i] - t, a));
             }
-
             return result;
         }
 
@@ -407,43 +270,11 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// The put price.
         /// </returns>
-        private double ZCBPut(double a, double sigma, double L, double K, double T, double s)
+        public double ZCBPut(double a, double sigma, double L, double K, double T, double s)
         {
-            double h = H(a, sigma, L, K, T, s);
-            double sigmap = SigmaP(a, sigma, T, s);
-            return K * PZC(T) * SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * SpecialFunctions.NormCdf(-h);
-        }
-
-        /// <summary>
-        /// Calculates the value of a put option on a zero coupon bond.
-        /// This is a separate version to double check the HW swaption.
-        /// </summary>
-        /// <param name='a'>
-        /// Hull-White alpha parameter.
-        /// </param>
-        /// <param name='sigma'>
-        /// Hull-White sigma parameter.
-        /// </param>
-        /// <param name='L'>
-        /// Zero coupon notional.
-        /// </param>
-        /// <param name='K'>
-        /// Bond rate.
-        /// </param>
-        /// <param name='T'>
-        /// The maturity of the option.
-        /// </param>
-        /// <param name='s'>
-        /// The maturity of the bond.
-        /// </param>
-        /// <returns>
-        /// The put price.
-        /// </returns>
-        private double ZCBPut2(double a, double sigma, double L, double K, double T, double s)
-        {
-            double h = H(a, sigma, L, K, T, s);
-            double sigmap = SigmaP(a, sigma, T, s);
-            return K * PZC(T) * SpecialFunctions.NormCdf(-h + sigmap) - L * PZC(s) * SpecialFunctions.NormCdf(-h);
+            double h = this.H(a, sigma, L, K, T, s);
+            double sigmap = this.SigmaP(a, sigma, T, s);
+            return K * this.PZC(T) * SpecialFunctions.NormCdf(-h + sigmap) - L * this.PZC(s) * SpecialFunctions.NormCdf(-h);
         }
 
         /// <summary>
@@ -472,8 +303,8 @@ namespace HullAndWhiteOneFactor
         /// </returns>
         private double H(double a, double sigma, double L, double K, double T, double s)
         {
-            double sigmap = SigmaP(a, sigma, T, s);
-            return Math.Log(L * PZC(s) / (K * PZC(T))) / sigmap + 0.5 * sigmap;
+            double sigmap = this.SigmaP(a, sigma, T, s);
+            return Math.Log(L * this.PZC(s) / (K * this.PZC(T))) / sigmap + 0.5 * sigmap;
         }
 
         /// <summary>
@@ -519,7 +350,101 @@ namespace HullAndWhiteOneFactor
         /// <returns>The value of the discount factor at position t.</returns>
         private double PZC(double t)
         {
-            return Math.Exp(-ZR(t) * t);
+            return Math.Exp(-this.ZR(t) * t);
+        }
+
+        /// <summary>
+        /// Numerically calculates the instantaneous forward rate.
+        /// </summary>
+        /// <param name='t'>
+        /// Time at which calculate the forward rate.
+        /// </param>
+        /// <param name='dt'>
+        /// Interval to be used in the numerical derivative.
+        /// </param>
+        /// <returns>
+        /// The value of the instantaneous forward rate.
+        /// </returns>
+        private double F(double t, double dt)
+        {
+            if (t == 0)
+                return this.ZR(t);
+            else
+                return (this.ZR(t + dt) * (t + dt) - this.ZR(t) * t) / dt;
+        }
+
+        /// <summary>
+        /// Calculation of alpha function
+        /// </summary>
+        /// <param name="t">Time at which calculate the alpha function</param>
+        /// <returns>Alpha function value</returns>
+        public double alphaTFunc(double t)
+        {
+            double dt = 0.001;
+            return this.F(t, dt) + this.sigma * this.sigma * Math.Pow(1.0 - Math.Exp(-this.a * t), 2.0) / (2.0 * this.a * this.a);
+        }
+
+        /// <summary>
+        /// Calculates the function A() to be used in the Bond() method.
+        /// </summary>
+        /// <param name='t'>
+        /// The time at which the Bond price will be calculated.
+        /// </param>
+        /// <param name='T'>
+        /// The bond maturity.
+        /// </param>
+        /// <param name='alpha'>
+        /// Hull-White alpha parameter.
+        /// </param>
+        /// <param name='sigma'>
+        /// Hull-White sigma parameter.
+        /// </param>
+        /// <param name='zeroRateCurve'>
+        /// Zero rate curve.
+        /// </param>
+        /// <returns>
+        /// A double with the value of the A() function.
+        /// </returns>
+        public static double A(double t, double T, double alpha, double sigma, Function zeroRateCurve)
+        {
+            double dT = T - t;
+            double firstTerm = sigma * sigma * (alpha * dT - 2.0 * (1.0 - Math.Exp(-alpha * dT))
+                + 0.5 * (1.0 - Math.Exp(-2.0 * alpha * dT))) / (2.0 * Math.Pow(alpha, 3.0));
+
+            return firstTerm - AlphaInt(t, T, alpha, sigma, zeroRateCurve);
+        }
+
+        /// <summary>
+        /// Calculates the integral of alpha function to be used in the A() method.
+        /// </summary>
+        /// <param name="t">Lower value defining integration interval.</param>
+        /// <param name="T">Upper value defining integration interval.</param>
+        /// <param name="alpha">Hull-White alpha parameter.</param>
+        /// <param name="sigma">Hull-White sigma parameter.</param>
+        /// <param name="zeroRateCurve">Zero rate curve.</param>
+        /// <returns>The integral of alpha function between t and T.</returns>
+        private static double AlphaInt(double t, double T, double alpha, double sigma, Function zeroRateCurve)
+        {
+            double firstTerm = zeroRateCurve.Evaluate(T) * T - zeroRateCurve.Evaluate(t) * t;
+            return firstTerm + sigma * sigma * (alpha * (T - t) - 2.0 * (Math.Exp(-alpha * t) - Math.Exp(-alpha * T))
+                + 0.5 * (Math.Exp(-2.0 * alpha * t) - Math.Exp(-2.0 * alpha * T))) / (2.0 * Math.Pow(alpha, 3.0));
+        }
+
+        /// <summary>
+        /// Calculates the function B() to be used in the Bond() method.
+        /// </summary>
+        /// <param name='T'>
+        /// The difference between bond maturity time and valuation time.
+        /// </param>
+        /// <param name='alpha'>
+        /// Hull-White alpha parameter.
+        /// </param>
+        /// <returns>
+        /// The value of the B function.
+        /// </returns>
+        private static double B(double T, double alpha)
+        {
+            return (1.0 - Math.Exp(-alpha * T)) / alpha;
         }
     }
 }

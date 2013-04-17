@@ -30,14 +30,13 @@ namespace HullAndWhiteOneFactor
     /// </summary>
     [Serializable]
     public class HW1 : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
-                       IParsable, IPopulable, IGreeksDerivativesInfo, IOpenCLCode
+                       IParsable, IPopulable, IGreeksDerivativesInfo, IOpenCLCode, IPostSimulationTransformation
     {
         #region SerializedFields
 
         /// <summary>
         /// Reference to the zero rate.
         /// </summary>
-        [ExternalSymbolReference("ZR", typeof(PFunction))]
         private IModelParameter zrReference;
 
         /// <summary>
@@ -51,6 +50,12 @@ namespace HullAndWhiteOneFactor
         private IModelParameter sigma1;
 
         /// <summary>
+        /// Market price of risk.
+        /// </summary>
+        [OptionalField(VersionAdded = 3)]
+        private IModelParameter lambda0;
+
+        /// <summary>
         /// Drift adjustment: can be used for adding risk premium or quanto adjustments.
         /// </summary>
         [OptionalField(VersionAdded = 2)]
@@ -58,24 +63,33 @@ namespace HullAndWhiteOneFactor
 
         #endregion
 
+        #region Properties
+
         /// <summary>
-        /// Dt for numerical derivation (may be different and
-        /// independent from the temporal discretization).
+        /// Gets or Sets the reference to the zero rate.
+        /// Used to expose to the <see cref="ExternalSymbolReference"/> API.
         /// </summary>
-        private static double dt2 = 1.0 / 600;
+        [ExternalSymbolReference("ZR", typeof(PFunction))]
+        public IModelParameter ZRReference
+        {
+            get
+            {
+                return zrReference;
+            }
+
+            set
+            {
+                zrReference = value;
+            }
+        }
+
+        #endregion Properties
 
         /// <summary>
         /// Temporary zero rate function, used to optimize the simulation.
         /// </summary>
         [NonSerialized]
         private Function zeroRateCurve;
-
-        /// <summary>
-        /// Temporary semi drift values calculated from the dates vector
-        /// and used to optimize the simulation.
-        /// </summary>
-        [NonSerialized]
-        private double[] semiDrift;
 
         /// <summary>
         /// Temporary value for the Rate of mean reversion, used to optimize the simulation.
@@ -88,12 +102,6 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         [NonSerialized]
         private double sigma1Temp;
-
-        /// <summary>
-        /// Keeps the dates to use for the simulation.
-        /// </summary>
-        [NonSerialized]
-        private double[] dates = null;
 
         /// <summary>
         /// Keeps the readable description of the alpha model variable.
@@ -111,21 +119,49 @@ namespace HullAndWhiteOneFactor
         private const string zeroRateDescription = "Zero Rate";
 
         /// <summary>
+        /// Keeps the readable description of the lambda0 model variable.
+        /// </summary>
+        private static string lambda0Description = "Lambda";
+
+        /// <summary>
+        /// Temporary variable for the transformation (mDailyDates).
+        /// </summary>
+        [NonSerialized]
+        private double[] alphaT;
+
+        /// <summary>
         /// Keeps the readable description for drift adjustment.
         /// </summary>
         private const string driftAdjustmentDescription = "Drift Adjustment";
 
         /// <summary>
-        /// Default constructor. It initializes HW with
+        /// Initializes a new instance of the HW1 class with
         /// alpha 0.001, sigma 0.001 and an empty zeroRateReference.
         /// </summary>
-        public HW1() : this(0.001, 0.001, string.Empty)
+        public HW1()
+            : this(0.001, 0.001, 0.0, string.Empty)
         {
         }
 
         /// <summary>
-        /// Constructor to initialize the start values of alpha, sigma and a
-        /// zero rate reference.
+        /// Initializes a new instance of the HW1 class given alpha, sigma, lambda and a zero rate reference.
+        /// </summary>
+        /// <param name="alpha">The rate of the mean reversion to be used to initialize HW.</param>
+        /// <param name="sigma">The standard deviation to be used to initialize HW.</param>
+        /// <param name="lambda">The market price of risk to be used to initialize HW.</param>
+        /// <param name="zeroRateReference">
+        /// Reference to the zero rate to be used to initialize HW.
+        /// </param>
+        public HW1(double alpha, double sigma, double lambda, string zeroRateReference)
+        {
+            this.alpha1 = new ModelParameter(alpha, alphaDescription);
+            this.sigma1 = new ModelParameter(sigma, sigmaDescription);
+            this.lambda0 = new ModelParameter(lambda, lambda0Description);
+            this.zrReference = new ModelParameter(zeroRateReference, zeroRateDescription);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the HW1 class given alpha, sigma and a zero rate reference.
         /// </summary>
         /// <param name="alpha">The rate of the mean reversion to be used to initialize HW.</param>
         /// <param name="sigma">The standard deviation to be used to initialize HW.</param>
@@ -133,11 +169,8 @@ namespace HullAndWhiteOneFactor
         /// Reference to the zero rate to be used to initialize HW.
         /// </param>
         public HW1(double alpha, double sigma, string zeroRateReference)
+            : this(alpha, sigma, 0.0, zeroRateReference)
         {
-            this.alpha1 = new ModelParameter(alpha, alphaDescription);
-            this.sigma1 = new ModelParameter(sigma, sigmaDescription);
-            this.zrReference = new ModelParameter(zeroRateReference, zeroRateDescription);
-            this.driftAdjustment = new ModelParameter(0, driftAdjustmentDescription);
         }
 
         /// <summary>
@@ -151,6 +184,8 @@ namespace HullAndWhiteOneFactor
         {
             if (this.driftAdjustment == null)
                 this.driftAdjustment = new ModelParameter(0, driftAdjustmentDescription);
+            if (this.lambda0 == null)
+                this.lambda0= new ModelParameter(0, lambda0Description);
         }
 
         #region IParsable Members
@@ -169,7 +204,6 @@ namespace HullAndWhiteOneFactor
             bool errors = false;
             BoolHelper.AddBool(errors, this.alpha1.Parse(p_Context));
             BoolHelper.AddBool(errors, this.sigma1.Parse(p_Context));
-            BoolHelper.AddBool(errors, this.driftAdjustment.Parse(p_Context));
             if (this.zrReference.Expression.IndexOf("@") == -1)
             {
                 p_Context.AddError(this.zrReference.Expression +
@@ -245,23 +279,14 @@ namespace HullAndWhiteOneFactor
         /// <param name='t'>
         /// The date in years/fractions at at which the state variable must be sampled.
         /// </param>
-        /// <param name='s'>
+        /// <param name='T'>
         /// The maturity of the bond.
         /// </param>
         /// <returns>The value of the bound at index i using the HW model.</returns>
-        public double Bond(IReadOnlyMatrixSlice dynamic, double[] dates, int i, double t, double s)
+        public double Bond(IReadOnlyMatrixSlice dynamic, double[] dates, int i, double t, double T)
         {
-            double dt = 0;
-            int last_index = dates.Length - 1;
-            if (i < dates.Length - 1)
-                dt = dates[i + 1] - dates[i];
-            else
-                dt = dates[dates.Length - 1] - dates[dates.Length - 2];
-
-            // Get the value of the short rate.
-            double r = dynamic[i, 0];
-
-            return A(t, s, dt, this.alpha1Temp, this.sigma1Temp, this.zeroRateCurve) * Math.Exp(-r * B(t, s, dt, this.alpha1Temp));
+            double y = dynamic[i, 0] - this.alphaT[i];
+            return Math.Exp(A(t, T, this.alpha1Temp, this.sigma1Temp, this.zeroRateCurve) - y * B(T - t, this.alpha1Temp));
         }
 
         #endregion
@@ -293,7 +318,7 @@ namespace HullAndWhiteOneFactor
         }
 
         /// <summary>
-        /// Gets the ProcessInfo for this plugin, in this case H&amp;W1.
+        /// Gets the ProcessInfo for this plugin, in this case H&W1.
         /// </summary>
         public ProcessInfo ProcessInfo
         {
@@ -333,23 +358,25 @@ namespace HullAndWhiteOneFactor
         /// </param>
         public void Setup(double[] dates)
         {
-            // Assume at least two steps and constant dt
-            dt2 = dates[1] - dates[0];
-            this.dates = dates;
-
-            // Pre-calculates semiDrift
-            this.semiDrift = new double[dates.Length];
-            double dt = 0;
+            this.alphaT = new double[dates.Length];
             for (int i = 0; i < dates.Length; i++)
             {
-                // Otherwise keep the last calculated
-                if (i < dates.Length - 1)
-                    dt = dates[i + 1] - dates[i];
-                this.semiDrift[i] = Theta(dates[i], dt);
+                this.alphaT[i] = this.alphaTFunc(dates[i]);
             }
         }
 
         #endregion
+
+        /// <summary>
+        /// Calculates the value of alpha function at time t
+        /// </summary>
+        /// <param name="t">Time at which calculate alpha</param>
+        /// <returns>Alpha function value</returns>
+        private double alphaTFunc(double t)
+        {
+            double dt = 0.001;
+            return this.F(t, dt) + this.sigma1Temp * this.sigma1Temp * Math.Pow(1.0 - Math.Exp(-this.alpha1Temp * t), 2.0) / (2.0 * this.alpha1Temp * this.alpha1Temp);
+        }
 
         #region IExportableContainer Members
 
@@ -367,7 +394,7 @@ namespace HullAndWhiteOneFactor
             List<IExportable> parameters = new List<IExportable>();
             parameters.Add(this.alpha1);
             parameters.Add(this.sigma1);
-            parameters.Add(this.driftAdjustment);
+            parameters.Add(this.lambda0);
             parameters.Add(this.zrReference);
 
             return parameters;
@@ -398,13 +425,7 @@ namespace HullAndWhiteOneFactor
         {
             get
             {
-                // Calculates the value from the ZR.
-                // The initial value is the value of the zero rate curve
-                // at the first date after the starting date.
-                double dt = this.dates[1];
-                double[] r0 = new double[1];
-                r0[0] = this.zeroRateCurve.Evaluate(dt);
-                return r0;
+                return new double[] { 0 };
             }
         }
 
@@ -418,7 +439,7 @@ namespace HullAndWhiteOneFactor
         /// <param name="a">The output of the function.</param>
         public unsafe void a(int i, double* x, double* a)
         {
-            a[0] = this.semiDrift[i] - this.alpha1Temp * x[0] + this.driftAdjustment.fV();
+            a[0] = -this.alpha1Temp * x[0] + this.lambda0.fV() * this.sigma1Temp;
         }
 
         /// <summary>
@@ -474,75 +495,9 @@ namespace HullAndWhiteOneFactor
         private double F(double t, double dt)
         {
             if (t == 0)
-                return ZR(t);
+                return this.ZR(t);
             else
-                return (ZR(t) * t - ZR(t - dt) * (t - dt)) / dt;
-        }
-
-        /// <summary>
-        /// Numerically calculates the derivative of function F().
-        /// </summary>
-        /// <param name='t'>
-        /// Time at which calculate the derivative.
-        /// </param>
-        /// <param name='dt'>
-        /// Semi-interval to be used in the numerical derivative.
-        /// </param>
-        /// <returns>
-        /// The derivative of the function F().
-        /// </returns>
-        private double DF(double t, double dt)
-        {
-            if (t == 0)
-                return (F(dt, dt) - F(0, dt)) / dt;
-
-            return (F(t + dt, dt) - F(t - dt, dt)) / (2 * dt);
-        }
-
-        /// <summary>
-        /// Calculates the theta element of the Hull And White formula which will be
-        /// stored in the semiDrift in order to be used during simulation.
-        /// </summary>
-        /// <param name="t">The position in which this value will be calculated.</param>
-        /// <param name="dt">The delta between this t position and the previous one.</param>
-        /// <returns>The requested value of theta, determined by the input values.</returns>
-        private double Theta(double t, double dt)
-        {
-            return DF(t, dt2) + this.alpha1Temp * F(t, dt2) + (1.0 - Math.Exp(-2.0 * this.alpha1Temp * t)) * Math.Pow(this.sigma1Temp, 2.0) / (2.0 * this.alpha1Temp);
-        }
-
-        /// <summary>
-        /// Calculates the Phi function to be used in methods A() and B().
-        /// </summary>
-        /// <param name='t'>
-        /// Time parameter.
-        /// </param>
-        /// <param name='alpha'>
-        /// Hull-White alpha parameter.
-        /// </param>
-        /// <returns>
-        /// The Phi function value.
-        /// </returns>
-        private static double Phi(double t, double alpha)
-        {
-            return (1 - Math.Exp(-alpha * t)) / alpha;
-        }
-
-        /// <summary>
-        /// Calculates the price of a zero coupon bond from the zero rate curve.
-        /// </summary>
-        /// <param name='T'>
-        /// Maturity of the zero coupon bond.
-        /// </param>
-        /// <param name='zero_rate_curve'>
-        /// Zero rate curve.
-        /// </param>
-        /// <returns>
-        /// A double with the value of the price.
-        /// </returns>
-        private static double ZCB(double T, Function zero_rate_curve)
-        {
-            return Math.Exp(-zero_rate_curve.Evaluate(T) * T);
+                return (this.ZR(t + dt) * (t + dt) - this.ZR(t) * t) / dt;
         }
 
         /// <summary>
@@ -553,9 +508,6 @@ namespace HullAndWhiteOneFactor
         /// </param>
         /// <param name='T'>
         /// The bond maturity.
-        /// </param>
-        /// <param name='dt'>
-        /// A small interval of time.
         /// </param>
         /// <param name='alpha'>
         /// Hull-White alpha parameter.
@@ -569,42 +521,46 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// A double with the value of the A() function.
         /// </returns>
-        private static double A(double t, double T, double dt, double alpha, double sigma, Function zeroRateCurve)
+        private static double A(double t, double T, double alpha, double sigma, Function zeroRateCurve)
         {
-            double phiDt = Phi(dt, alpha);
-            double phiTT = Phi(T - t, alpha);
+            double dT = T - t;
+            double firstTerm = sigma * sigma * (alpha * dT - 2.0 * (1.0 - Math.Exp(-alpha * dT))
+                + 0.5 * (1.0 - Math.Exp(-2.0 * alpha * dT))) / (2.0 * Math.Pow(alpha, 3.0));
 
-            double zcbT = ZCB(t, zeroRateCurve);
+            return firstTerm - AlphaInt(t, T, alpha, sigma, zeroRateCurve);
+        }
 
-            return Math.Exp(
-                    Math.Log(ZCB(T, zeroRateCurve) / zcbT) -
-                   (phiTT / phiDt) *
-                   Math.Log(ZCB(t + dt, zeroRateCurve) / zcbT)
-                   - ((sigma * sigma) / (4 * alpha)) * (1 - Math.Exp(-2 * alpha * t)) *
-                   phiTT * (phiTT - phiDt));
+        /// <summary>
+        /// Calculates the integral of alpha function to be used in the A() method.
+        /// </summary>
+        /// <param name="t">Lower value defining integration interval.</param>
+        /// <param name="T">Upper value defining integration interval.</param>
+        /// <param name="alpha">Hull-White alpha parameter.</param>
+        /// <param name="sigma">Hull-White sigma parameter.</param>
+        /// <param name="zeroRateCurve">Zero rate curve.</param>
+        /// <returns>The integral of alpha function between t and T.</returns>
+        private static double AlphaInt(double t, double T, double alpha, double sigma, Function zeroRateCurve)
+        {
+            double firstTerm = zeroRateCurve.Evaluate(T) * T - zeroRateCurve.Evaluate(t) * t;
+            return firstTerm + sigma * sigma * (alpha * (T - t) - 2.0 * (Math.Exp(-alpha * t) - Math.Exp(-alpha * T))
+                + 0.5 * (Math.Exp(-2.0 * alpha * t) - Math.Exp(-2.0 * alpha * T))) / (2.0 * Math.Pow(alpha, 3.0));
         }
 
         /// <summary>
         /// Calculates the function B() to be used in the Bond() method.
         /// </summary>
-        /// <param name='t'>
-        /// The time at which the Bond price will be calculated.
-        /// </param>
         /// <param name='T'>
-        /// The bond maturity.
-        /// </param>
-        /// <param name='dt'>
-        /// A small interval of time.
+        /// The difference between bond maturity time and valuation time.
         /// </param>
         /// <param name='alpha'>
         /// Hull-White alpha parameter.
         /// </param>
         /// <returns>
-        /// A double with the value of the B function.
+        /// The value of the B function.
         /// </returns>
-        private static double B(double t, double T, double dt, double alpha)
+        private static double B(double T, double alpha)
         {
-            return Phi(T - t, alpha) / Phi(dt, alpha) * dt;
+            return (1.0 - Math.Exp(-alpha * T)) / alpha;
         }
 
         #region IPopulable Members
@@ -665,8 +621,7 @@ namespace HullAndWhiteOneFactor
                 List<Tuple<string, object>> args = new List<Tuple<string, object>>();
                 args.Add(new Tuple<string, object>("alpha1", this.alpha1));
                 args.Add(new Tuple<string, object>("sigma1", this.sigma1));
-                args.Add(new Tuple<string, object>("semiDrift", this.semiDrift));
-                args.Add(new Tuple<string, object>("driftAdjustment", this.driftAdjustment));
+                args.Add(new Tuple<string, object>("lambda0", this.lambda0));
                 return args;
             }
         }
@@ -680,7 +635,7 @@ namespace HullAndWhiteOneFactor
             {
                 Dictionary<string, string> sources = new Dictionary<string, string>();
                 sources.Add("B", "*b = sigma1;");
-                sources.Add("A", "*a = semiDrift[step] - alpha1 * x[0] + driftAdjustment;");
+                sources.Add("A", "*a = -alpha1 * x[0] + lambda0 * sigma1;");
                 return sources;
             }
         }
@@ -697,5 +652,18 @@ namespace HullAndWhiteOneFactor
             }
         }
         #endregion
+
+        /// <summary>
+        /// Handles the conversion, after the simulation, from y to the short rate r.
+        /// </summary>
+        /// <param name="dates">Simulation dates.</param>
+        /// <param name="outDynamic">The input and output components of the transformation.</param>
+        public void Transform(double[] dates, IMatrixSlice outDynamic)
+        {
+            for (int j = 0; j < dates.Length; j++)
+            {
+                outDynamic[j, 0] = outDynamic[j, 0] + this.alphaT[j];
+            }
+        }
     }
 }

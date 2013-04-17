@@ -64,7 +64,7 @@ namespace HullAndWhiteOneFactor
             double v = r.m_ResultList[0].value;
             Console.WriteLine("v = " + v.ToString());
 
-            Assert.Less(Math.Abs(v - 0.9136), 0.0001);
+            Assert.Less(Math.Abs(v - 0.9134), 0.0001);
         }
 
         private static ProjectROV HullAndWhite1(string payoff, double maturity, double a1, double sigma1)
