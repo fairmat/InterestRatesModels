@@ -41,7 +41,7 @@ namespace HullAndWhiteOneFactor
         {
             get
             {
-                return "Hull-White one factor model";
+                return "Hull and White (One Factor) model";
             }
         }
 
