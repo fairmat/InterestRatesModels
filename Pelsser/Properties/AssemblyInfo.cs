@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin.
-[assembly: Addin("Pelsser squared gaussian model", "1.0.12", Category = "Stochastic Process")]
+[assembly: Addin("Pelsser squared gaussian model", "1.0.13", Category = "Stochastic Process")]
 [assembly: AddinDependency("Fairmat", "1.0")]
 [assembly: AddinAuthor("Fairmat SRL")]
 [assembly: AddinDescription("The one-factor squared Gaussian model. " +

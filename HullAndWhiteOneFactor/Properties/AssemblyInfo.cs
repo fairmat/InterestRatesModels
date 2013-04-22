@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin
-[assembly: Addin("Hull and White (One Factor) model", "1.0.19", Category = "Stochastic Process")]
+[assembly: Addin("Hull and White (One Factor) model", "1.1.1", Category = "Stochastic Process")]
 [assembly: AddinDependency("Fairmat", "1.0")]
 [assembly: AddinAuthor("Fairmat SRL")]
 [assembly: AddinDescription("A no-arbitrage model which is the industry standard " +
@@ -58,5 +58,5 @@ using Mono.Addins;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.19")]
-[assembly: AssemblyFileVersion("1.0.19")]
+[assembly: AssemblyVersion("1.1.1")]
+[assembly: AssemblyFileVersion("1.1.1")]
