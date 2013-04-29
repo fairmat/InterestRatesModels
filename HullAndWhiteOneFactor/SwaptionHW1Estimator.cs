@@ -92,15 +92,7 @@ namespace HullAndWhiteOneFactor
         {
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
 
-            // Creates the context.
-            Document doc = new Document();
-            ProjectROV prj = new ProjectROV(doc);
-            doc.Part.Add(prj);
-
             PFunction zr = new PFunction(null);
-            zr.VarName = "zr";
-            prj.Symbols.Add(zr);
-
             // Loads the zero rate.
             double[,] zrvalue = (double[,])ArrayHelper.Concat(dataset.ZRMarketDates.ToArray(), dataset.ZRMarket.ToArray());
             zr.Expr = zrvalue;
