@@ -672,7 +672,11 @@ namespace Pelsser
         /// <returns>The result of the F(T, dt) function.</returns>
         public double F2(double T, double dt)
         {
-            return f(T, dt) - SIG(T);
+            if (Project.ActiveProject!=null)
+                if (Project.ActiveProject.SolverAssumptions.PreviewMode == true)
+                    return Math.Max(0, f(T, dt) - SIG(T));//Relax perlsser model assumption
+           //Execute model formula
+           return f(T, dt) - SIG(T);
         }
 
         /// <summary>
