@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using DVPLDOM;
 using DVPLI;
 using ParallelVectors;
-
+using System.Runtime.Serialization;
 namespace Pelsser
 {
     /// <summary>
@@ -497,7 +497,7 @@ namespace Pelsser
         {
             a[0] = -this.alpha1Temp * x[0] + this.lamda0.fV() * this.sigma1Temp;
         }
-
+        static int inc;
         /// <summary>
         /// This function defines the volatility in the Pelsser Markov process.
         /// The formula to calculate the B component is
@@ -899,5 +899,14 @@ namespace Pelsser
         {
             return new IModelParameter[] { this.sigma1 };
         }
+
+        [OnDeserialized]
+        void OnDeserialized(StreamingContext context)
+        {
+            //Fix lambda0: some old files have it set to null
+            if(this.lamda0==null)
+                this.lamda0 = new ModelParameter(0, lambda0Description);
+        }
+
     }
 }
