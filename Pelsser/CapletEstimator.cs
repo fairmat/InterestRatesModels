@@ -117,7 +117,12 @@ namespace Pelsser.Calibration
             for (int m = 0; m < capMat.Length; m++)
             {
                 for (int s = 0; s < capK.Length; s++)
-                    blackCaps[m, s] = bm.Cap(capK[s], capVol[m, s], deltak, capMat[m]);
+                {
+                    if (capVol[m, s] == 0)
+                        blackCaps[m, s] = 0;
+                    else
+                        blackCaps[m, s] = bm.Cap(capK[s], capVol[m, s], deltak, capMat[m]);
+                }
             }
 
             if (blackCaps.IsNAN())
