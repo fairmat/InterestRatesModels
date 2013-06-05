@@ -30,7 +30,7 @@ namespace HullAndWhiteOneFactor
     /// </summary>
     [Serializable]
     public class HW1 : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
-                       IParsable, IPopulable, IGreeksDerivativesInfo, IOpenCLCode, IPostSimulationTransformation
+                       IParsable, IEstimationResultPopulable, IGreeksDerivativesInfo, IOpenCLCode, IPostSimulationTransformation
     {
         #region SerializedFields
 
@@ -563,8 +563,8 @@ namespace HullAndWhiteOneFactor
             return (1.0 - Math.Exp(-alpha * T)) / alpha;
         }
 
-        #region IPopulable Members
-
+        #region IEstimationResultPopulable Members
+        /*
         /// <summary>
         /// Populate editable fields from name and value vectors
         /// specific to HW.
@@ -579,8 +579,28 @@ namespace HullAndWhiteOneFactor
             bool found = false;
             this.alpha1 = new ModelParameter(PopulateHelper.GetValue("alpha", "a1", names, values, out found), alphaDescription);
             this.sigma1 = new ModelParameter(PopulateHelper.GetValue("sigma", "sigma1", names, values, out found), sigmaDescription);
+            this.lambda0 = new ModelParameter(PopulateHelper.GetValue("Lambda0", "lambda0", names, values, out found), lambda0Description);
         }
+        */
 
+        /// <summary>
+        /// Populate editable fields from name and value vectors
+        /// specific to the Heston extended process.
+        /// </summary>
+        /// <param name="stocProcess">
+        /// The stochastic process which is being referenced to.
+        /// </param>
+        /// <param name="estimate">
+        /// The estimation result which contains values and names of parameters.
+        /// It will be searched for S0, kappa, theta, sigma, V0 and rho.
+        /// </param>
+        public void Populate(IStochasticProcess stocProcess, EstimationResult estimate)
+        {
+            bool found;
+            this.alpha1 = new ModelParameter(PopulateHelper.GetValue("alpha", "a1", estimate.Names, estimate.Values, out found), alphaDescription);
+            this.sigma1 = new ModelParameter(PopulateHelper.GetValue("sigma", "sigma1", estimate.Names, estimate.Values, out found), sigmaDescription);
+            this.lambda0 = new ModelParameter(PopulateHelper.GetValue("Lambda0", "lambda0", estimate.Names, estimate.Values, out found), lambda0Description);
+        }
         #endregion
 
         #region IGreeksDerivativesInfo implementation
