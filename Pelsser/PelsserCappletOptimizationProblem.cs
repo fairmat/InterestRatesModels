@@ -155,15 +155,19 @@ namespace Pelsser.Calibration
 
             double dt = 1.0 / (2 * 252);
             for (double t = 0; t <= maturity; t += dt)
-            {
-                // The square of F.
-                double r = model.F2(t, dt);
-                if (r < 0)
-                {
-                    res[0] += -r;
-                }
-            }
+                res[0] += Math.Max(0, -model.F2(t, dt)); // The square of F.
 
+            
+            dt = .1317;
+            for (double t = 0; t <= 2; t += dt)
+                res[0] +=Math.Max(0,-model.F2(t, dt)); // The square of F.
+          
+
+            dt = .25;
+            for (double t = 0; t <= 2; t += dt)
+                res[0] +=Math.Max(0,-model.F2(t, dt)); // The square of F.
+            
+            
             return res;
         }
 
@@ -177,7 +181,7 @@ namespace Pelsser.Calibration
         /// </returns>
         public DVPLI.Vector G(DVPLI.Vector x)
         {
-            return PelsserConstraint(this.project, x, 30);
+            return PelsserConstraint(this.project, x, 50);
         }
 
         /// <summary>
@@ -197,7 +201,7 @@ namespace Pelsser.Calibration
         /// <param name="project">The project where to evaluate.</param>
         /// <param name="x">The vector of x values.</param>
         /// <returns>A <see cref="SquaredGaussianModel"/> set with the values.</returns>
-        private static SquaredGaussianModel Assign(ProjectROV project, Vector x)
+        internal static SquaredGaussianModel Assign(ProjectROV project, Vector x)
         {
             Engine.Parser.NewContext();
 
@@ -209,7 +213,10 @@ namespace Pelsser.Calibration
             a1.m_Value = (RightValue)x[0];
             s1.m_Value = (RightValue)x[1];
 
-            model.Parse(null);
+            bool errors=model.Parse(null);
+            if (errors) 
+                 throw new Exception("Cannot Assing model");
+           
             return model;
         }
 
