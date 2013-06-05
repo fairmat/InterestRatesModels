@@ -162,7 +162,7 @@ namespace Pelsser.Calibration
             IOptimizationAlgorithm solver2 = new SteepestDescent();
 
             DESettings o = new DESettings();
-            o.NP = 30;
+            o.NP = 35;
             o.TargetCost = 0.009;
             o.MaxIter = 10;
             o.Verbosity = Math.Max(1, Engine.Verbose);
@@ -178,7 +178,7 @@ namespace Pelsser.Calibration
             if (solution.errors)
                 return new EstimationResult(solution.message);
 
-            o.epsilon = 10e-6;
+            o.epsilon = 10e-7;
             o.h = 10e-7;
             o.MaxIter = 1000;
             o.Debug = true;
