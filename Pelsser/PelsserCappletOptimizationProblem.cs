@@ -92,6 +92,7 @@ namespace Pelsser.Calibration
             this.deltaK = deltaK;
             this.capMat = capMat;
             this.blackCaps = blackCaps;
+            Console.WriteLine("Pelsser Caps problem on " + this.capMaturity.Length + " x " + this.capK.Length + " elements");
         }
 
         #region IOptimizationProblem Members
@@ -248,7 +249,7 @@ namespace Pelsser.Calibration
                     }
                 }
 
-                return sum;
+                return Math.Sqrt(sum/(caps.R*caps.C));
             }
             catch (Exception)
             {

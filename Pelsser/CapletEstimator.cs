@@ -163,7 +163,7 @@ namespace Pelsser.Calibration
 
             DESettings o = new DESettings();
             o.NP = 35;
-            o.TargetCost = 0.009;
+            o.TargetCost = 0.0025;
             o.MaxIter = 10;
             o.Verbosity = Math.Max(1, Engine.Verbose);
             o.controller = controller;
@@ -201,7 +201,7 @@ namespace Pelsser.Calibration
             result.ZRY = (double[])dataset.ZRMarket.ToArray();
             result.Objects = new object[1];
             result.Objects[0] = solution.obj;
-
+            //result.Fit = solution.obj;//Uncomment in 1.6
             // Restore the dates
             if (Document.ActiveDocument != null)
             {
