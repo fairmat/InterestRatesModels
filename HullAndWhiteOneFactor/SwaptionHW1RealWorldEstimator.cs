@@ -22,7 +22,7 @@ namespace HullAndWhiteOneFactor
         {
             get
             {
-                return "Calibrate using swaption and zero rate curve historical series";
+                return "Real world calibration using swaption and zero rate curve historical series";
             }
         }
 
@@ -33,7 +33,7 @@ namespace HullAndWhiteOneFactor
         {
             get
             {
-                return "Calibrate HW1 using Swaption and zero rate curve historical series";
+                return "Real world calibration using Swaption and zero rate curve historical series";
             }
         }
 
