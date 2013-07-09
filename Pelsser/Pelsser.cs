@@ -681,7 +681,12 @@ namespace Pelsser
             }
 
            //Execute model formula
-           return f(T, dt) - SIG(T);
+           double z= f(T, dt) - SIG(T);
+           double eps = 0.0001;
+           if (z > -eps)
+               return Math.Max(0,z);
+           else
+               return z;
         }
 
         /// <summary>
