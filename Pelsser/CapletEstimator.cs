@@ -96,13 +96,15 @@ namespace Pelsser.Calibration
             ProjectROV prj = new ProjectROV(doc);
             doc.Part.Add(prj);
 
-            PFunction zr = new PFunction(null);
+            Function zr = new PFunction(null);
             zr.VarName = "zr";
-            prj.Symbols.Add(zr);
-
             // Load the zr.
             double[,] zrvalue = (double[,])ArrayHelper.Concat(dataset.ZRMarketDates.ToArray(), dataset.ZRMarket.ToArray());
             zr.Expr = zrvalue;
+            zr = Pelsser.SquaredGaussianModel.ZeroRateSmoother(zr);
+
+            prj.Symbols.Add(zr);
+
 
             BlackModel bm = new BlackModel(zr);
 

@@ -238,6 +238,8 @@ namespace Pelsser
 
                     p_Context.AddError("Cannot find the Zero Rate Curve! " + this.zr.Expression);
                 }
+                else
+                    this.zeroRateCurve = ZeroRateSmoother(this.zeroRateCurve);
             }
             else
                 errors = true;
@@ -682,11 +684,7 @@ namespace Pelsser
 
            //Execute model formula
            double z= f(T, dt) - SIG(T);
-           double eps = 0.0001;
-           if (z > -eps)
-               return Math.Max(0,z);
-           else
-               return z;
+           return z;
         }
 
         /// <summary>
@@ -918,5 +916,71 @@ namespace Pelsser
                 this.lamda0 = new ModelParameter(0, lambda0Description);
         }
 
+
+        /// <summary>
+        /// Builds a new Zero Rate function by automatic removal of zr nodes if inchorent.
+        /// 
+        /// The nodes are removed if the derivative calculated in the node is different w.r.t. the mean derivative 
+        /// in the close nodes.
+        /// </summary>
+        /// <param name="zr">The market data zero rate</param>
+        /// <returns>The new Zr suitable for the Pelsser model</returns>
+        internal static Function ZeroRateSmoother(Function zr)
+        {
+            if (zr is PFunction)
+            {
+                PFunction original = zr as PFunction;
+                //Get the nodes, if the derivative in a node
+                Vector derivatives = new Vector(original.m_Function.GuidePoints.Count);
+                for (int i = 0; i < derivatives.Length; i++)
+                    derivatives[i]=FunctionHelper.Partial(original, new Vector(){original.m_Function.GuidePoints[i].x.fV()}, 0);
+               
+                //moving average of the derivative
+                var ma = MovingAverage(derivatives, 7);//TODO: in Fairmat 1.6 replace with Vector.MovingAverage
+                double derivMean = 10e-5+Math.Abs(derivatives.Mean());
+
+                PFunction cloned = ObjectSerialization.CloneObject(original) as PFunction;
+
+                //Outliers removal: remove points which absolute value of the derivative isen't close to the trend.
+                for (int i = derivatives.Length - 1; i >= 0; i--)
+                {
+                    if(Math.Abs(derivatives[i]-ma[i])/derivMean > 25)
+                        cloned.m_Function.GuidePoints.RemoveAt(i);
+                }
+                /*
+                Console.WriteLine("Deriv");
+                Console.WriteLine(derivatives);
+                Console.WriteLine("MA"); 
+                Console.WriteLine(ma);
+                */
+                
+                
+                return cloned;
+            }
+            else// In case of analytic function do not change 
+                return zr;
+        }
+
+        /// <summary>
+        /// Calculates the moving average: each element with index z of the resulting vector is calculated by averaging the
+        /// values of the elements with indices in the interval [z-size/2,z+size+2] 
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="size">The number of elements to be considered in the averaging. It mus be an odd number.</param>
+        /// <returns>The Vecor with the averages</returns>
+        internal static Vector MovingAverage(Vector v, int size)
+        {
+            if (((size & 1) == 0)||size<1)//Even number
+                throw new ArgumentException("size must be and odd positive number!");
+            var ma = new Vector(v.Length);
+            for (int z = 0; z < v.Length;z++)
+            {
+                int s = Math.Max(0, z - size / 2);
+                int e = Math.Min(v.Length - 1, z + size / 2);
+
+                ma[z]= v[Range.New(s,e)].Mean();
+            }
+            return ma;
+        }
     }
 }
