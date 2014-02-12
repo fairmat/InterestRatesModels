@@ -148,10 +148,7 @@ namespace HullAndWhiteOneFactor
 
             CapsHW1OptimizationProblem problem = new CapsHW1OptimizationProblem(hw1Caps, blackCaps, capMaturity, capRate, deltak);
             Vector provaparam = new Vector(2);
-            provaparam[0] = 0.1;
-            provaparam[1] = 0.1;
-            Console.WriteLine("ObjFun(del 23012012) = {0}", problem.Obj(provaparam));
-
+          
             IOptimizationAlgorithm solver2 = new SteepestDescent();
 
             DESettings o = new DESettings();
