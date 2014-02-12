@@ -752,15 +752,13 @@ namespace Pelsser
         public double A(int ti, int si, double delta, double[] btT)
         {
             // Initialization of the integral.
-            double integralA = 0;
             int N = si - ti;
 
+            Vector a = new Vector(N);
             for (int i = 0; i < N; i++)
-            {
-                integralA += 0.5 * this.sigma1SquaredTemp * Math.Pow(btT[i], 2) - this.sigma1SquaredTemp * this.cDeltaT[N - i] - Math.Pow(this.alphaT[ti + i], 2);
-            }
-
-            return integralA * delta;
+                a[i] +=  0.5 * this.sigma1SquaredTemp * Math.Pow(btT[i], 2) - this.sigma1SquaredTemp * this.cDeltaT[N - i] - Math.Pow(this.alphaT[ti + i], 2);
+           
+            return Fairmat.Math.Integrate.Trapezoid(a,delta); 
         }
 
         /// <summary>
@@ -774,11 +772,10 @@ namespace Pelsser
         public double BSingle(int ti, int si, double delta)
         {
             // Initializes B integral.
-            double integralB = 0;
-
+            Vector b = new Vector(si);
             for (int i = ti; i < si; i++)
-                integralB += this.alphaT[i] / this.dDeltaT[si - i];
-            return 2 * this.dDeltaT[si - ti] * integralB * delta;
+                b[i] = this.alphaT[i] / this.dDeltaT[si - i];
+            return 2 * this.dDeltaT[si - ti] * Fairmat.Math.Integrate.Trapezoid(b, delta);
         }
 
         /// <summary>
@@ -791,7 +788,7 @@ namespace Pelsser
         /// <returns>The result of the function B(t, T).</returns>
         public double[] B(int ti, int si, double delta)
         {
-            double[] intermediates = new double[si - ti + 1];
+            double[] intermediates = new double[si - ti ];
 
             for (int i = ti; i < si; i++)
                 intermediates[i - ti] = this.alphaT[i] / this.dDeltaT[si - i];
@@ -802,8 +799,17 @@ namespace Pelsser
             {
                 IB += intermediates[i - ti];
                 result[i - ti] = 2 * this.dDeltaT[si - i] * IB * delta;
+               
             }
 
+            /*
+            for (int i = si - 1; i >= ti; i--)
+            {
+                var v =new Vector(
+                //IB += intermediates[i - ti];
+                //result[i - ti] = 2 * this.dDeltaT[si - i] * IB * delta;
+            }
+            */
             return result;
         }
 
