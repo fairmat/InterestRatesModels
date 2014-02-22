@@ -953,6 +953,8 @@ namespace Pelsser
                     if(Math.Abs(derivatives[i]-ma[i])/derivMean > 25)
                         cloned.m_Function.GuidePoints.RemoveAt(i);
                 }
+                //Notify changes to the function
+                cloned.m_Function.changed();
                 /*
                 Console.WriteLine("Deriv");
                 Console.WriteLine(derivatives);
