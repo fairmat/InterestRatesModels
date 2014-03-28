@@ -117,7 +117,6 @@ namespace Pelsser
         {
             this.instance = p_instance;
 
-            double[] p;
             double[] btT;
 
             // Integral calculation is always done with daily intervals.
@@ -140,13 +139,7 @@ namespace Pelsser
             int si = DVPLDOM.AdaptiveTimeDiscretization.DiscreteTime(s, this.instance.CacheDates);
             double delta = this.instance.CacheDates[1] - this.instance.CacheDates[0];
 
-            p = new double[si - ti + 1 + 1];
-            p[0] = t;
-            for (int j = 1; j < p.Length; j++)
-            {
-                p[j] = p[j - 1] + delta;
-            }
-
+           
             btT = this.instance.B(ti, si, delta);
             this.A = this.instance.A(ti, si, delta, btT);
             if (btT.Length > 0)
