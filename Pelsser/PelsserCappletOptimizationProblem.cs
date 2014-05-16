@@ -121,7 +121,7 @@ namespace Pelsser.Calibration
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
@@ -154,11 +154,11 @@ namespace Pelsser.Calibration
             SquaredGaussianModel model = Assign(project, x);
             Vector res = new Vector(1);
 
-            double dt = 1.0 / (2 * 252);
+            double dt = 1.0 / (252);
             for (double t = 0; t <= maturity; t += dt)
                 res[0] += Math.Max(0, -model.F2(t, dt)); // The square of F.
 
-            
+            /*
             dt = .1317;
             for (double t = 0; t <= 2; t += dt)
                 res[0] +=Math.Max(0,-model.F2(t, dt)); // The square of F.
@@ -167,7 +167,7 @@ namespace Pelsser.Calibration
             dt = .25;
             for (double t = 0; t <= 2; t += dt)
                 res[0] +=Math.Max(0,-model.F2(t, dt)); // The square of F.
-            
+            */
             
             return res;
         }
@@ -182,7 +182,7 @@ namespace Pelsser.Calibration
         /// </returns>
         public DVPLI.Vector G(DVPLI.Vector x)
         {
-            return PelsserConstraint(this.project, x, 50);
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -249,7 +249,9 @@ namespace Pelsser.Calibration
                     }
                 }
 
-                return Math.Sqrt(sum/(caps.R*caps.C));
+                double penalty=100*PelsserConstraint(this.project, x, 50).Norm();
+
+                return Math.Sqrt(sum / (caps.R * caps.C)) + penalty;
             }
             catch (Exception)
             {

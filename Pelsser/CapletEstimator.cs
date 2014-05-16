@@ -101,8 +101,7 @@ namespace Pelsser.Calibration
             // Load the zr.
             double[,] zrvalue = (double[,])ArrayHelper.Concat(dataset.ZRMarketDates.ToArray(), dataset.ZRMarket.ToArray());
             zr.Expr = zrvalue;
-            zr = Pelsser.SquaredGaussianModel.ZeroRateSmoother(zr);
-
+            
             prj.Symbols.Add(zr);
 
 
