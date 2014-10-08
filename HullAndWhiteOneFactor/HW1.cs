@@ -359,9 +359,12 @@ namespace HullAndWhiteOneFactor
         public void Setup(double[] dates)
         {
             this.alphaT = new double[dates.Length];
+            double dt = 0;
             for (int i = 0; i < dates.Length; i++)
             {
-                this.alphaT[i] = this.alphaTFunc(dates[i]);
+                if (i < dates.Length - 1)
+                    dt = dates[i + 1] - dates[i];
+                this.alphaT[i] = this.alphaTFunc(dates[i],dt);
             }
         }
 
@@ -372,9 +375,9 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         /// <param name="t">Time at which calculate alpha</param>
         /// <returns>Alpha function value</returns>
-        private double alphaTFunc(double t)
+        private double alphaTFunc(double t,double dt)
         {
-            double dt = 0.001;
+            //double dt = 0.001;
             return this.F(t, dt) + this.sigma1Temp * this.sigma1Temp * Math.Pow(1.0 - Math.Exp(-this.alpha1Temp * t), 2.0) / (2.0 * this.alpha1Temp * this.alpha1Temp);
         }
 
