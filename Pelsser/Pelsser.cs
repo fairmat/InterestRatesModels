@@ -517,6 +517,24 @@ namespace Pelsser
         }
 
         /// <summary>
+        /// This function defines the drift and the volatility in the Pelsser Markov process.
+        /// The formula to calculate the A component is
+        /// A = - alpha * previous State.
+        /// B = sigma.
+        /// </summary>
+        /// <param name="i">The parameter is not used.</param>
+        /// <param name="x">The state vector at the previous state.</param>
+        /// <param name="a">The output drift.</param>
+        /// <param name="a">The output volatility.</param>
+        public unsafe void ab(int i, double* x, double* a, double* b)
+        {
+            a[0] = -this.alpha1Temp * x[0] + this.lamda0.fV() * this.sigma1Temp;
+            b[0] = this.sigma1Temp;
+        }
+
+
+
+        /// <summary>
         /// Sets the passed array with a Boolean stating if the process
         /// must be simulated as a log-normal process.
         /// In this case it should not.

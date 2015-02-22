@@ -145,6 +145,14 @@ namespace HullAndWhiteOneFactor
             return (this.PZC(t) - this.PZC(T[T.Length - 1])) / den;
         }
 
+
+        public double HWSwaption(double a, double sigma, double l, double k, double swaptionMaturity, double swapDuration,double deltaK)
+        {
+            int npayment = (int)(swapDuration / deltaK);
+            var swapPayDate = Vector.Linspace(swaptionMaturity + deltaK, swaptionMaturity + swapDuration, npayment);
+            return HWSwaption(a, sigma, l, k, swaptionMaturity, swapPayDate);
+        }
+
         /// <summary>
         /// Price of a swaption in HW1 model: the holder has the right to pay
         /// the fixed rate and receive floating rate.

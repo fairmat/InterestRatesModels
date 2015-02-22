@@ -1,6 +1,7 @@
-/* Copyright (C) 2009-2012 Fairmat SRL (info@fairmat.com, http://www.fairmat.com/)
+/* Copyright (C) 2009-2014 Fairmat SRL (info@fairmat.com, http://www.fairmat.com/)
  * Author(s): Enrico Degiuli (enrico.degiuli@fairmat.com)
-  *
+ *            Matteo Tesser (matteo.tesser@fairmat.com)
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,10 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using DVPLDOM;
 using DVPLI;
 using Fairmat.Finance;
 using Fairmat.Optimization;
+using Fairmat.Calibration;
 using Mono.Addins;
 
 namespace HullAndWhiteOneFactor
@@ -30,7 +33,7 @@ namespace HullAndWhiteOneFactor
     /// Implementation of HW1 Calibration (swaption matrix based).
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class SwaptionHWEstimator : IEstimator, IMenuItemDescription
+    public class SwaptionHWEstimator : IEstimatorEx, IMenuItemDescription
     {
         /// <summary>
         /// Gets the tooltip for the implemented calibration function.
@@ -99,18 +102,56 @@ namespace HullAndWhiteOneFactor
 
             double deltak = dataset.SwaptionTenor;
 
-            Matrix swaptionsVolatility = dataset.SwaptionsVolatility;
-            Vector optionMaturity = dataset.OptionMaturity;
-            Vector swapDuration = dataset.SwapDuration;
+
+            var swaptionsFiltering = settings as SwaptionsFiltering;
+
+
+            int maturitiesCount = dataset.OptionMaturity.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
+            int durationsCount = dataset.SwapDuration.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
+
+                     
+
+            Console.WriteLine(string.Format("Calibrating on {0} swaptions prices [#maturiries x #durations]=[{1} x {2}]", maturitiesCount * durationsCount, maturitiesCount,durationsCount));
+
+            if (maturitiesCount * durationsCount == 0)
+                return new EstimationResult("No swaptions satisfying criteria found, please relax filters");
+
+            Matrix swaptionsVolatility = new Matrix(maturitiesCount, durationsCount);// dataset.SwaptionsVolatility;
+            Vector optionMaturity = new Vector(maturitiesCount);// dataset.OptionMaturity;
+            Vector swapDuration = new Vector(durationsCount);// dataset.SwapDuration;
+            
+
+            //Build filtered matrix and vectors
+            int fm=0;
+            for (int m = 0; m < dataset.OptionMaturity.Length; m++)
+            {
+                int fd=0;
+                if (dataset.OptionMaturity[m] >= swaptionsFiltering.MinSwaptionMaturity && dataset.OptionMaturity[m] <= swaptionsFiltering.MaxSwaptionMaturity)
+                {
+                    for (int d = 0; d < dataset.SwapDuration.Length; d++)
+                    {
+                        if (dataset.SwapDuration[d] >= swaptionsFiltering.MinSwapDuration && dataset.SwapDuration[d] <= swaptionsFiltering.MaxSwapDuration)
+                        {   
+                            swaptionsVolatility[fm, fd] = dataset.SwaptionsVolatility[m, d];
+                            swapDuration[fd] = dataset.SwapDuration[d];
+                            fd++; }
+                    }
+
+                    optionMaturity[fm] = dataset.OptionMaturity[m];
+                    fm++;
+                }
+
+            }
+
             SwaptionsBlackModel swbm = new SwaptionsBlackModel(zr);
-            Matrix blackSwaptionPrice;
+
             Matrix fsr;
-            blackSwaptionPrice = 1000.0 * swbm.SwaptionsSurfBM(optionMaturity, swapDuration, swaptionsVolatility, deltak, out fsr);
+            var blackSwaptionPrice = 1000.0 * swbm.SwaptionsSurfBM(optionMaturity, swapDuration, swaptionsVolatility, deltak, out fsr);
 
-            Console.WriteLine("SwaptionHWEstimator: Black prices");
+
+
+            Console.WriteLine("SwaptionHWEstimator: Black model prices");
             Console.WriteLine(blackSwaptionPrice);
-
-            Console.WriteLine(string.Format("Calibrating on {0} swaptions prices", blackSwaptionPrice.R * blackSwaptionPrice.C));
 
             SwaptionHW1 swhw1 = new SwaptionHW1(zr);
             SwaptionHW1OptimizationProblem problem = new SwaptionHW1OptimizationProblem(swhw1, blackSwaptionPrice, optionMaturity, swapDuration, deltak);
@@ -156,5 +197,10 @@ namespace HullAndWhiteOneFactor
             return result;
         }
         #endregion
+
+        public IEstimationSettings DefaultSettings
+        {
+            get { return UserSettings.GetSettings(typeof(SwaptionsFiltering)) as SwaptionsFiltering; }
+        }
     }
 }

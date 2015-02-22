@@ -324,6 +324,23 @@ namespace CIRProcess
         }
 
         /// <summary>
+        /// This function calculates the drift and the volatility in the Cox-Ingersoll-Ross Markov process.
+        /// as 
+        /// A = k * (theta - max(previous state, 0)).
+        /// B = sigma * sqrt(max(previous state, 0)).
+        /// </summary>
+        /// <param name="i">The parameter is not used.</param>
+        /// <param name="x">The state vector at the previous state.</param>
+        /// <param name="b">The output of the function.</param>
+        public unsafe void ab(int i, double* x, double* a,double* b)
+        {
+            a[0] = this.alphaTemp * (this.gammaTemp - Math.Max(x[0], 0));
+            b[0] = this.sigmaTemp * Math.Sqrt(Math.Max(x[0], 0));
+        }
+
+
+
+        /// <summary>
         /// Sets the passed array with a Boolean stating if the process
         /// must be simulated as a log-normal process.
         /// </summary>

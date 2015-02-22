@@ -459,6 +459,23 @@ namespace HullAndWhiteOneFactor
         }
 
         /// <summary>
+        /// This function defines drift and the volatility in the HW Markov process.
+        /// The formula to calculate the B component is
+        /// A = theta(t) - alpha * previous State.
+        /// B = sigma.
+        /// </summary>
+        /// <param name="i">The time step of the simulation.</param>
+        /// <param name="x">The state vector at the previous state.</param>
+        /// <param name="a">The output state dependent drift.</param>
+        /// <param name="b">The output volatility.</param>
+        public unsafe void ab(int i, double* x, double* a,double*b)
+        {
+            a[0] = -this.alpha1Temp * x[0] + this.lambda0.fV() * this.sigma1Temp;
+            b[0] = this.sigma1Temp;
+        }
+
+
+        /// <summary>
         /// Sets the passed array with a Boolean stating if the process
         /// must be simulated as a log-normal process.
         /// </summary>

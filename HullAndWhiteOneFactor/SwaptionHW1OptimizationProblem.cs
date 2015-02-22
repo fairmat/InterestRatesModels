@@ -127,11 +127,12 @@ namespace HullAndWhiteOneFactor
         {
             Matrix hwSWMatrix = this.shw1.HWSwaptionMatrix(this.swaptionMaturity, this.swapDuration, x[0], x[1], this.deltaK);
             double sum = 0;
+            int count = this.swaptionMaturity.Length * this.swapDuration.Length;
             for (int r = 0; r < this.swaptionMaturity.Length; r++)
                 for (int c = 0; c < this.swapDuration.Length; c++)
                     if (this.blackSwaption[r, c] != 0.0)
                         sum += Math.Pow(hwSWMatrix[r, c] - this.blackSwaption[r, c], 2);
-            return Math.Sqrt(sum);
+            return Math.Sqrt(sum / count);
         }
 
         /// <summary>

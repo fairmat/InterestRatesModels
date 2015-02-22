@@ -798,6 +798,27 @@ namespace HullAndWhiteTwoFactors
             b[1] = base.sigma2;
         }
 
+        public unsafe void ab(int i, double* x, double* a,double* b)
+        {
+            if (transformedSimulation)
+            {
+                // Does a transformed simulation.
+                double delta_r = this.theta[i] - base.alpha1 * x[0] + this.driftAdjustment.fV();
+                a[0] = delta_r;
+            }
+            else
+            {
+                // Does a straight simulation.
+                double delta_r = this.theta[i] + x[1] - base.alpha1 * x[0] + this.driftAdjustment.fV();
+                a[0] = delta_r;
+            }
+            // Unobservable factor.
+            a[1] = -base.alpha2 * x[1];
+            // Volatility
+            b[0] = base.sigma1;
+            b[1] = base.sigma2;
+        }
+
         /// <summary>
         /// Gets the two-components starting points.
         /// </summary>

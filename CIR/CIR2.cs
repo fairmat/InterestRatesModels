@@ -230,6 +230,28 @@ namespace CIRProcess
         }
 
         /// <summary>
+        /// This function calculated drift and volatility in the
+        /// Cox-Ingersoll-Ross Two factors Markov process.
+        /// The formula to calculate the B component is
+        /// B[0] = sqrt(previous state) * sigma1
+        /// B[1] = sqrt(previous state) * sigma2.
+        /// </summary>
+        /// <param name="i">The parameter is not used.</param>
+        /// <param name="x">The state vector at the previous state.</param>
+        /// <param name="b">The output drift.</param>
+        /// <param name="b">The output volatility.</param>
+        public void ab(int i, double* x, double* a,double *b)
+        {
+            a[0] = this.k1.fV() * (this.theta1.fV() - x[0]);
+            a[1] = this.k2.fV() * (this.theta2.fV() - x[1]);
+            
+            b[0] = AdjSqrt(x[0]) * this.sigma1.fV();
+            b[1] = AdjSqrt(x[1]) * this.sigma2.fV();
+        }
+
+
+
+        /// <summary>
         /// Gets the starting point for the process, which is
         /// defined in <see cref="startingValue1"/> and <see cref="startingValue2"/>.
         /// </summary>
