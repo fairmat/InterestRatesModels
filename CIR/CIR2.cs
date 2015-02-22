@@ -29,7 +29,7 @@ namespace CIRProcess
     /// </summary>
     [Serializable]
     public unsafe class CIR2 : IExtensibleProcess, IPopulable, IMarkovSimulator, IParsable,
-                               IPostSimulationTransformation, IDefaultProbabiliy
+                               IPostSimulationTransformation, IDefaultProbabiliy, IExportableContainer
     {
         #region SerializedFields
 

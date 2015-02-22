@@ -31,7 +31,7 @@ namespace Pelsser
     public class SquaredGaussianModel : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
                                         IParsable, IPostSimulationTransformation, IPopulable,
                                         IVectorialMarkovSimulator, IGreeksDerivativesInfo,
-                                        IOpenCLCode
+                                        IOpenCLCode, IExportableContainer
     {
         #region SerializedFields
 
