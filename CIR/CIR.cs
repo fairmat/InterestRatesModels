@@ -28,7 +28,7 @@ namespace CIRProcess
     /// </summary>
     [Serializable]
     public class CIR : IExtensibleProcessIR, IMarkovSimulator, IParsable,
-                       IEstimationResultPopulable, IGreeksDerivativesInfo
+                       IEstimationResultPopulable, IGreeksDerivativesInfo, IExportableContainer
     {
         #region SerializedFields
 

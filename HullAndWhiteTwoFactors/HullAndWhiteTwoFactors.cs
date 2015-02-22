@@ -31,7 +31,7 @@ namespace HullAndWhiteTwoFactors
     /// </summary>
     [Serializable]
     public class HW2 : HW2Context, IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
-                       IParsable, IPopulable, IGreeksDerivativesInfo
+                       IParsable, IPopulable, IGreeksDerivativesInfo, IExportableContainer
     {
         #region Serialized Parameters
 

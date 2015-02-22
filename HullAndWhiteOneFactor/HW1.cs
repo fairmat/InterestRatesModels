@@ -30,7 +30,8 @@ namespace HullAndWhiteOneFactor
     /// </summary>
     [Serializable]
     public class HW1 : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
-                       IParsable, IEstimationResultPopulable, IGreeksDerivativesInfo, IOpenCLCode, IPostSimulationTransformation
+                       IParsable, IEstimationResultPopulable, IGreeksDerivativesInfo,
+                       IOpenCLCode, IPostSimulationTransformation, IExportableContainer
     {
         #region SerializedFields
 
