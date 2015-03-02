@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin
-[assembly: Addin("CIR model", "1.0.7", Category = "Stochastic Process")]
+[assembly: Addin("CIR model", "1.0.8", Category = "Stochastic Process")]
 [assembly: AddinDependency("Fairmat", "1.0")]
 [assembly: AddinAuthor("Fairmat SRL")]
 [assembly: AddinDescription("The Cox-Ingersoll-Ross model is a simple mean reverting " +
@@ -38,7 +38,7 @@ using Mono.Addins;
                                "model on cap prices.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Fairmat SRL")]
-[assembly: AssemblyCopyright("Copyright © Fairmat SRL 2009-2012")]
+[assembly: AssemblyCopyright("Copyright © Fairmat SRL 2009-2015")]
 [assembly: AssemblyProduct("CIR model")]
 [assembly: AssemblyTrademark("Fairmat")]
 [assembly: AssemblyCulture("")]
@@ -61,5 +61,5 @@ using Mono.Addins;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.6")]
-[assembly: AssemblyFileVersion("1.0.6")]
+[assembly: AssemblyVersion("1.0.8")]
+[assembly: AssemblyFileVersion("1.0.8")]

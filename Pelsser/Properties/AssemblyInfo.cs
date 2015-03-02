@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin.
-[assembly: Addin("Pelsser squared gaussian model", "1.0.19", Category = "Stochastic Process")]
+[assembly: Addin("Pelsser squared gaussian model", "1.0.20", Category = "Stochastic Process")]
 [assembly: AddinDependency("Fairmat", "1.0")]
 [assembly: AddinAuthor("Fairmat SRL")]
 [assembly: AddinDescription("The one-factor squared Gaussian model. " +
@@ -45,7 +45,7 @@ using Mono.Addins;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("Pelsser")]
 [assembly: AssemblyCompany("Fairmat SRL")]
-[assembly: AssemblyCopyright("Copyright © Fairmat SRL 2009-2012")]
+[assembly: AssemblyCopyright("Copyright © Fairmat SRL 2009-2015")]
 [assembly: AssemblyTrademark("Fairmat")]
 [assembly: AssemblyCulture("")]
 
@@ -67,5 +67,5 @@ using Mono.Addins;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.19")]
-[assembly: AssemblyFileVersion("1.0.19")]
+[assembly: AssemblyVersion("1.0.20")]
+[assembly: AssemblyFileVersion("1.0.20")]
