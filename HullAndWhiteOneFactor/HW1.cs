@@ -136,11 +136,17 @@ namespace HullAndWhiteOneFactor
         private const string driftAdjustmentDescription = "Drift Adjustment";
 
         /// <summary>
+        /// Set a lower bound for alpha. Smaller values doe not make sense.
+        /// </summary>
+        internal static double alphaLowerBound = 0.05;
+
+
+        /// <summary>
         /// Initializes a new instance of the HW1 class with
-        /// alpha 0.001, sigma 0.001 and an empty zeroRateReference.
+        /// alpha 0.1, sigma 0.001 and an empty zeroRateReference.
         /// </summary>
         public HW1()
-            : this(0.001, 0.001, 0.0, string.Empty)
+            : this(0.1, 0.001, 0.0, string.Empty)
         {
         }
 

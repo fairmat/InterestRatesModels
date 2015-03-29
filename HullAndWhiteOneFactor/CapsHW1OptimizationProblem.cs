@@ -83,7 +83,7 @@ namespace HullAndWhiteOneFactor
             get
             {
                 Bounds b = new Bounds();
-                b.Lb = (Vector)new double[] { 1e-8, 1e-8 };
+                b.Lb = (Vector)new double[] { HW1.alphaLowerBound , 1e-8 };
                 b.Ub = (Vector)new double[] { 1 - 1e-8, 0.5 };
                 return b;
             }
