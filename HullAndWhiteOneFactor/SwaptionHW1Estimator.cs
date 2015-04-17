@@ -102,13 +102,15 @@ namespace HullAndWhiteOneFactor
 
             double deltak = dataset.SwaptionTenor;
 
-
+            int maturitiesCount= dataset.OptionMaturity.Count;
+            int durationsCount=dataset.SwapDuration.Count;
             var swaptionsFiltering = settings as SwaptionsFiltering;
-
-
-            int maturitiesCount = dataset.OptionMaturity.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
-            int durationsCount = dataset.SwapDuration.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
-
+            
+            if(swaptionsFiltering!=null)
+            { 
+                maturitiesCount = dataset.OptionMaturity.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
+                durationsCount = dataset.SwapDuration.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
+            }
                      
 
             Console.WriteLine(string.Format("Calibrating on {0} swaptions prices [#maturiries x #durations]=[{1} x {2}]", maturitiesCount * durationsCount, maturitiesCount,durationsCount));
@@ -160,8 +162,8 @@ namespace HullAndWhiteOneFactor
             IOptimizationAlgorithm solver2 = new SteepestDescent();
 
             DESettings o = new DESettings();
-            o.NP = 25;
-            o.MaxIter = 10;
+            o.NP = 20;
+            o.MaxIter = 5;
             o.Verbosity = 1;
             o.controller = controller;
             SolutionInfo solution = null;
@@ -187,6 +189,7 @@ namespace HullAndWhiteOneFactor
             Console.WriteLine("Solution:");
             Console.WriteLine(solution);
             string[] names = new string[] { "Alpha", "Sigma" };
+           
             EstimationResult result = new EstimationResult(names, solution.x);
 
             result.ZRX = (double[])dataset.ZRMarketDates.ToArray();
