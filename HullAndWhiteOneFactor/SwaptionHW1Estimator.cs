@@ -102,16 +102,17 @@ namespace HullAndWhiteOneFactor
 
             double deltak = dataset.SwaptionTenor;
 
-            int maturitiesCount= dataset.OptionMaturity.Count;
-            int durationsCount=dataset.SwapDuration.Count;
+           
             var swaptionsFiltering = settings as SwaptionsFiltering;
-            
-            if(swaptionsFiltering!=null)
-            { 
-                maturitiesCount = dataset.OptionMaturity.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
-                durationsCount = dataset.SwapDuration.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
-            }
-                     
+
+            if (swaptionsFiltering == null)
+                swaptionsFiltering = new SwaptionsFiltering();//creates a default
+                 
+
+
+            int maturitiesCount = dataset.OptionMaturity.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
+            int durationsCount = dataset.SwapDuration.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
+
 
             Console.WriteLine(string.Format("Calibrating on {0} swaptions prices [#maturiries x #durations]=[{1} x {2}]", maturitiesCount * durationsCount, maturitiesCount,durationsCount));
 
