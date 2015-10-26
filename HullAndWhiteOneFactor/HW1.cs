@@ -138,7 +138,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Set a lower bound for alpha. Smaller values doe not make sense.
         /// </summary>
-        internal static double alphaLowerBound = 0.05;
+        internal static double alphaLowerBound = 0.0001;
 
 
         /// <summary>
