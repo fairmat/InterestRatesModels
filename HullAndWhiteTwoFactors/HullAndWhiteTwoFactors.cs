@@ -498,10 +498,8 @@ namespace HullAndWhiteTwoFactors
         /// </returns>
         protected double F(double t, double dt)
         {
-            if (t == 0)
-                return Zr(t);
-            else
-                return (Zr(t) * t - Zr(t - dt) * (t - dt)) / dt;
+            double zrT=Zr(t);
+            return t * (Zr(t + dt) - zrT) / dt + zrT;
         }
 
         /// <summary>
