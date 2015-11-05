@@ -36,7 +36,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// A zero rate function used for this object evaluations.
         /// </summary>
-        private Function zeroRateCurve;
+        internal Function zeroRateCurve;
 
         /// <summary>
         /// Hull-White alpha parameter.

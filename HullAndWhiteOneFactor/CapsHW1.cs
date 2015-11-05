@@ -24,6 +24,8 @@ using Fairmat.Math;
 
 namespace HullAndWhiteOneFactor
 {
+   
+
     /// <summary>
     /// This class implements the HW1 model
     /// for pricing of a Cap (caplets portfolio)
@@ -34,7 +36,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// A zero rate function used for this object evaluations.
         /// </summary>
-        private Function zeroRateCurve;
+        internal Function zeroRateCurve;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HullAndWhiteOneFactor.CapHW1"/> class.

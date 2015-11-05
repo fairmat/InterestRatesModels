@@ -15,6 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#define TFORWARDFORMULATION //uses HW formulation by Brigo which does not contains second derivatives
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -29,7 +32,7 @@ namespace HullAndWhiteOneFactor
     /// Implementation of one factor Hull and White model.
     /// </summary>
     [Serializable]
-    public class HW1 : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
+    public class HW1 : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator/*IFullSimulator*/,
                        IParsable, IEstimationResultPopulable, IGreeksDerivativesInfo,
                        IOpenCLCode, IPostSimulationTransformation, IExportableContainer
     {
@@ -43,18 +46,18 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Rate of mean reversion.
         /// </summary>
-        private IModelParameter alpha1;
+        protected IModelParameter alpha1;
 
         /// <summary>
         /// Standard deviation.
         /// </summary>
-        private IModelParameter sigma1;
+        protected IModelParameter sigma1;
 
         /// <summary>
         /// Market price of risk.
         /// </summary>
         [OptionalField(VersionAdded = 3)]
-        private IModelParameter lambda0;
+        protected IModelParameter lambda0;
 
         /// <summary>
         /// Drift adjustment: can be used for adding risk premium or quanto adjustments.
@@ -84,25 +87,32 @@ namespace HullAndWhiteOneFactor
             }
         }
 
+
+        public IModelParameter Alpha1
+        {
+            get { return alpha1;}
+            set { alpha1 = value; }
+        }
+
         #endregion Properties
 
         /// <summary>
         /// Temporary zero rate function, used to optimize the simulation.
         /// </summary>
         [NonSerialized]
-        private Function zeroRateCurve;
+        protected Function zeroRateCurve;
 
         /// <summary>
         /// Temporary value for the Rate of mean reversion, used to optimize the simulation.
         /// </summary>
         [NonSerialized]
-        private double alpha1Temp;
+        protected double alpha1Temp;
 
         /// <summary>
         /// Temporary value for the standard deviation, used to optimize the simulation.
         /// </summary>
         [NonSerialized]
-        private double sigma1Temp;
+        protected double sigma1Temp;
 
         /// <summary>
         /// Keeps the readable description of the alpha model variable.
@@ -124,12 +134,16 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         private static string lambda0Description = "Lambda";
 
+//#if TFORWARDFORMULATION
         /// <summary>
         /// Temporary variable for the transformation (mDailyDates).
         /// </summary>
         [NonSerialized]
-        private double[] alphaT;
-
+        protected double[] alphaT;
+//#else
+        [NonSerialized]
+        protected double[] thetaT;
+//#endif
         /// <summary>
         /// Keeps the readable description for drift adjustment.
         /// </summary>
@@ -138,7 +152,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Set a lower bound for alpha. Smaller values doe not make sense.
         /// </summary>
-        internal static double alphaLowerBound = 0.05;
+        internal static double alphaLowerBound = 0.0001;
 
 
         /// <summary>
@@ -206,7 +220,7 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// False if there were no parse errors.
         /// </returns>
-        public bool Parse(IProject p_Context)
+        public virtual bool Parse(IProject p_Context)
         {
             bool errors = false;
             BoolHelper.AddBool(errors, this.alpha1.Parse(p_Context));
@@ -290,10 +304,14 @@ namespace HullAndWhiteOneFactor
         /// The maturity of the bond.
         /// </param>
         /// <returns>The value of the bound at index i using the HW model.</returns>
-        public double Bond(IReadOnlyMatrixSlice dynamic, double[] dates, int i, double t, double T)
+        public virtual double Bond(IReadOnlyMatrixSlice dynamic, double[] dates, int i, double t, double T)
         {
+#if TFORWARDFORMULATION
             double y = dynamic[i, 0] - this.alphaT[i];
             return Math.Exp(A(t, T, this.alpha1Temp, this.sigma1Temp, this.zeroRateCurve) - y * B(T - t, this.alpha1Temp));
+#else
+            throw new NotImplementedException();
+#endif
         }
 
         #endregion
@@ -327,7 +345,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Gets the ProcessInfo for this plugin, in this case H&W1.
         /// </summary>
-        public ProcessInfo ProcessInfo
+        public virtual ProcessInfo ProcessInfo
         {
             get
             {
@@ -363,17 +381,42 @@ namespace HullAndWhiteOneFactor
         /// <param name='dates'>
         /// The dates at which the process realizations will be requested.
         /// </param>
-        public void Setup(double[] dates)
+        public virtual void Setup(double[] dates)
         {
-            this.alphaT = new double[dates.Length];
+            //Console.WriteLine("Expected short rate");
             double dt = 0;
+#if TFORWARDFORMULATION
+            this.alphaT = new double[dates.Length];
+#else
+            this.thetaT = new double[dates.Length];
+#endif
             for (int i = 0; i < dates.Length; i++)
             {
                 if (i < dates.Length - 1)
                     dt = dates[i + 1] - dates[i];
+#if TFORWARDFORMULATION
                 this.alphaT[i] = this.alphaTFunc(dates[i],dt);
+#else
+                this.thetaT[i] = theta(dates[i], dt);
+#endif
+                //Console.WriteLine(dates[i] + "\t" + ExpectedShortRate(dates[i]));
             }
+            /*
+            Console.WriteLine("avg");
+            Console.WriteLine(dates[dates.Length - 1] +"\t"+ ExpectedAverageRate(dates[dates.Length - 1]));
+            Console.WriteLine("alternative sim");
+            HWCompactSimulator hwf = new HWCompactSimulator() { a = alpha1Temp, sigma = sigma1Temp, zr = this.zeroRateCurve };
+            List<double> simDates,fR,avgR;
+            hwf.Simulate(dates[dates.Length - 1], out simDates, out fR, out avgR);
+            Console.WriteLine(fR + "\t" + avgR);
+            */
         }
+
+        protected virtual double theta(double t,  double dt)
+        {
+            return Ft(t, dt) + alpha1Temp * F(t, dt) + (1.0 - Math.Exp(-2.0 * alpha1Temp * t)) * sigma1Temp * sigma1Temp / (2.0 * alpha1Temp);
+        }
+
 
         #endregion
 
@@ -382,7 +425,7 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         /// <param name="t">Time at which calculate alpha</param>
         /// <returns>Alpha function value</returns>
-        private double alphaTFunc(double t,double dt)
+        protected virtual double alphaTFunc(double t,double dt)
         {
             //double dt = 0.001;
             return this.F(t, dt) + this.sigma1Temp * this.sigma1Temp * Math.Pow(1.0 - Math.Exp(-this.alpha1Temp * t), 2.0) / (2.0 * this.alpha1Temp * this.alpha1Temp);
@@ -399,7 +442,7 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// The created list with all the sub objects that can be edited.
         /// </returns>
-        public List<IExportable> ExportObjects(bool recursive)
+        public virtual List<IExportable> ExportObjects(bool recursive)
         {
             List<IExportable> parameters = new List<IExportable>();
             parameters.Add(this.alpha1);
@@ -431,7 +474,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Gets the starting point for the process.
         /// </summary>
-        public double[] x0
+        public virtual double[] x0
         {
             get
             {
@@ -475,9 +518,13 @@ namespace HullAndWhiteOneFactor
         /// <param name="x">The state vector at the previous state.</param>
         /// <param name="a">The output state dependent drift.</param>
         /// <param name="b">The output volatility.</param>
-        public unsafe void ab(int i, double* x, double* a,double*b)
+        public unsafe virtual void ab(int i, double* x, double* a,double*b)
         {
+#if TFORWARDFORMULATION
             a[0] = -this.alpha1Temp * x[0] + this.lambda0.fV() * this.sigma1Temp;
+#else
+            a[0] = thetaT[i] -this.alpha1Temp  * x[0]   + this.lambda0.fV() * this.sigma1Temp;
+#endif
             b[0] = this.sigma1Temp;
         }
 
@@ -519,13 +566,22 @@ namespace HullAndWhiteOneFactor
         /// <returns>
         /// The value of the instantaneous forward rate.
         /// </returns>
-        private double F(double t, double dt)
+        protected double F(double t, double dt)
         {
-            if (t == 0)
-                return this.ZR(t);
-            else
-                return (this.ZR(t + dt) * (t + dt) - this.ZR(t) * t) / dt;
+            double zrT=ZR(t);
+            return t * (ZR(t + dt) - zrT) / dt + zrT;
         }
+        /// <summary>
+        /// First derivative w.r.t time of forward rate
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        protected double Ft(double t, double dt)
+        {
+            return (F(t + dt, dt) - F(t - dt, dt)) / (2 * dt);
+        }
+        
 
         /// <summary>
         /// Calculates the function A() to be used in the Bond() method.
@@ -705,12 +761,60 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         /// <param name="dates">Simulation dates.</param>
         /// <param name="outDynamic">The input and output components of the transformation.</param>
-        public void Transform(double[] dates, IMatrixSlice outDynamic)
+        public virtual void Transform(double[] dates, IMatrixSlice outDynamic)
         {
+            
+#if TFORWARDFORMULATION
             for (int j = 0; j < dates.Length; j++)
             {
                 outDynamic[j, 0] = outDynamic[j, 0] + this.alphaT[j];
             }
+#endif
+             
         }
+
+
+        public double ExpectedShortRate(double t)
+        {
+            double term1 = Math.Exp(-alpha1Temp * t) * x0[0];
+            double ds=0.001;
+            double term2=0;
+            for (double s = 0; s <= t; s += ds)
+                term2 += Math.Exp(alpha1Temp * (s - t)) * theta(s,ds) * ds;
+            return term1+term2;
+        }
+        internal double ExpectedAverageRate(double t)
+        {
+            List<double> avg = new List<double>();
+            double ds = 0.001;
+            double term2 = 0;
+            for (double s = 0; s <= t; s += ds)
+            {
+                double term1 = Math.Exp(-alpha1Temp * s) * ZR(0);
+                term2 += Math.Exp(alpha1Temp * (s - t)) * theta(s, ds) * ds;
+                avg.Add(term1 + term2);
+            }
+            var v = (Vector)(avg.ToArray());
+            return v.Mean();
+        }
+    
+        public void Simulate(double[] Dates, IReadOnlyMatrixSlice Noise, IMatrixSlice OutDynamic)
+        {
+            OutDynamic[0, 0] = x0[0];
+            for (int i = 1; i < Dates.Length; i++)
+            {
+                double dt= Dates[i]-Dates[i-1];
+                double rdt=Math.Sqrt(dt);
+                double th = theta(Dates[i], dt);
+                OutDynamic[i, 0] = OutDynamic[i-1, 0]+(th - alpha1Temp * OutDynamic[i - 1, 0]) * dt + sigma1Temp * Noise[i - 1, 0] * rdt;
+            }
+        }
+
+
     }
+
+
+	
+    
+
 }

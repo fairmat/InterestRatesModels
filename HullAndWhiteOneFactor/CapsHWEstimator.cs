@@ -30,7 +30,7 @@ namespace HullAndWhiteOneFactor
     /// Implementation of HW1 Calibration against caps matrices.
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class CapsHWEstimator : IEstimator, IMenuItemDescription
+    public class CapsHWEstimator : IEstimator,IEstimatorEx, IMenuItemDescription
     {
         /// <summary>
         /// Gets the tooltip for the implemented calibration function.
@@ -80,6 +80,16 @@ namespace HullAndWhiteOneFactor
             return new EstimateRequirement[] { new EstimateRequirement(typeof(InterestRateMarketData)) };
         }
 
+        /*
+        * IEstimatorEx.
+        */
+        public IEstimationSettings DefaultSettings
+        {
+            get { return new Fairmat.Calibration.CapVolatilityFiltering(); }
+        }
+       
+
+
         /// <summary>
         /// Attempts a calibration through <see cref="CapsHW1OptimizationProblem"/>
         /// using caps matrices.
@@ -95,6 +105,8 @@ namespace HullAndWhiteOneFactor
             PFunction zr = new PFunction(null);
             zr.VarName = "zr";
 
+            var preferences = settings as Fairmat.Calibration.CapVolatilityFiltering;
+
             // Loads ZR
             double[,] zrvalue = (double[,])ArrayHelper.Concat(dataset.ZRMarketDates.ToArray(), dataset.ZRMarket.ToArray());
             zr.Expr = zrvalue;
@@ -102,6 +114,10 @@ namespace HullAndWhiteOneFactor
             BlackModel bm = new BlackModel(zr);
 
             double deltak = dataset.CapTenor;
+
+            if (dataset.CapVolatility == null)
+                return new EstimationResult("Cap not available at requested date");
+
 
             Matrix capVolatility = dataset.CapVolatility;
             Vector capMaturity = dataset.CapMaturity;
@@ -112,6 +128,7 @@ namespace HullAndWhiteOneFactor
             // Matrix calculated with Black.
             Matrix blackCaps = new Matrix(capMaturity.Length, capRate.Length);
             Matrix logic = new Matrix(capMaturity.Length, capRate.Length);
+            
             for (int m = 0; m < capMaturity.Length; m++)
             {
                 for (int s = 0; s < capRate.Length; s++)
@@ -131,6 +148,16 @@ namespace HullAndWhiteOneFactor
                     {
                         logic[m, s] = 1.0;
                     }
+
+                    //filter
+                    if (preferences != null)
+                    {
+                        if (capRate[s] < preferences.MinCapRate || capRate[s] > preferences.MaxCapRate ||
+                            capMaturity[m]<preferences.MinCapMaturity|| capMaturity[m]>preferences.MaxCapMaturity)
+                                {logic[m, s] = 0; blackCaps[m, s] = 0;}
+                    }
+
+
                 }
             }
 
@@ -148,27 +175,36 @@ namespace HullAndWhiteOneFactor
 
             CapsHW1OptimizationProblem problem = new CapsHW1OptimizationProblem(hw1Caps, blackCaps, capMaturity, capRate, deltak);
             Vector provaparam = new Vector(2);
-          
+
+            var solver = new QADE();
+
             IOptimizationAlgorithm solver2 = new SteepestDescent();
 
             DESettings o = new DESettings();
-            o.NP = 100;
+            o.NP = 20;
             o.MaxIter = 10;
             o.Verbosity = 1;
+            o.Parallel = false;
             SolutionInfo solution = null;
+            Vector x0 = new Vector(new double[] { 0.05, 0.01 });
+            o.controller = controller;
+            solution = solver.Minimize(problem, o, x0);
 
-            Vector x0 = new Vector(new double[] { 0.1, 0.1 });
             o.epsilon = 10e-8;
             o.h = 10e-8;
-            o.MaxIter = 1000;
-            o.controller = controller;
-
-            solution = solver2.Minimize(problem, o, x0);
+           
+         
+            o.MaxIter = 100;
+            solution = solver2.Minimize(problem, o, solution.x);
             if (solution.errors)
                 return new EstimationResult(solution.message);
             Console.WriteLine("Solution:");
             Console.WriteLine(solution);
             string[] names = new string[] { "Alpha", "Sigma" };
+            
+            
+            //solution.x[0] *= 3;
+
             EstimationResult result = new EstimationResult(names, solution.x);
 
             result.ZRX = (double[])dataset.ZRMarketDates.ToArray();
@@ -179,6 +215,9 @@ namespace HullAndWhiteOneFactor
 
         #endregion
 
-        
+
+       
+
+
     }
 }

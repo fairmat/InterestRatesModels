@@ -106,5 +106,25 @@ namespace HullAndWhiteOneFactor
                 return new LambdaCalibrationSettings();
             }
         }
+
+        IEstimationSettings IEstimatorEx.DefaultSettings
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        EstimationResult IEstimator.Estimate(List<object> data, IEstimationSettings settings, IController controller, Dictionary<string, object> properties)
+        {
+            throw new NotImplementedException();
+        }
+
+        EstimateRequirement[] IEstimator.GetRequirements(IEstimationSettings settings, EstimateQuery query)
+        {
+            throw new NotImplementedException();
+        }
+
+        Type IEstimator.ProvidesTo
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 }

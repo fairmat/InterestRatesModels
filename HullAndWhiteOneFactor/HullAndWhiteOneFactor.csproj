@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="HW1Choice.cs" />
     <Compile Include="HW1.cs" />
+    <Compile Include="HWCompactSimulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CapsHW1.cs" />
     <Compile Include="CapsHW1OptimizationProblem.cs" />

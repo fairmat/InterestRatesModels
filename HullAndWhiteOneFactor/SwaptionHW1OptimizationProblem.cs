@@ -84,6 +84,7 @@ namespace HullAndWhiteOneFactor
             {
                 Bounds b = new Bounds();
                 b.Lb = (Vector)new double[] { HW1.alphaLowerBound , 1e-8 };
+                //b.Lb = (Vector)new double[] { (UserSettings.GetSettings(typeof(HWPreferences)) as HWPreferences).AlphaLB, 1e-8 };
                 b.Ub = (Vector)new double[] { 1 - 1e-8, 0.5 };
                 return b;
             }
@@ -111,7 +112,7 @@ namespace HullAndWhiteOneFactor
                 return false;
             }
         }
-
+        HWCompactSimulator f = new HWCompactSimulator();// { a = x[0], sigma = x[1], zr = hw1Caps.zeroRateCurve };
         /// <summary>
         /// Calibration objective function:
         /// squared difference between black swaptions and HW swaptions.
@@ -132,7 +133,24 @@ namespace HullAndWhiteOneFactor
                 for (int c = 0; c < this.swapDuration.Length; c++)
                     if (this.blackSwaption[r, c] != 0.0)
                         sum += Math.Pow(hwSWMatrix[r, c] - this.blackSwaption[r, c], 2);
-            return Math.Sqrt(sum / count);
+
+          
+            double bias = 0;
+            double k = 25000;
+            /*
+            f.zr = this.shw1.zeroRateCurve;
+            f.a = x[0];
+            f.sigma = x[1];
+            List<double> simDates, fR, avgR;
+            f.Simulate(40, out simDates, out fR, out avgR);
+            bias += Math.Abs(avgR[avgR.Count - 1] - f.zr.Evaluate(simDates[avgR.Count - 1]));
+            Console.WriteLine(f.zr.Evaluate(simDates[avgR.Count - 1]) + "\t" + avgR[avgR.Count - 1] + "\t" + x[0] + "\t" + x[1] + "\t" + Math.Sqrt(sum / count));
+            */
+           
+
+
+
+            return Math.Sqrt(sum / count )+k*bias;
         }
 
         /// <summary>

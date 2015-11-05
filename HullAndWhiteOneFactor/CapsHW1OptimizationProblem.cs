@@ -24,6 +24,18 @@ using Fairmat.Optimization;
 
 namespace HullAndWhiteOneFactor
 {
+    /*
+    [SettingsContainer(@"HW")]
+    [Mono.Addins.Extension("/Fairmat/UserSettings")]
+    [Serializable]
+    public class HWPreferences: ISettings
+    {
+        [SettingDescription("Alpha Lower Bound")]
+        public double AlphaLB = .1;
+    }
+    */
+
+
     /// <summary>
     /// Implementation of HW1 Calibration Problem (Caps matrix based).
     /// </summary>
@@ -84,6 +96,8 @@ namespace HullAndWhiteOneFactor
             {
                 Bounds b = new Bounds();
                 b.Lb = (Vector)new double[] { HW1.alphaLowerBound , 1e-8 };
+                //b.Lb = (Vector)new double[] {(UserSettings.GetSettings(typeof(HWPreferences)) as HWPreferences).AlphaLB  , 1e-8 };
+
                 b.Ub = (Vector)new double[] { 1 - 1e-8, 0.5 };
                 return b;
             }
@@ -112,6 +126,7 @@ namespace HullAndWhiteOneFactor
             }
         }
 
+        HWCompactSimulator f = new HWCompactSimulator();// { a = x[0], sigma = x[1], zr = hw1Caps.zeroRateCurve };
         /// <summary>
         /// Calibration objective function:
         /// squared difference between black caps and hw caps.
@@ -135,8 +150,22 @@ namespace HullAndWhiteOneFactor
                         sum += Math.Pow(hwCapsMatrix[r, c] - this.blackCaps[r, c], 2);
                 }
             }
+            double bias = 0;
+			/*
+            f.zr = hw1Caps.zeroRateCurve;
+            f.a = x[0];
+            f.sigma = x[1];
+            List<double> simDates, fR, avgR;
+            f.Simulate(40, out simDates, out fR, out avgR);
+            //double bias=f.ExpectedAverageRate(50) - hw1Caps.zeroRateCurve.Evaluate(50);
 
-            return sum;
+            for (int z = 0; z < simDates.Count; z++)
+                bias += Math.Abs(avgR[z] - hw1Caps.zeroRateCurve.Evaluate(simDates[z]));
+			Console.WriteLine(bias);
+			*/
+            double k = 25000;
+            return Math.Sqrt(sum ) + k * bias;
+			
         }
 
         /// <summary>
