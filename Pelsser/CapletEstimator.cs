@@ -33,7 +33,7 @@ namespace Pelsser.Calibration
     /// Implementation of Pelsser Calibration against caps matrices.
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class CapletEstimator : IEstimator, IDescription
+    public class CapletEstimator : IEstimatorEx, IDescription
     {
         #region IEstimator Members
 
@@ -113,13 +113,23 @@ namespace Pelsser.Calibration
             Vector capMat = dataset.CapMaturity;
             Vector capK = dataset.CapRate;
 
+            var preferences = settings as Fairmat.Calibration.CapVolatilityFiltering;
+
             // Matrix calculated with black.
             Matrix blackCaps = new Matrix(capMat.Length, capK.Length);
             for (int m = 0; m < capMat.Length; m++)
             {
                 for (int s = 0; s < capK.Length; s++)
                 {
-                    if (capVol[m, s] == 0)
+                    bool skip = false;
+                    if (preferences != null)
+                    {
+                        if (capK[s] < preferences.MinCapRate || capK[s] > preferences.MaxCapRate ||
+                           capMat[m] < preferences.MinCapMaturity || capMat[m] > preferences.MaxCapMaturity)
+                                {skip = true; }
+                    }
+
+                    if (capVol[m, s] == 0 || skip)
                         blackCaps[m, s] = 0;
                     else
                         blackCaps[m, s] = bm.Cap(capK[s], capVol[m, s], deltak, capMat[m]);
@@ -218,6 +228,11 @@ namespace Pelsser.Calibration
         public string Description
         {
             get { return "Calibrate against Caplet prices"; }
+        }
+
+        public IEstimationSettings DefaultSettings
+        {
+            get { return new Fairmat.Calibration.CapVolatilityFiltering(); }
         }
     }
 }
