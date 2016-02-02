@@ -94,6 +94,7 @@
     <Compile Include="PelsserChoice.cs" />
     <Compile Include="Pelsser.cs" />
     <Compile Include="PelsserCache.cs" />
+    <Compile Include="PelsserPreferences.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Caplet.cs" />
     <Compile Include="CapletEstimator.cs" />
