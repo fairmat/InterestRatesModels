@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin
-[assembly: Addin("CIR model", "1.0.8", Category = "Stochastic Process")]
+[assembly: Addin("CIR model", "1.0.9", Category = "Stochastic Process")]
 [assembly: AddinDependency("Fairmat", "1.0")]
 [assembly: AddinAuthor("Fairmat SRL")]
 [assembly: AddinDescription("The Cox-Ingersoll-Ross model is a simple mean reverting " +
