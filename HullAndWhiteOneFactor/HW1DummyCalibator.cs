@@ -35,7 +35,11 @@ namespace HullAndWhiteOneFactor
     [Extension("/Fairmat/Estimator")]
     public class HW1DummyCalibator : IEstimatorEx, IMenuItemDescription
     {
-        public IEstimationSettings DefaultSettings => throw new NotImplementedException();
+        public IEstimationSettings DefaultSettings
+        {
+            get { return null; }
+        }
+
 
         public Type ProvidesTo
         {
