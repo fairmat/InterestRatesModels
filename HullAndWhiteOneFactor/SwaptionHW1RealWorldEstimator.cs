@@ -13,7 +13,7 @@ namespace HullAndWhiteOneFactor
     /// Implementation of HW1 real world calibration (swaption matrix and historical zr based).
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    class SwaptionHW1RealWorldEstimator : IEstimatorEx, IMenuItemDescription
+    public class SwaptionHW1RealWorldEstimator : IEstimatorEx, IMenuItemDescription
     {
         /// <summary>
         /// Gets the tooltip for the implemented calibration function.
