@@ -136,7 +136,7 @@ namespace Pelsser.Calibration
                 }
             }
 
-            if (blackCaps.IsNAN())
+            if (blackCaps.IsNaN())
             {
                 Console.WriteLine("Black caps matrix has non real values:");
                 Console.WriteLine(blackCaps);
