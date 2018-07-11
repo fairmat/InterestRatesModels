@@ -138,12 +138,14 @@ namespace Pelsser
             PelsserBond.Calculate(1.0, 2.0, 2.0, 100000, 200, out mcPrice, out mcDevST);
 
             // The benchmark value with 35000 paths
-            double theoreticalValue = 0.95121;
+            // double theoreticalValue = 0.95121;
+            double RightValue = 0.951408282184948;
+
             Console.WriteLine("Benchmark  Bond = " + theoreticalValue);
             Console.WriteLine("Fairmat Bond = " + mcPrice);
             Console.WriteLine("Standard Deviation = " + mcDevST);
             double tol = 5.0 * mcDevST;
-            Assert.Less(Math.Abs(theoreticalValue - mcPrice), tol);
+            Assert.Less(Math.Abs(RightValue - mcPrice), tol);
         }
     }
 
@@ -165,12 +167,14 @@ namespace Pelsser
             PelsserBond.Calculate(5.0, 6.0, 6.0, 100000, 200, out mcPrice, out mcDevST);
 
             // The benchmark value with 35000 paths
-            double theoreticalValue = 0.95109;
+            // double theoreticalValue = 0.95109;
+            double RightValue = 0.951276263137499;
+
             Console.WriteLine("Benchmark  Bond = " + theoreticalValue);
             Console.WriteLine("Fairmat Bond = " + mcPrice);
             Console.WriteLine("Standard Deviation = " + mcDevST);
             double tol = 5.0 * mcDevST;
-            Assert.Less(Math.Abs(theoreticalValue - mcPrice), tol);
+            Assert.Less(Math.Abs(RightValue - mcPrice), tol);
         }
     }
 
