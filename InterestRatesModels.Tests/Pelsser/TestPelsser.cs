@@ -141,7 +141,7 @@ namespace Pelsser
             // double theoreticalValue = 0.95121;
             double RightValue = 0.951408282184948;
 
-            Console.WriteLine("Benchmark  Bond = " + theoreticalValue);
+            Console.WriteLine("Benchmark  Bond = " + RightValue);
             Console.WriteLine("Fairmat Bond = " + mcPrice);
             Console.WriteLine("Standard Deviation = " + mcDevST);
             double tol = 5.0 * mcDevST;
@@ -170,7 +170,7 @@ namespace Pelsser
             // double theoreticalValue = 0.95109;
             double RightValue = 0.951276263137499;
 
-            Console.WriteLine("Benchmark  Bond = " + theoreticalValue);
+            Console.WriteLine("Benchmark  Bond = " + RightValue);
             Console.WriteLine("Fairmat Bond = " + mcPrice);
             Console.WriteLine("Standard Deviation = " + mcDevST);
             double tol = 5.0 * mcDevST;
