@@ -45,8 +45,7 @@ namespace HullAndWhiteOneFactor
             ProjectROV r = HullAndWhite1("bond(t;2;@V1)", 1, 1, .05);
             r.Container.NMethods.Technology = ETechType.T_SIMULATION;
             r.Container.NMethods.m_UseRepeatableSequence = true;
-            bool parse = r.Parse();
-            Assert.IsTrue(parse);
+            r.Initialize();
 
             AnalysisValuation valuator = new AnalysisValuation();
             valuator.BindToProject(r);
@@ -54,9 +53,7 @@ namespace HullAndWhiteOneFactor
 
             if (r.HasErrors)
             {
-                Console.WriteLine("Errors:");
-                foreach (Exception ex in r.m_RuntimeErrorList)
-                    Console.WriteLine(ex.Message);
+                r.DisplayErrors();
             }
 
             Assert.IsFalse(r.HasErrors);
@@ -64,7 +61,7 @@ namespace HullAndWhiteOneFactor
             double v = r.m_ResultList[0].value;
             Console.WriteLine("v = " + v.ToString());
 
-            Assert.Less(Math.Abs(v - 0.9134), 0.0001);
+            Assert.AreEqual(0.9134,v, 0.0001);
         }
 
         private static ProjectROV HullAndWhite1(string payoff, double maturity, double a1, double sigma1)
