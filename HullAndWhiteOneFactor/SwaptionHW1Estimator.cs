@@ -190,7 +190,11 @@ namespace HullAndWhiteOneFactor
             Console.WriteLine("Solution:");
             Console.WriteLine(solution);
             string[] names = new string[] { "Alpha", "Sigma" };
-           
+
+            Console.WriteLine("SwaptionHWEstimator: hw model prices and error");
+            problem.Obj(solution.x,true);
+
+
             EstimationResult result = new EstimationResult(names, solution.x);
 
             result.ZRX = (double[])dataset.ZRMarketDates.ToArray();

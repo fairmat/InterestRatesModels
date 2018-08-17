@@ -124,17 +124,27 @@ namespace HullAndWhiteOneFactor
         /// A double containing the squared difference between
         /// black swaptions and the HW swaptions.
         /// </returns>
-        public double Obj(DVPLI.Vector x)
+        public double Obj(Vector x)
         {
-            Matrix hwSWMatrix = this.shw1.HWSwaptionMatrix(this.swaptionMaturity, this.swapDuration, x[0], x[1], this.deltaK);
+            return Obj(x, false);
+        }
+
+
+        internal double Obj(Vector x,bool showDetails)
+        {
+            var hwSWMatrix = this.shw1.HWSwaptionMatrix(this.swaptionMaturity, this.swapDuration, x[0], x[1], this.deltaK);
             double sum = 0;
             int count = this.swaptionMaturity.Length * this.swapDuration.Length;
+            int effective = 0; // number of effective elements
             for (int r = 0; r < this.swaptionMaturity.Length; r++)
                 for (int c = 0; c < this.swapDuration.Length; c++)
                     if (this.blackSwaption[r, c] != 0.0)
+                    {
                         sum += Math.Pow(hwSWMatrix[r, c] - this.blackSwaption[r, c], 2);
+                        effective++;
+                    }
 
-          
+
             double bias = 0;
             double k = 25000;
             /*
@@ -146,7 +156,19 @@ namespace HullAndWhiteOneFactor
             bias += Math.Abs(avgR[avgR.Count - 1] - f.zr.Evaluate(simDates[avgR.Count - 1]));
             Console.WriteLine(f.zr.Evaluate(simDates[avgR.Count - 1]) + "\t" + avgR[avgR.Count - 1] + "\t" + x[0] + "\t" + x[1] + "\t" + Math.Sqrt(sum / count));
             */
-           
+            if (showDetails)
+            {
+                Console.WriteLine("Black Prices");
+                Console.WriteLine(blackSwaption);
+                Console.WriteLine("HW Prices");
+                Console.WriteLine(hwSWMatrix);
+                Console.WriteLine("Delta Prices");
+                Console.WriteLine(hwSWMatrix - blackSwaption);
+                double absErr = Matrix.Abs(hwSWMatrix - blackSwaption).Sum() / effective;
+                double avgPrice= blackSwaption.Sum() / effective;
+                Console.WriteLine("Abs Error\t"+ absErr+"\t("+ (absErr/ avgPrice).ToString("P") + ")");
+            }
+                
 
 
 
