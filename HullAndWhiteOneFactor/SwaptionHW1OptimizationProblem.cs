@@ -134,13 +134,16 @@ namespace HullAndWhiteOneFactor
         {
             var hwSWMatrix = this.shw1.HWSwaptionMatrix(this.swaptionMaturity, this.swapDuration, x[0], x[1], this.deltaK);
             double sum = 0;
+            double sump = 0;
             int count = this.swaptionMaturity.Length * this.swapDuration.Length;
             int effective = 0; // number of effective elements
             for (int r = 0; r < this.swaptionMaturity.Length; r++)
                 for (int c = 0; c < this.swapDuration.Length; c++)
                     if (this.blackSwaption[r, c] != 0.0)
                     {
-                        sum += Math.Pow(hwSWMatrix[r, c] - this.blackSwaption[r, c], 2);
+                        double deltap = hwSWMatrix[r, c] - this.blackSwaption[r, c];
+                        sum += Math.Pow(deltap, 2);
+                        sump += Math.Pow(deltap / this.blackSwaption[r, c], 2);
                         effective++;
                     }
 
@@ -167,6 +170,7 @@ namespace HullAndWhiteOneFactor
                 double absErr = Matrix.Abs(hwSWMatrix - blackSwaption).Sum() / effective;
                 double avgPrice= blackSwaption.Sum() / effective;
                 Console.WriteLine("Abs Error\t"+ absErr+"\t("+ (absErr/ avgPrice).ToString("P") + ")");
+                Console.WriteLine("RMSE(r)\t"+ (Math.Sqrt(sump)/effective).ToString("P");
             }
                 
 
