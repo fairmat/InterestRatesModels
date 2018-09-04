@@ -99,6 +99,7 @@
     <Compile Include="SwaptionHW1OptimizationProblem.cs" />
     <Compile Include="SwaptionHW1Estimator.cs" />
     <Compile Include="SwaptionHW1RealWorldEstimator.cs" />
+    <Compile Include="SwaptionHWEstimatorNormal.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Documentation\HullAndWhiteOneFactor.tex" />

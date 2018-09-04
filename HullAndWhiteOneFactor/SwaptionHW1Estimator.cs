@@ -25,6 +25,7 @@ using DVPLI;
 using Fairmat.Finance;
 using Fairmat.Optimization;
 using Fairmat.Calibration;
+using Fairmat.MarketData;
 using Mono.Addins;
 
 namespace HullAndWhiteOneFactor
@@ -49,7 +50,7 @@ namespace HullAndWhiteOneFactor
         /// <summary>
         /// Gets the description of the implemented calibration function.
         /// </summary>
-        public string Description
+        public virtual string Description
         {
             get
             {
@@ -78,10 +79,16 @@ namespace HullAndWhiteOneFactor
         /// <param name="settings">The parameter is not used.</param>
         /// <param name="multivariateRequest">The parameter is not used.</param>
         /// <returns>An array containing the type InterestRateMarketData.</returns>
-        public EstimateRequirement[] GetRequirements(IEstimationSettings settings, EstimateQuery query)
+        virtual public EstimateRequirement[] GetRequirements(IEstimationSettings settings, EstimateQuery query)
         {
             return new EstimateRequirement[] { new EstimateRequirement(typeof(InterestRateMarketData)) };
         }
+
+        protected virtual BlackModel BlackModelFactory(Function zr)
+        {
+            return new BlackModel(zr);
+        }
+
 
         /// <summary>
         /// Attempts a calibration through <see cref="SwaptionHW1OptimizationProblem"/>
@@ -94,6 +101,9 @@ namespace HullAndWhiteOneFactor
         public EstimationResult Estimate(List<object> data, IEstimationSettings settings = null, IController controller = null, Dictionary<string, object> properties = null)
         {
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
+            MatrixMarketData normalVol = null;
+            if (data.Count > 1)
+                normalVol = (MatrixMarketData)data[1];
 
             PFunction zr = new PFunction(null);
             // Loads the zero rate.
@@ -101,58 +111,71 @@ namespace HullAndWhiteOneFactor
             zr.Expr = zrvalue;
 
             double deltak = dataset.SwaptionTenor;
-
+            Console.WriteLine("Swaption Tenor\t" + dataset.SwaptionTenor);
            
             var swaptionsFiltering = settings as SwaptionsFiltering;
 
             if (swaptionsFiltering == null)
                 swaptionsFiltering = new SwaptionsFiltering();//creates a default
-                 
+
+            //F stands for Full matrix
+            var optionMaturityF = dataset.OptionMaturity;
+            var swapDurationF = dataset.SwapDuration;
+            var swaptionsVolatilityF = dataset.SwaptionsVolatility;
+
+            if (normalVol != null)
+            {
+                optionMaturityF = normalVol.RowValues;
+                swapDurationF = normalVol.ColumnValues;
+                swaptionsVolatilityF = normalVol.Values;
+            }
 
 
-            int maturitiesCount = dataset.OptionMaturity.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
-            int durationsCount = dataset.SwapDuration.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
+            int maturitiesCount = optionMaturityF.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
+            int durationsCount = swapDurationF.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
 
-
+            
             Console.WriteLine(string.Format("Calibrating on {0} swaptions prices [#maturiries x #durations]=[{1} x {2}]", maturitiesCount * durationsCount, maturitiesCount,durationsCount));
 
             if (maturitiesCount * durationsCount == 0)
                 return new EstimationResult("No swaptions satisfying criteria found, please relax filters");
 
-            Matrix swaptionsVolatility = new Matrix(maturitiesCount, durationsCount);// dataset.SwaptionsVolatility;
-            Vector optionMaturity = new Vector(maturitiesCount);// dataset.OptionMaturity;
-            Vector swapDuration = new Vector(durationsCount);// dataset.SwapDuration;
+            //reduced version
+            var swaptionsVolatility = new Matrix(maturitiesCount, durationsCount);// dataset.SwaptionsVolatility;
+            var optionMaturity = new Vector(maturitiesCount);// dataset.OptionMaturity;
+            var swapDuration = new Vector(durationsCount);// dataset.SwapDuration;
             
 
             //Build filtered matrix and vectors
             int fm=0;
-            for (int m = 0; m < dataset.OptionMaturity.Length; m++)
+            for (int m = 0; m < optionMaturityF.Length; m++)
             {
                 int fd=0;
-                if (dataset.OptionMaturity[m] >= swaptionsFiltering.MinSwaptionMaturity && dataset.OptionMaturity[m] <= swaptionsFiltering.MaxSwaptionMaturity)
+                if (optionMaturityF[m] >= swaptionsFiltering.MinSwaptionMaturity && optionMaturityF[m] <= swaptionsFiltering.MaxSwaptionMaturity)
                 {
-                    for (int d = 0; d < dataset.SwapDuration.Length; d++)
+                    for (int d = 0; d < swapDurationF.Length; d++)
                     {
-                        if (dataset.SwapDuration[d] >= swaptionsFiltering.MinSwapDuration && dataset.SwapDuration[d] <= swaptionsFiltering.MaxSwapDuration)
+                        if (swapDurationF[d] >= swaptionsFiltering.MinSwapDuration && swapDurationF[d] <= swaptionsFiltering.MaxSwapDuration)
                         {   
-                            swaptionsVolatility[fm, fd] = dataset.SwaptionsVolatility[m, d];
-                            swapDuration[fd] = dataset.SwapDuration[d];
+                            swaptionsVolatility[fm, fd] = swaptionsVolatilityF[m, d];
+                            swapDuration[fd] = swapDurationF[d];
                             fd++; }
                     }
 
-                    optionMaturity[fm] = dataset.OptionMaturity[m];
+                    optionMaturity[fm] = optionMaturityF[m];
                     fm++;
                 }
 
             }
 
-            SwaptionsBlackModel swbm = new SwaptionsBlackModel(zr);
+            var swbm = new SwaptionsBlackModel(zr,BlackModelFactory(zr));
 
             Matrix fsr;
             var blackSwaptionPrice = 1000.0 * swbm.SwaptionsSurfBM(optionMaturity, swapDuration, swaptionsVolatility, deltak, out fsr);
 
 
-
+            Console.WriteLine("Maturities\t"+optionMaturity);
+            Console.WriteLine("swapDuration\t"+swapDuration);
             Console.WriteLine("SwaptionHWEstimator: Black model prices");
             Console.WriteLine(blackSwaptionPrice);
 
@@ -193,7 +216,6 @@ namespace HullAndWhiteOneFactor
 
             Console.WriteLine("SwaptionHWEstimator: hw model prices and error");
             problem.Obj(solution.x,true);
-
 
             EstimationResult result = new EstimationResult(names, solution.x);
 

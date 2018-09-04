@@ -170,7 +170,7 @@ namespace HullAndWhiteOneFactor
                 double absErr = Matrix.Abs(hwSWMatrix - blackSwaption).Sum() / effective;
                 double avgPrice= blackSwaption.Sum() / effective;
                 Console.WriteLine("Abs Error\t"+ absErr+"\t("+ (absErr/ avgPrice).ToString("P") + ")");
-                Console.WriteLine("RMSE(r)\t"+ (Math.Sqrt(sump)/effective).ToString("P");
+                Console.WriteLine("RMSE(r)\t"+ (Math.Sqrt(sump)/effective).ToString("P"));
             }
                 
 
