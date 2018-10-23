@@ -225,7 +225,7 @@ namespace Pelsser
             TestCommon.TestInitialization.CommonInitialization();
         }
 
-        [Test]
+        //[Test] disabled unsupported test
         public virtual void Test()
         {
             Assert.IsTrue(Run(1.0));
@@ -255,7 +255,7 @@ namespace Pelsser
     [TestFixture]
     public class TestPelsser6 : TestPelsser5
     {
-        [Test]
+        //[Test] disabled unsupported test
         public override void Test()
         {
             Assert.IsTrue(Run(.2));
@@ -268,7 +268,7 @@ namespace Pelsser
     [TestFixture]
     public class TestPelsser7 : TestPelsser5
     {
-        [Test]
+        //[Test] disabled unsupported test
         public override void Test()
         {
             Assert.IsTrue(Run(7.5));
