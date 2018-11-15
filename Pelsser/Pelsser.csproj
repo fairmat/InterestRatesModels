@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CapletRealWordEstimator.cs" />
+    <Compile Include="CapletEstimatorNormal.cs" />
     <Compile Include="PelsserChoice.cs" />
     <Compile Include="Pelsser.cs" />
     <Compile Include="PelsserCache.cs" />

@@ -24,8 +24,9 @@ using DVPLDOM;
 using DVPLI;
 using Fairmat.Finance;
 using Fairmat.Optimization;
+using Fairmat.MarketData;
 using Mono.Addins;
-using Pelsser;
+
 
 namespace Pelsser.Calibration
 {
@@ -56,7 +57,7 @@ namespace Pelsser.Calibration
         /// <param name="settings">The parameter is not used.</param>
         /// <param name="multivariateRequest">The parameter is not used.</param>
         /// <returns>An array containing the type InterestRateMarketData.</returns>
-        public EstimateRequirement[] GetRequirements(IEstimationSettings settings, EstimateQuery query)
+        public virtual EstimateRequirement[] GetRequirements(IEstimationSettings settings, EstimateQuery query)
         {
             return new EstimateRequirement[] { new EstimateRequirement(typeof(InterestRateMarketData)) };
         }
@@ -72,6 +73,9 @@ namespace Pelsser.Calibration
         public EstimationResult Estimate(List<object> data, IEstimationSettings settings = null, IController controller = null, Dictionary<string, object> properties = null)
         {
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
+            MatrixMarketData normalVol = null;
+            if (data.Count > 1)
+                normalVol = (MatrixMarketData)data[1];
             EstimationResult result;
             if ((dataset.ZRMarket == null) || (dataset.CapVolatility == null))
             {
@@ -105,18 +109,19 @@ namespace Pelsser.Calibration
             prj.Symbols.Add(zr);
 
 
-            BlackModel bm = new BlackModel(zr);
+            var bm = BlackModelFactory(zr);
 
             double deltak = dataset.CapTenor;
 
-            Matrix capVol = dataset.CapVolatility;
-            Vector capMat = dataset.CapMaturity;
-            Vector capK = dataset.CapRate;
+
+            Matrix capVol = normalVol != null ? normalVol.Values:dataset.CapVolatility;
+            Vector capMat = normalVol != null ? normalVol.RowValues: dataset.CapMaturity;
+            Vector capK = normalVol != null ? normalVol.ColumnValues: dataset.CapRate;
 
             var preferences = settings as Fairmat.Calibration.CapVolatilityFiltering;
 
             // Matrix calculated with black.
-            Matrix blackCaps = new Matrix(capMat.Length, capK.Length);
+            var blackCaps = new Matrix(capMat.Length, capK.Length);
             for (int m = 0; m < capMat.Length; m++)
             {
                 for (int s = 0; s < capK.Length; s++)
@@ -225,7 +230,7 @@ namespace Pelsser.Calibration
 
         #endregion
 
-        public string Description
+        public virtual string Description
         {
             get { return "Calibrate against Caplet prices"; }
         }
@@ -234,5 +239,11 @@ namespace Pelsser.Calibration
         {
             get { return new Fairmat.Calibration.CapVolatilityFiltering(); }
         }
+
+        protected virtual BlackModel BlackModelFactory(Function zr)
+        {
+            return new BlackModel(zr);
+        }
+
     }
 }
