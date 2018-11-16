@@ -119,17 +119,9 @@ namespace HullAndWhiteOneFactor
                 swaptionsFiltering = new SwaptionsFiltering();//creates a default
 
             //F stands for Full matrix
-            var optionMaturityF = dataset.OptionMaturity;
-            var swapDurationF = dataset.SwapDuration;
-            var swaptionsVolatilityF = dataset.SwaptionsVolatility;
-
-            if (normalVol != null)
-            {
-                optionMaturityF = normalVol.RowValues;
-                swapDurationF = normalVol.ColumnValues;
-                swaptionsVolatilityF = normalVol.Values;
-            }
-
+            var optionMaturityF = normalVol!=null ? normalVol.RowValues: dataset.OptionMaturity;
+            var swapDurationF = normalVol != null ? normalVol.ColumnValues: dataset.SwapDuration;
+            var swaptionsVolatilityF = normalVol != null ? normalVol.Values: dataset.SwaptionsVolatility;
 
             int maturitiesCount = optionMaturityF.Count(x => x >= swaptionsFiltering.MinSwaptionMaturity && x <= swaptionsFiltering.MaxSwaptionMaturity);
             int durationsCount = swapDurationF.Count(x => x >= swaptionsFiltering.MinSwapDuration && x <= swaptionsFiltering.MaxSwapDuration);
