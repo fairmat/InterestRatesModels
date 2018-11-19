@@ -34,7 +34,7 @@ namespace Pelsser.Calibration
     /// Implementation of Pelsser Calibration against caps matrices.
     /// </summary>
     [Extension("/Fairmat/Estimator")]
-    public class CapletEstimator : IEstimatorEx, IDescription
+    public class CapletEstimator : IEstimatorEx, IDescription, IMenuItemDescription
     {
         #region IEstimator Members
 
@@ -110,6 +110,10 @@ namespace Pelsser.Calibration
 
 
             var bm = BlackModelFactory(zr);
+            if (bm is BachelierNormalModel)
+            {
+                (bm as BachelierNormalModel).Tenor = dataset.CapTenor;
+            }
 
             double deltak = dataset.CapTenor;
 
@@ -245,5 +249,9 @@ namespace Pelsser.Calibration
             return new BlackModel(zr);
         }
 
+        public virtual string ToolTipText
+        {
+            get { return "Caplet Estimator"; }
+        }
     }
 }

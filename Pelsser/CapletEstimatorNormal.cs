@@ -24,7 +24,6 @@ namespace Pelsser.Calibration
         {
             get { return "Calibrate against Caplet prices (Normal Volatilities)"; }
         }
-    
 
         /// <summary>
         /// List required market data inlcuding normal vol
@@ -50,7 +49,11 @@ namespace Pelsser.Calibration
             string ticker = $"CapVol{CurrencyTickerBuilder.MarketToCurrency(market)}";
             return ticker;
         }
+
+        public override string ToolTipText
+        {
+            get { return "Caplet Estimator (Normal Volatilities)"; }
+        }
     }
 
-   
 }
