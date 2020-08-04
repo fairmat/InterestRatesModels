@@ -110,6 +110,14 @@ namespace HullAndWhiteOneFactor
             double[,] zrvalue = (double[,])ArrayHelper.Concat(dataset.ZRMarketDates.ToArray(), dataset.ZRMarket.ToArray());
             zr.Expr = zrvalue;
 
+            //todo: move to common data quality code
+            if (dataset.SwaptionTenor == 0)
+            {
+                Console.WriteLine("Warning SwaptionTenor not set, using default (1)");
+                dataset.SwaptionTenor = 1;
+            }
+
+
             double deltak = dataset.SwaptionTenor;
             Console.WriteLine("Swaption Tenor\t" + dataset.SwaptionTenor);
            

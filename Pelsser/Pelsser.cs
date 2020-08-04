@@ -283,6 +283,10 @@ namespace Pelsser
             if (t == s)
                 return 1;
 
+            // Handles case where class is not completely initialized.
+            if (this.alphaT0 == null)
+                return 0;
+
             // Get the value of the short rate.
             double y = Math.Sqrt(dynamic[i, 0]) - this.alphaT0[i];
             PelsserKey k = new PelsserKey(t, s);

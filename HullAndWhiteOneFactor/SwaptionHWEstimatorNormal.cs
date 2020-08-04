@@ -24,7 +24,7 @@ namespace HullAndWhiteOneFactor
         {
             get
             {
-                return "Calibrate HW1 using Swaption (Normal Volatilities)";
+                return "Calibrate HW1 using Swaption [Normal]";
             }
         }
 
