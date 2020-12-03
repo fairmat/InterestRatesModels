@@ -120,7 +120,7 @@ namespace Pelsser.Calibration
 
             Matrix capVol = normalVol != null ? normalVol.Values:dataset.CapVolatility;
             Vector capMat = normalVol != null ? normalVol.RowValues: dataset.CapMaturity;
-            Vector capK = normalVol != null ? normalVol.ColumnValues: dataset.CapRate;
+            Vector capK = normalVol != null ? GetStrikes(normalVol,zr): dataset.CapRate;
 
             var preferences = settings as Fairmat.Calibration.CapVolatilityFiltering;
 
@@ -230,6 +230,28 @@ namespace Pelsser.Calibration
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Returns the Strike vector embedded in the volatility matrix. 
+        /// The method manage the convention that if rates/strikes [defined in .ColumnValues fields] are equal to -1,
+        /// the strike vector is ATM and must be derived from the term structure. 
+        /// </summary>
+        /// <param name="normalVol">The matrix</param>
+        /// <param name="zr">The term structure.</param>
+        /// <returns>The strike vector.</returns>
+        static Vector GetStrikes(MatrixMarketData normalVol, IFunction zr)
+        {
+            if (normalVol.ColumnValues.Length == 1 && normalVol.ColumnValues[0] == -1)
+            {
+                // builds the vector of ATM strikes
+                var s = new Vector(normalVol.RowValues.Length);
+                for (int j = 0; j < s.Length; j++)
+                    s[j] = zr.Evaluate(normalVol.RowValues[j]);
+                return s;
+            }
+            else
+                return normalVol.ColumnValues;
         }
 
         #endregion
