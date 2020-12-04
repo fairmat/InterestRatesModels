@@ -138,10 +138,12 @@ namespace Pelsser.Calibration
                                 {skip = true; }
                     }
 
-                    if (capVol[m, s] == 0 || skip)
+                    var adjS = s;
+                    if (IsAtmMatrix(normalVol)) { adjS = 0; }
+                    if (capVol[m, adjS] == 0 || skip)
                         blackCaps[m, s] = 0;
                     else
-                        blackCaps[m, s] = bm.Cap(capK[s], capVol[m, s], deltak, capMat[m]);
+                        blackCaps[m, s] = bm.Cap(capK[s], capVol[m, adjS], deltak, capMat[m]);
                 }
             }
 
@@ -242,7 +244,7 @@ namespace Pelsser.Calibration
         /// <returns>The strike vector.</returns>
         static Vector GetStrikes(MatrixMarketData normalVol, IFunction zr)
         {
-            if (normalVol.ColumnValues.Length == 1 && normalVol.ColumnValues[0] == -1)
+            if (IsAtmMatrix(normalVol))
             {
                 // builds the vector of ATM strikes
                 var s = new Vector(normalVol.RowValues.Length);
@@ -252,6 +254,11 @@ namespace Pelsser.Calibration
             }
             else
                 return normalVol.ColumnValues;
+        }
+
+        private static bool IsAtmMatrix(MatrixMarketData normalVol)
+        {
+            return normalVol.ColumnValues.Length == 1 && normalVol.ColumnValues[0] == -1;
         }
 
         #endregion
