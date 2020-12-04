@@ -258,7 +258,9 @@ namespace Pelsser.Calibration
 
         private static bool IsAtmMatrix(MatrixMarketData normalVol)
         {
-            return normalVol.ColumnValues.Length == 1 && normalVol.ColumnValues[0] == -1;
+            return normalVol != null &&
+                   normalVol.ColumnValues.Length == 1 &&
+                   normalVol.ColumnValues[0] == -1;
         }
 
         #endregion
