@@ -133,8 +133,8 @@ namespace HullAndWhiteOneFactor
         internal double Obj(Vector x,bool showDetails)
         {
             var hwSWMatrix = this.shw1.HWSwaptionMatrix(this.swaptionMaturity, this.swapDuration, x[0], x[1], this.deltaK);
-            double sum = 0;
-            double sump = 0;
+            double sumq = 0;
+            double sumqr = 0;
             int count = this.swaptionMaturity.Length * this.swapDuration.Length;
             int effective = 0; // number of effective elements
             for (int r = 0; r < this.swaptionMaturity.Length; r++)
@@ -142,8 +142,8 @@ namespace HullAndWhiteOneFactor
                     if (this.blackSwaption[r, c] != 0.0)
                     {
                         double deltap = hwSWMatrix[r, c] - this.blackSwaption[r, c];
-                        sum += Math.Pow(deltap, 2);
-                        sump += Math.Pow(deltap / this.blackSwaption[r, c], 2);
+                        sumq += Math.Pow(deltap, 2);
+                        sumqr += Math.Pow(deltap / this.blackSwaption[r, c], 2);
                         effective++;
                     }
 
@@ -159,6 +159,9 @@ namespace HullAndWhiteOneFactor
             bias += Math.Abs(avgR[avgR.Count - 1] - f.zr.Evaluate(simDates[avgR.Count - 1]));
             Console.WriteLine(f.zr.Evaluate(simDates[avgR.Count - 1]) + "\t" + avgR[avgR.Count - 1] + "\t" + x[0] + "\t" + x[1] + "\t" + Math.Sqrt(sum / count));
             */
+
+            double rmsea=Math.Sqrt(sumq / effective);
+            double rmser = Math.Sqrt(sumqr / effective);
             if (showDetails)
             {
                 Console.WriteLine("Black Prices");
@@ -170,13 +173,14 @@ namespace HullAndWhiteOneFactor
                 double absErr = Matrix.Abs(hwSWMatrix - blackSwaption).Sum() / effective;
                 double avgPrice= blackSwaption.Sum() / effective;
                 Console.WriteLine("Abs Error\t"+ absErr+"\t("+ (absErr/ avgPrice).ToString("P") + ")");
-                Console.WriteLine("RMSE(r)\t"+ (Math.Sqrt(sump)/effective).ToString("P"));
+                Console.WriteLine("RMSE(a)\t" + rmsea.ToString("G"));
+                Console.WriteLine("RMSE(r)\t"+ rmser.ToString("P"));
             }
                 
 
 
 
-            return Math.Sqrt(sum / count )+k*bias;
+            return Math.Sqrt(sumq / effective) +k*bias;
         }
 
         /// <summary>
