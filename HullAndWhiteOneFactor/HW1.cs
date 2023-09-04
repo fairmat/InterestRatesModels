@@ -54,6 +54,26 @@ namespace HullAndWhiteOneFactor
         protected IModelParameter sigma1;
 
         /// <summary>
+        /// RMSE Abs.
+        /// </summary>
+        protected IModelParameter rmse_a;
+
+        /// <summary>
+        /// RMSE Rel.
+        /// </summary>
+        protected IModelParameter rmse_r;
+
+        /// <summary>
+        /// Optimization problem Upper Bounds.
+        /// </summary>
+        protected IModelParameter upperBounds;
+
+        /// <summary>
+        /// Optimization problem Lower Bounds.
+        /// </summary>
+        protected IModelParameter lowerBounds;
+
+        /// <summary>
         /// Market price of risk.
         /// </summary>
         [OptionalField(VersionAdded = 3)]
@@ -683,6 +703,15 @@ namespace HullAndWhiteOneFactor
             this.alpha1 = new ModelParameter(PopulateHelper.GetValue("alpha", "a1", estimate.Names, estimate.Values, out found), alphaDescription);
             this.sigma1 = new ModelParameter(PopulateHelper.GetValue("sigma", "sigma1", estimate.Names, estimate.Values, out found), sigmaDescription);
             this.lambda0 = new ModelParameter(PopulateHelper.GetValue("Lambda0", "lambda0", estimate.Names, estimate.Values, out found), lambda0Description);
+
+            if(estimate.Objects != null && estimate.Objects.Length > 0)
+            {
+                this.lowerBounds = new ModelParameterArray(estimate.Objects[0] as double[]);
+                this.lowerBounds.Description = "Lower Bounds";
+                this.upperBounds = new ModelParameterArray(estimate.Objects[1] as double[]);
+                this.upperBounds.Description = "Upper Bounds";
+                this.rmse_a = new ModelParameter((double)estimate.Objects[2], "RMSE Abs");
+            }
         }
         #endregion
 
