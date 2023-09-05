@@ -215,14 +215,14 @@ namespace HullAndWhiteOneFactor
             string[] names = new string[] { "Alpha", "Sigma" };
 
             Console.WriteLine("SwaptionHWEstimator: hw model prices and error");
-            problem.Obj(solution.x,true);
+            double rmse_a = problem.Obj(solution.x,true);
 
             EstimationResult result = new EstimationResult(names, solution.x);
 
             result.ZRX = (double[])dataset.ZRMarketDates.ToArray();
             result.ZRY = (double[])dataset.ZRMarket.ToArray();
 
-            double rmse_a = problem.Obj(solution.x);
+            double obj = problem.Obj(solution.x);
             result.Objects = new object[2];
             result.Objects[0] = problem.Bounds.Lb.ToArray();
             result.Objects[1] = problem.Bounds.Lb.ToArray();

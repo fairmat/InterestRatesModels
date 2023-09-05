@@ -469,6 +469,8 @@ namespace HullAndWhiteOneFactor
             parameters.Add(this.sigma1);
             parameters.Add(this.lambda0);
             parameters.Add(this.zrReference);
+            parameters.Add(this.rmse_a);
+            parameters.Add(this.rmse_r);
 
             return parameters;
         }
