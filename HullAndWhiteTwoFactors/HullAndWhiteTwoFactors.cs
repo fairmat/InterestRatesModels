@@ -525,40 +525,6 @@ namespace HullAndWhiteTwoFactors
             return (F(t + dt, dt) - F(t - dt, dt)) / (2 * dt);
         }
 
-        /// <summary>
-        /// Vectorial version of method a.
-        /// </summary>
-        /// <param name="i">The discrete time-step.</param>
-        /// <param name="x">The actual state matrix.</param>
-        /// <param name="a">The output drift matrix.</param>
-        public unsafe void va(int i, Matrix x, Matrix a)
-        {
-            // Gets the reference to the state and drift components.
-            VectorNP x1 = new VectorNP(x.GetRowReference(0));
-            VectorNP x2 = new VectorNP(x.GetRowReference(1));
-
-            VectorNP a1 = new VectorNP(a.GetRowReference(0));
-            VectorNP a2 = new VectorNP(a.GetRowReference(1));
-
-            if (transformedSimulation)
-            {
-                VectorNP delta_r = this.theta[i] - alpha1 * x1;
-                if (DVPLI.SolverAssumptions.UseRiskNeutralMeasure)
-                    delta_r += this.driftAdjustment.vfV();
-
-                delta_r.CopyTo(a1);
-            }
-            else
-            {
-                // Does a straight simulation.
-                VectorNP delta_r = this.theta[i] + x2 - alpha1 * x1;
-                delta_r.CopyTo(a2);
-            }
-
-            VectorNP delta_r2 = -alpha2 * x1;
-            delta_r2.CopyTo(a2);
-        }
-
         #region IBond Members
 
         /// <summary>
@@ -722,7 +688,7 @@ namespace HullAndWhiteTwoFactors
 #endif
             double bond = aHat * Math.Exp(-bHat * R - cHat * u);
 
-#if     _CHECK_OWERFLOWS_
+#if _CHECK_OWERFLOWS_
         if(Double.IsInfinity(bond))
             bond= Double.MaxValue/1000000;
 #endif

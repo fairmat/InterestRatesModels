@@ -30,7 +30,7 @@ namespace Pelsser
     [Serializable]
     public class SquaredGaussianModel : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator,
                                         IParsable, IPostSimulationTransformation, IPopulable,
-                                        IVectorialMarkovSimulator, IGreeksDerivativesInfo,
+                                        IGreeksDerivativesInfo,
                                         IOpenCLCode, IExportableContainer
     {
         #region SerializedFields
@@ -870,41 +870,6 @@ namespace Pelsser
             this.a1 = new ModelParameter(PopulateHelper.GetValue("alpha1", "a", names, values, out found), a1Description);
             this.sigma1 = new ModelParameter(PopulateHelper.GetValue("sigma1", "sigma", names, values, out found), sigma1Description);
             this.lamda0 = new ModelParameter(PopulateHelper.GetValue("lambda0", "lambda", names, values, out found), lambda0Description);
-        }
-
-        #endregion
-
-        #region IVectorialMarkovSimulator Members
-
-        /// <summary>
-        /// This function defines the drift in the Pelsser Markov process.
-        /// The formula to calculate the A component is
-        /// A = - alpha * previous State.
-        /// This is the version which handles a vectorial execution.
-        /// </summary>
-        /// <param name="i">The parameter is not used.</param>
-        /// <param name="x">The state Matrix at the previous state.</param>
-        /// <param name="a">The output of the function.</param>
-        public void va(int i, Matrix x, Matrix a)
-        {
-            VectorNP x1 = new VectorNP(x.GetRowReference(0));
-            VectorNP tmp = -this.alpha1Temp * x1;
-            tmp.CopyTo(a);
-        }
-
-        /// <summary>
-        /// This function defines the volatility in the Pelsser markov process.
-        /// The formula to calculate the B component is
-        /// B = sigma.
-        /// This is the version which handles a vectorial execution.
-        /// </summary>
-        /// <param name="i">The parameter is not used.</param>
-        /// <param name="x">The parameter is not used.</param>
-        /// <param name="b">The output of the function.</param>
-        public void vb(int i, Matrix x, Matrix b)
-        {
-            VectorNP tmp = new VectorNP(b);
-            b.Fill(this.sigma1Temp);
         }
 
         #endregion
