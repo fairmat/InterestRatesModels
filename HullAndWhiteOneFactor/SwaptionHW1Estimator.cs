@@ -181,35 +181,44 @@ namespace HullAndWhiteOneFactor
 
             SwaptionHW1 swhw1 = new SwaptionHW1(zr);
             SwaptionHW1OptimizationProblem problem = new SwaptionHW1OptimizationProblem(swhw1, blackSwaptionPrice, optionMaturity, swapDuration, deltak);
+            
+            SolutionInfo solution = null;
+            Vector x0 = new Vector(new double[] { 0.1, 0.1 });
+
+            // compute stochastic optimization 
 
             IOptimizationAlgorithm solver = new QADE();
-            IOptimizationAlgorithm solver2 = new SteepestDescent();
-
             DESettings o = new DESettings();
             o.NP = 20;
             o.MaxIter = 5;
             o.Verbosity = 1;
             o.controller = controller;
-            SolutionInfo solution = null;
 
-            Vector x0 = new Vector(new double[] { 0.1, 0.1 });
+            int seed = AttributesUtility.RetrieveAttributeOrDefaultValue(properties, "Seed", -1);
+            if (seed != -1)
+            {
+                o.Repeatable = true;
+                o.RandomSeed = seed;
+            }
+
             solution = solver.Minimize(problem, o, x0);
+
             if (solution.errors)
                 return new EstimationResult(solution.message);
 
+            // compute deterministic optimization 
+            IOptimizationAlgorithm solver2 = new SteepestDescent();
             o.epsilon = 10e-8;
             o.h = 10e-8;
             o.MaxIter = 1000;
-
             // We can permit this, given it is fast.
             o.accourate_numerical_derivatives = true;
+            // if the previous solution is not null use it as starting point
+            solution = solver2.Minimize(problem, o, solution != null ? solution.x : x0);
 
-            if (solution != null)
-                solution = solver2.Minimize(problem, o, solution.x);
-            else
-                solution = solver2.Minimize(problem, o, x0);
             if (solution.errors)
                 return new EstimationResult(solution.message);
+            
             Console.WriteLine("Solution:");
             Console.WriteLine(solution);
             string[] names = new string[] { "Alpha", "Sigma" };
