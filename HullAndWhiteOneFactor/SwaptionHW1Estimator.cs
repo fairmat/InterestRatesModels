@@ -116,7 +116,7 @@ namespace HullAndWhiteOneFactor
             zr.Expr = zrvalue;
 
             // dummy calibration
-            if (settings.DummyCalibration)
+            if (settings != null && settings.DummyCalibration)
             { 
                 EstimationResult dummyResult = new EstimationResult(names, x0);
 

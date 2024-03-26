@@ -105,7 +105,7 @@ namespace CIRProcess
             // initial guess
             Vector x0 = new Vector(new double[] { 1, 0.01, 0.05 });
 
-            if (settings.DummyCalibration)
+            if (settings != null && settings.DummyCalibration)
             {
                 Vector valuesDummy = new Vector(4);
                 valuesDummy[Range.New(0, 2)] = x0;
