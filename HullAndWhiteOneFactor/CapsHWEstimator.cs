@@ -107,6 +107,19 @@ namespace HullAndWhiteOneFactor
 
             // initialize the result 
             EstimationResult result;
+            
+            // dummy calibration
+            if (settings?.DummyCalibration ?? false)
+            {
+                Console.WriteLine("Computing dummy calibration");
+                double[] dummySolution = { 0.1, 0.05 };
+                result = new EstimationResult(names, dummySolution);
+
+                result.ZRX = (double[])dataset.ZRMarketDates.ToArray();
+                result.ZRY = (double[])dataset.ZRMarket.ToArray();
+
+                return result;
+            }
 
             
 

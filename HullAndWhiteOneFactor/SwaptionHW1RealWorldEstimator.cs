@@ -81,17 +81,23 @@ namespace HullAndWhiteOneFactor
             List<object> IrmdData = new List<object>();
             IrmdData.Add(irmd);
             SwaptionHWEstimator shwe = new SwaptionHWEstimator();
-            EstimationResult er1 = shwe.Estimate(IrmdData);
+
+            // adding settings so in case of DummyCalibration this will work 
+            EstimationResult er1 = shwe.Estimate(IrmdData, settings: settings, properties:properties);
+
+            // names 
+            string[] names = new string[er1.Names.Length + 1];
+            for (int i = 0; i < er1.Names.Length; i++)
+                names[i] = er1.Names[i];
+            names[er1.Names.Length] = "Lambda0";
+
 
             DiscountingCurveMarketData[] dcmd = Array.ConvertAll<IMarketData, DiscountingCurveMarketData>
                 ((IMarketData[])data[1], el => (DiscountingCurveMarketData)el);
             MarketPriceOfRiskCalculator mporc = new MarketPriceOfRiskCalculator();
             double lambda = mporc.Calculate(dcmd, lsettings);
 
-            string[] names = new string[er1.Names.Length + 1];
-            for (int i = 0; i < er1.Names.Length; i++)
-                names[i] = er1.Names[i];
-            names[er1.Names.Length] = "Lambda0";
+            
             Vector values = new Vector(er1.Values.Length + 1);
             values[new Range(0, values.Length - 2)] = (Vector) er1.Values;
             values[Range.End] = lambda;

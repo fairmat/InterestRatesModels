@@ -82,7 +82,8 @@ namespace Pelsser.Calibration
             List<object> IrmdData = new List<object>();
             IrmdData.Add(irmd);
             CapletEstimator CapEst = new CapletEstimator();
-            EstimationResult er1 = CapEst.Estimate(IrmdData);
+            // adding settings and properties to include seed fixing and possible dummy calibration 
+            EstimationResult er1 = CapEst.Estimate(IrmdData, properties: properties, settings: settings);
 
             DiscountingCurveMarketData[] dcmd = Array.ConvertAll<IMarketData, DiscountingCurveMarketData>
                 ((IMarketData[])data[1], el => (DiscountingCurveMarketData)el);

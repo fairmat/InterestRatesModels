@@ -76,7 +76,30 @@ namespace Pelsser.Calibration
             MatrixMarketData normalVol = null;
             if (data.Count > 1)
                 normalVol = (MatrixMarketData)data[1];
+
+            // initialize the result
             EstimationResult result;
+
+            // names of the parameters
+            string[] names = new string[] { "alpha1", "sigma1" };
+
+            bool isDummyCalibration = (settings?.DummyCalibration ?? false);
+
+            // we just need ZR Market data for dummy calibration 
+            if ( (dataset.ZRMarket != null) && isDummyCalibration)
+            {
+                var dummyValues = new double[]{ 0.014, 0.001 };
+                result = new EstimationResult(names, dummyValues);
+
+                result.ZRX = (double[])dataset.ZRMarketDates.ToArray();
+                result.ZRY = (double[])dataset.ZRMarket.ToArray();
+                result.Objects = new object[1];
+                result.Objects[0] = 0.0;
+
+                return result;
+            }
+
+
             if ((dataset.ZRMarket == null) || (dataset.CapVolatility == null))
             {
                 result = new EstimationResult();
@@ -216,7 +239,6 @@ namespace Pelsser.Calibration
 
             Console.WriteLine(solution);
 
-            string[] names = new string[] { "alpha1", "sigma1" };
             result = new EstimationResult(names, solution.x);
 
             result.ZRX = (double[])dataset.ZRMarketDates.ToArray();
