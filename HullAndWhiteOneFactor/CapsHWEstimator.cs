@@ -109,7 +109,7 @@ namespace HullAndWhiteOneFactor
             EstimationResult result;
             
             // dummy calibration
-            if (settings != null && settings.DummyCalibration)
+            if (settings?.DummyCalibration ?? false)
             {
                 Console.WriteLine("Computing dummy calibration");
                 double[] dummySolution = { 0.1, 0.05 };
@@ -120,6 +120,8 @@ namespace HullAndWhiteOneFactor
 
                 return result;
             }
+
+            
 
 
             PFunction zr = new PFunction(null);

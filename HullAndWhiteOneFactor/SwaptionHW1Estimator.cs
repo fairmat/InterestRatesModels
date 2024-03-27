@@ -102,7 +102,7 @@ namespace HullAndWhiteOneFactor
         {
             // names of the paramter to optimize
             string[] names = new string[] { "Alpha", "Sigma" };
-            Vector x0 = new Vector(new double[] { 0.1, 0.1 });
+            Vector x0 = (Vector)(new double[] { 0.1, 0.1 });
 
 
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
@@ -202,6 +202,7 @@ namespace HullAndWhiteOneFactor
             
             SolutionInfo solution = null;
 
+           
             // compute stochastic optimization 
 
             IOptimizationAlgorithm solver = new QADE();
