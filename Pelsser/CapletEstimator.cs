@@ -83,8 +83,10 @@ namespace Pelsser.Calibration
             // names of the parameters
             string[] names = new string[] { "alpha1", "sigma1" };
 
+            bool isDummyCalibration = (settings?.DummyCalibration ?? false);
+
             // we just need ZR Market data for dummy calibration 
-            if ( (dataset.ZRMarket != null) && false)
+            if ( (dataset.ZRMarket != null) && isDummyCalibration)
             {
                 var dummyValues = new double[]{ 0.014, 0.001 };
                 result = new EstimationResult(names, dummyValues);
