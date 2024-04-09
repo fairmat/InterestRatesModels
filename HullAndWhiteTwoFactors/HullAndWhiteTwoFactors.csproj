@@ -1,20 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{39A9B629-0AFD-44F3-9AEA-7BCA21106D2C}</ProjectGuid>
+    <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HullAndWhiteTwoFactors</RootNamespace>
-    <AssemblyName>HullAndWhiteTwoFactors</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -30,60 +17,15 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>False</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AssemblyTitle>HullAndWhiteTwoFactors</AssemblyTitle>
+    <Product>HullAndWhiteTwoFactors</Product>
+    <Company>Fairmat SRL</Company>
+    <Copyright>Copyright © Fairmat SRL 2009-2015</Copyright>
+    <AssemblyVersion>1.0.9</AssemblyVersion>
+    <FileVersion>1.0.9</FileVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>True</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="DVPLDOM">
-      <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DVPLDOME">
-      <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DVPLI">
-      <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DVPLInterfaces">
-      <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="DVPLUtils">
-      <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="HW2Context.cs" />
-    <Compile Include="HullAndWhiteTwoFactors.cs" />
-    <Compile Include="HW2Choice.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config" />
-    <None Include="Documentation\HullAndWhiteTwoFactors.tex" />
-  </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
@@ -108,34 +50,27 @@
     <PackageReference Include="QLNet">
       <Version>1.11.4</Version>
     </PackageReference>
-    <PackageReference Include="System.Buffers">
-      <Version>4.5.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Immutable">
-      <Version>6.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Memory">
-      <Version>4.5.4</Version>
-    </PackageReference>
-    <PackageReference Include="System.Numerics.Vectors">
-      <Version>4.5.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Emit">
-      <Version>4.7.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Emit.Lightweight">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
-      <Version>6.0.0</Version>
-    </PackageReference>
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <Reference Include="DVPLDOM">
+      <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLDOME">
+      <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLI">
+      <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLInterfaces">
+      <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="DVPLUtils">
+      <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
