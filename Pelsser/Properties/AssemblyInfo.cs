@@ -31,21 +31,6 @@ using Mono.Addins;
                             "provides the advantage that the interest rates never become " +
                             "negative. The squared Gaussian is a no-arbitrage model, so it " +
                             "can be fitted to the initial term-structure of interest rates.")]
-
-// General Information about an assembly is controlled through the following
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("Pelsser")]
-[assembly: AssemblyDescription("The one-factor squared Gaussian model. " +
-                               "This model assumes that the spot interest rate is a " +
-                               "quadratic function of the underlying process, and it " +
-                               "provides the advantage that the interest rates never become " +
-                               "negative. The squared Gaussian is a no-arbitrage model, so it " +
-                               "can be fitted to the initial term-structure of interest rates.")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Pelsser")]
-[assembly: AssemblyCompany("Fairmat SRL")]
-[assembly: AssemblyCopyright("Copyright © Fairmat SRL 2009-2015")]
 [assembly: AssemblyTrademark("Fairmat")]
 [assembly: AssemblyCulture("")]
 
@@ -56,16 +41,3 @@ using Mono.Addins;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("54b15e16-8ee4-4f00-8d4c-356caaee45da")]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.22")]
-[assembly: AssemblyFileVersion("1.0.22")]
