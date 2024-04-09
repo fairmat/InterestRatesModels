@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HullAndWhiteOneFactor", "HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj", "{0355501D-5C61-4EDF-B640-B83A1E741085}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HullAndWhiteOneFactor", "HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj", "{0355501D-5C61-4EDF-B640-B83A1E741085}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pelsser", "Pelsser\Pelsser.csproj", "{635FA926-8F6C-4B69-9C1C-527115B5E608}"
 EndProject
