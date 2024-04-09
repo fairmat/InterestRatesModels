@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pelsser", "Pelsser\Pelsser.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterestRatesModels.Tests", "InterestRatesModels.Tests\InterestRatesModels.Tests.csproj", "{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HullAndWhiteTwoFactors", "HullAndWhiteTwoFactors\HullAndWhiteTwoFactors.csproj", "{39A9B629-0AFD-44F3-9AEA-7BCA21106D2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HullAndWhiteTwoFactors", "HullAndWhiteTwoFactors\HullAndWhiteTwoFactors.csproj", "{39A9B629-0AFD-44F3-9AEA-7BCA21106D2C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CIR", "CIR\CIR.csproj", "{01681786-2D92-410E-B121-6616D0C9F6E5}"
 EndProject
