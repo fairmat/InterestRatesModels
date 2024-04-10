@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HullAndWhiteOneFactor", "Hu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pelsser", "Pelsser\Pelsser.csproj", "{635FA926-8F6C-4B69-9C1C-527115B5E608}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterestRatesModels.Tests", "InterestRatesModels.Tests\InterestRatesModels.Tests.csproj", "{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterestRatesModels.Tests", "InterestRatesModels.Tests\InterestRatesModels.Tests.csproj", "{1B62EF42-4A90-41DB-B83D-2744AB41FCDA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HullAndWhiteTwoFactors", "HullAndWhiteTwoFactors\HullAndWhiteTwoFactors.csproj", "{39A9B629-0AFD-44F3-9AEA-7BCA21106D2C}"
 EndProject
