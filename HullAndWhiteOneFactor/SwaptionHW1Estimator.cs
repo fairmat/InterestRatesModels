@@ -100,6 +100,11 @@ namespace HullAndWhiteOneFactor
         /// <returns>The results of the calibration.</returns>
         public EstimationResult Estimate(List<object> data, IEstimationSettings settings = null, IController controller = null, Dictionary<string, object> properties = null)
         {
+            // names of the paramter to optimize
+            string[] names = new string[] { "Alpha", "Sigma" };
+            Vector x0 = (Vector)(new double[] { 0.1, 0.1 });
+
+
             InterestRateMarketData dataset = data[0] as InterestRateMarketData;
             MatrixMarketData normalVol = null;
             if (data.Count > 1)
@@ -109,6 +114,19 @@ namespace HullAndWhiteOneFactor
             // Loads the zero rate.
             double[,] zrvalue = (double[,])ArrayHelper.Concat(dataset.ZRMarketDates.ToArray(), dataset.ZRMarket.ToArray());
             zr.Expr = zrvalue;
+
+            // dummy calibration
+            if (settings != null && settings.DummyCalibration)
+            { 
+                EstimationResult dummyResult = new EstimationResult(names, x0);
+
+                // adding zero rates curve 
+                dummyResult.ZRX = (double[])dataset.ZRMarketDates.ToArray();
+                dummyResult.ZRY = (double[])dataset.ZRMarket.ToArray();
+
+                return dummyResult; 
+            }
+
 
             //todo: move to common data quality code
             if (dataset.SwaptionTenor == 0)
@@ -183,8 +201,8 @@ namespace HullAndWhiteOneFactor
             SwaptionHW1OptimizationProblem problem = new SwaptionHW1OptimizationProblem(swhw1, blackSwaptionPrice, optionMaturity, swapDuration, deltak);
             
             SolutionInfo solution = null;
-            Vector x0 = new Vector(new double[] { 0.1, 0.1 });
 
+           
             // compute stochastic optimization 
 
             IOptimizationAlgorithm solver = new QADE();
@@ -221,7 +239,6 @@ namespace HullAndWhiteOneFactor
             
             Console.WriteLine("Solution:");
             Console.WriteLine(solution);
-            string[] names = new string[] { "Alpha", "Sigma" };
 
             Console.WriteLine("SwaptionHWEstimator: hw model prices and error");
             problem.Obj(solution.x,true);
