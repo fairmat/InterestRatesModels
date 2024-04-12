@@ -215,6 +215,16 @@ namespace Pelsser.Calibration
             // Parallel evaluation is not supported for this calibration.
             o.Parallel = false;
             o.Debug = true;
+
+            // random seed for testing purposes
+            int randomSeed = AttributesUtility.RetrieveAttributeOrDefaultValue(properties, "RandomSeed", -1);
+
+            if (randomSeed != -1)
+            {
+                o.RandomSeed = randomSeed;
+                o.Repeatable = true;
+            }
+
             SolutionInfo solution = null;
 
             Vector x0 = (Vector)new double[] { 0.1, 0.1 };
