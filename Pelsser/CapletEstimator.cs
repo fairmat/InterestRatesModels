@@ -217,7 +217,7 @@ namespace Pelsser.Calibration
             o.Debug = true;
 
             // random seed for testing purposes
-            int randomSeed = AttributesUtility.RetrieveAttributeOrDefaultValue<int>(properties, "RandomSeed", -1);
+            int randomSeed = AttributesUtility.RetrieveAttributeOrDefaultValue(properties, "RandomSeed", -1);
 
             if (randomSeed != -1)
             {
