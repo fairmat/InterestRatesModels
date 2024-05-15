@@ -16,7 +16,6 @@
  */
 
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin
@@ -27,13 +26,6 @@ using Mono.Addins;
                             "short rate model with the feature to generate only positive " +
                             "rate. This plug-in allows you to simulate and calibrate the " +
                             "model on cap prices.")]
+
 [assembly: AssemblyTrademark("Fairmat")]
 [assembly: AssemblyCulture("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible
-// to COM components.  If you need to access a type in this assembly from
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6BA18D34-697E-4BF5-A8A4-652C7836D36B")]

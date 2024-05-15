@@ -17,8 +17,6 @@
  */
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Mono.Addins;
 
 // The following lines tell that the assembly is an addin.
@@ -31,13 +29,6 @@ using Mono.Addins;
                             "provides the advantage that the interest rates never become " +
                             "negative. The squared Gaussian is a no-arbitrage model, so it " +
                             "can be fitted to the initial term-structure of interest rates.")]
+
 [assembly: AssemblyTrademark("Fairmat")]
 [assembly: AssemblyCulture("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible
-// to COM components.  If you need to access a type in this assembly from
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("54b15e16-8ee4-4f00-8d4c-356caaee45da")]
