@@ -224,8 +224,9 @@ namespace Pelsser
         {
             TestCommon.TestInitialization.CommonInitialization();
         }
-
-        //[Test] disabled unsupported test
+        
+        [Test]
+        [Ignore("disabled unsupported test")]
         public virtual void Test()
         {
             Assert.IsTrue(Run(1.0));
@@ -255,7 +256,8 @@ namespace Pelsser
     [TestFixture]
     public class TestPelsser6 : TestPelsser5
     {
-        //[Test] disabled unsupported test
+        [Test]
+        [Ignore("disabled unsupported test")]
         public override void Test()
         {
             Assert.IsTrue(Run(.2));
@@ -268,7 +270,8 @@ namespace Pelsser
     [TestFixture]
     public class TestPelsser7 : TestPelsser5
     {
-        //[Test] disabled unsupported test
+        [Test]
+        [Ignore("disabled unsupported test")]
         public override void Test()
         {
             Assert.IsTrue(Run(7.5));
@@ -329,9 +332,9 @@ namespace Pelsser
                 Console.WriteLine(rov.m_RuntimeErrorList[0]);
             }
 
-            ResultItem price = rov.m_ResultList[0] as ResultItem;
+            ResultItem price = rov.m_ResultList[0];
             val = price.value;
-            stDev = price.stdDev / Math.Sqrt((double)numSim);
+            stDev = price.stdDev / Math.Sqrt(numSim);
         }
     }
 }
