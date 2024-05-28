@@ -241,7 +241,7 @@ namespace HullAndWhiteOneFactor
             Console.WriteLine(solution);
 
             Console.WriteLine("SwaptionHWEstimator: hw model prices and error");
-            problem.Obj(solution.x,true);
+            double rmse_a = problem.Obj(solution.x,true);
 
             EstimationResult result = new EstimationResult(names, solution.x);
 
@@ -249,7 +249,10 @@ namespace HullAndWhiteOneFactor
             result.ZRY = (double[])dataset.ZRMarket.ToArray();
 
             double obj = problem.Obj(solution.x);
-
+            result.Objects = new object[2];
+            result.Objects[0] = problem.Bounds.Lb.ToArray();
+            result.Objects[1] = problem.Bounds.Lb.ToArray();
+            result.Objects[2] = rmse_a; 
             return result;
         }
         #endregion
