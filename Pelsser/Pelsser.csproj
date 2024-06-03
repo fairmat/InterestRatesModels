@@ -4,45 +4,66 @@
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyTitle>Pelsser</AssemblyTitle>
-    <Product>Pelsser</Product>
-    <Company>Fairmat SRL</Company>
-    <Copyright>Copyright © Fairmat SRL 2009-2015</Copyright>
+    <Title>Pelsser</Title>
+    <PackageId>$(BasePackageId).$(Title)</PackageId>
+    <AssemblyName>$(Title)</AssemblyName>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <Product>$(Title)</Product>
     <AssemblyVersion>1.0.22</AssemblyVersion>
     <FileVersion>1.0.22</FileVersion>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
   <ItemGroup>
+    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
+    <None Include="..\..\DVPLReferences\CoreExtensions.dll" Pack="true" PackagePath="lib" />
     <Reference Include="CoreExtensions">
       <HintPath>..\..\DVPLReferences\CoreExtensions.dll</HintPath>
     </Reference>
+    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
+    <None Include="..\..\DVPLReferences\DVPLDOM.dll" Pack="true" PackagePath="lib" />
     <Reference Include="DVPLDOM">
       <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
     </Reference>
+    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
+    <None Include="..\..\DVPLReferences\DVPLDOME.dll" Pack="true" PackagePath="lib" />
     <Reference Include="DVPLDOME">
       <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
     </Reference>
+    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
+    <None Include="..\..\DVPLReferences\DVPLI.dll" Pack="true" PackagePath="lib" />
     <Reference Include="DVPLI">
       <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
     </Reference>
+    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
+    <None Include="..\..\DVPLReferences\DVPLInterfaces.dll" Pack="true" PackagePath="lib" />
     <Reference Include="DVPLInterfaces">
       <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
     </Reference>
+    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
+    <None Include="..\..\DVPLReferences\DVPLUtils.dll" Pack="true" PackagePath="lib" />
     <Reference Include="DVPLUtils">
       <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
+    <None Include="..\..\DVPLReferences\Fairmat.Optimization.dll" Pack="true" PackagePath="lib" />
     <Reference Include="Fairmat.Optimization">
       <HintPath>..\..\DVPLReferences\Fairmat.Optimization.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Mono.Addins" Version="1.4.1" />
-    <PackageReference Include="QLNet" Version="1.11.4" />
-    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+    <PackageReference Include="Mono.Addins" />
+    <PackageReference Include="QLNet" />
+    <PackageReference Include="System.Collections.Immutable" />
+    <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Numerics.Vectors" />
+    <PackageReference Include="System.Reflection.Emit" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" />
   </ItemGroup>
 </Project>

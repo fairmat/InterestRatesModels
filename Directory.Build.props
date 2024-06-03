@@ -1,0 +1,59 @@
+<Project>
+
+    <!-- Common attributes -->
+    <PropertyGroup>
+        <BuildNumber Condition="'$(BuildNumber)' == ''">1</BuildNumber>
+        <BasePackageId>Fairmat.Plugins.InterestRatesModels</BasePackageId>
+    </PropertyGroup>
+
+    <!-- Package information -->
+    <PropertyGroup>
+        <Version>1.0.0</Version>
+        <Version Condition="'$(VersionNumber)' != ''">$(VersionNumber)</Version>
+        <VersionSuffix Condition="'$(Configuration)' == 'Debug'">-build.$(BuildNumber)</VersionSuffix>
+        <PackageVersion>$(Version)$(VersionSuffix)</PackageVersion>
+        <Company>Fairmat S.r.l</Company>
+        <Copyright>Copyright © Fairmat SRL 2024</Copyright>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>Fairmat-icon.png</PackageIcon>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(IsPackable)' != 'false'">
+        <None Include="..\Fairmat-icon.png">
+            <Pack>True</Pack>
+            <PackagePath>Fairmat-icon.png</PackagePath>
+            <Link>Assets\Fairmat-icon.png</Link>
+        </None>
+        <None Include="README.md" Pack="true" PackagePath="README.md"/>
+    </ItemGroup>
+
+    <!-- Global default project configuration -->
+    <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Product>Fairmat</Product>
+        <AssemblyVersion>$(Version).0</AssemblyVersion>
+        <FileVersion>$(Version)</FileVersion>
+        <AssemblyDescription>$(Description)</AssemblyDescription>
+        <AssemblyTitle>$(Title)</AssemblyTitle>
+        <AssemblyCompany>$(Company)</AssemblyCompany>
+        <LangVersion>12</LangVersion>
+    </PropertyGroup>
+
+    <!-- Remove old generated packages from OutputPath -->
+    <Target Name="RemoveGeneratedPackage" AfterTargets="Clean" BeforeTargets="Rebuild;Build" >
+        <ItemGroup>
+            <PackagesToDelete Include="$(OutputPath)../*.nupkg" />
+            <SPackagesToDelete Include="$(OutputPath)../*.snupkg" />
+        </ItemGroup>
+        <Message Condition="'@(PackagesToDelete)' != ''" Importance="high" Text="Deleting old packages: @(PackagesToDelete)" />
+        <Delete Files="@(PackagesToDelete)" />
+        <Message Condition="'@(SPackagesToDelete)' != ''" Importance="high" Text="Deleting old packages with symbols: @(SPackagesToDelete)" />
+        <Delete Files="@(SPackagesToDelete)" />
+    </Target>
+    
+</Project>
