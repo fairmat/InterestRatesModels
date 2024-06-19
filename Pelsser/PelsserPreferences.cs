@@ -7,7 +7,7 @@ using Mono.Addins;
 namespace Pelsser
 {
 
-    [SettingsContainer("Pelsser Squared Gaussian Model", SettingType = SettingType.Valuation)]
+    [SettingsContainer("Settings", SettingType = SettingType.Valuation)]
     [Extension("/Fairmat/UserSettings")]
     [Serializable]
     public class PelsserPreferences: ISettings
