@@ -11,7 +11,16 @@
     </PropertyGroup>
 
     <ItemGroup Label="FairmatDeps">
-        <!-- Inser here the Fairmat dependencies -->
+        
+        <!-- DVPL references -->
+        <PackageVersion Include="Fairmat.Dvpl.CoreExtensions" Version="$(FairmatDepsVersion)" />
+        <PackageVersion Include="Fairmat.Dvpl.DVPLDOM" Version="$(FairmatDepsVersion)" />
+        <PackageVersion Include="Fairmat.Dvpl.DVPLDOME" Version="$(FairmatDepsVersion)" />
+        <PackageVersion Include="Fairmat.Dvpl.DVPLI" Version="$(FairmatDepsVersion)" />
+        <PackageVersion Include="Fairmat.Dvpl.DVPLInterfaces" Version="$(FairmatDepsVersion)" />
+        <PackageVersion Include="Fairmat.Dvpl.DVPLUtils" Version="$(FairmatDepsVersion)" />
+        <PackageVersion Include="Fairmat.Dvpl.Fairmat.Optimization" Version="$(FairmatDepsVersion)" />
+        <PackageVersion Include="Fairmat.Dvpl.DVPLSolverC" Version="$(FairmatDepsVersion)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,7 +34,8 @@
         <PackageVersion Include="Mono.Addins" Version="1.4.1" />
         <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" />
         <PackageVersion Include="NUnit.Analyzers" Version="3.9.0" />
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
         <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
         <PackageVersion Include="System.Memory" Version="4.5.5" />
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />

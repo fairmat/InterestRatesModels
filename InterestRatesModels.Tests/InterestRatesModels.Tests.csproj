@@ -13,29 +13,6 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CoreExtensions">
-      <HintPath>..\..\DVPLReferences\CoreExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLDOM">
-      <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLDOME">
-      <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLI">
-      <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLInterfaces">
-      <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLSolverC">
-      <HintPath>..\..\DVPLReferences\DVPLSolverC.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLUtils">
-      <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\CIR\CIR.csproj" />
     <ProjectReference Include="..\HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj" />
     <ProjectReference Include="..\Pelsser\Pelsser.csproj" />
@@ -52,5 +29,12 @@
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="System.Configuration.ConfigurationManager" />
     <PackageReference Include="System.Runtime.Caching" />
+    <PackageReference Include="Fairmat.Dvpl.CoreExtensions" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOM" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOME" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLI" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLInterfaces" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLSolverC" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLUtils" />
   </ItemGroup>
 </Project>

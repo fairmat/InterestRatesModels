@@ -19,33 +19,6 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
-    <None Include="..\..\DVPLReferences\DVPLDOM.dll" Pack="true" PackagePath="lib" />
-    <Reference Include="DVPLDOM">
-      <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
-    </Reference>
-    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
-    <None Include="..\..\DVPLReferences\DVPLDOME.dll" Pack="true" PackagePath="lib" />
-    <Reference Include="DVPLDOME">
-      <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
-    </Reference>
-    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
-    <None Include="..\..\DVPLReferences\DVPLI.dll" Pack="true" PackagePath="lib" />
-    <Reference Include="DVPLI">
-      <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
-    </Reference>
-    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
-    <None Include="..\..\DVPLReferences\DVPLInterfaces.dll" Pack="true" PackagePath="lib" />
-    <Reference Include="DVPLInterfaces">
-      <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
-    </Reference>
-    <!-- TODO: This reference will be a nuget package soon, these lines below are temporary -->
-    <None Include="..\..\DVPLReferences\DVPLUtils.dll" Pack="true" PackagePath="lib" />
-    <Reference Include="DVPLUtils">
-      <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Mono.Addins" />
     <PackageReference Include="QLNet" />
     <PackageReference Include="System.Collections.Immutable" />
@@ -53,5 +26,10 @@
     <PackageReference Include="System.Numerics.Vectors" />
     <PackageReference Include="System.Reflection.Emit" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOM" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOME" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLI" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLInterfaces" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLUtils" />
   </ItemGroup>
 </Project>
