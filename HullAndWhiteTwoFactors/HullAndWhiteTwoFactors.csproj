@@ -4,37 +4,32 @@
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <AssemblyTitle>HullAndWhiteTwoFactors</AssemblyTitle>
-    <Product>HullAndWhiteTwoFactors</Product>
-    <Company>Fairmat SRL</Company>
-    <Copyright>Copyright © Fairmat SRL 2009-2015</Copyright>
+    <Title>HullAndWhiteTwoFactors</Title>
+    <PackageId>$(BasePackageId).$(Title)</PackageId>
+    <AssemblyName>$(Title)</AssemblyName>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <Product>$(Title)</Product>
     <AssemblyVersion>1.0.9</AssemblyVersion>
     <FileVersion>1.0.9</FileVersion>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Mono.Addins" Version="1.4.1" />
-    <PackageReference Include="QLNet" Version="1.11.4" />
-    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
-    <PackageReference Include="System.Memory" Version="4.5.5" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="DVPLDOM">
-      <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLDOME">
-      <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLI">
-      <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLInterfaces">
-      <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLUtils">
-      <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Mono.Addins" />
+    <PackageReference Include="QLNet" />
+    <PackageReference Include="System.Collections.Immutable" />
+    <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Numerics.Vectors" />
+    <PackageReference Include="System.Reflection.Emit" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOM" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOME" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLI" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLInterfaces" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLUtils" />
   </ItemGroup>
 </Project>

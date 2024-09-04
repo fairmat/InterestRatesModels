@@ -3,55 +3,38 @@
     <TargetFrameworks>net48;net8.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyTitle>InterestRatesModels.Tests</AssemblyTitle>
+    <Title>InterestRatesModels.Tests</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
     <Description>Several test for Interest Rates plugins.</Description>
-    <Company>Fairmat SRL</Company>
     <Product>InterestRatesModels.Tests</Product>
-    <Copyright>Copyright © Fairmat 2012</Copyright>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="CoreExtensions">
-      <HintPath>..\..\DVPLReferences\CoreExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLDOM">
-      <HintPath>..\..\DVPLReferences\DVPLDOM.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLDOME">
-      <HintPath>..\..\DVPLReferences\DVPLDOME.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLI">
-      <HintPath>..\..\DVPLReferences\DVPLI.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLInterfaces">
-      <HintPath>..\..\DVPLReferences\DVPLInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLSolverC">
-      <HintPath>..\..\DVPLReferences\DVPLSolverC.dll</HintPath>
-    </Reference>
-    <Reference Include="DVPLUtils">
-      <HintPath>..\..\DVPLReferences\DVPLUtils.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CIR\CIR.csproj" />
     <ProjectReference Include="..\HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj" />
     <ProjectReference Include="..\Pelsser\Pelsser.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Basic.Reference.Assemblies" Version="1.5.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-    <PackageReference Include="Mono.Addins" Version="1.4.1" />
-    <PackageReference Include="Mono.Addins.CecilReflector" Version="1.4.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-    <PackageReference Include="NUnit" Version="3.14.0"/>
-    <PackageReference Include="NUnit.Analyzers" Version="3.9.0"/>
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
-    <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
+    <PackageReference Include="Basic.Reference.Assemblies" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Mono.Addins" />
+    <PackageReference Include="Mono.Addins.CecilReflector" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
+    <PackageReference Include="System.Runtime.Caching" />
+    <PackageReference Include="Fairmat.Dvpl.CoreExtensions" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOM" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLDOME" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLI" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLInterfaces" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLSolverC" />
+    <PackageReference Include="Fairmat.Dvpl.DVPLUtils" />
   </ItemGroup>
 </Project>
