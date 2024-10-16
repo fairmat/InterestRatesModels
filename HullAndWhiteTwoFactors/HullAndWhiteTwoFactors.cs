@@ -140,7 +140,7 @@ namespace HullAndWhiteTwoFactors
         /// <summary>
         /// Keeps the readable description of the s1 model variable.
         /// </summary>
-        private static string s1Description = "Sigma ";
+        private static string s1Description = "Sigma 1";
 
         /// <summary>
         /// Keeps the readable description of the s2 model variable.
