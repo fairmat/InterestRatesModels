@@ -301,7 +301,7 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         /// <param name="k">The position where to get the value of the zero rate from.</param>
         /// <returns>The value of the zero rate at position k.</returns>
-        private double ZR(double k)
+        internal double ZR(double k)
         {
             return this.zeroRateCurve.Evaluate(k);
         }
