@@ -949,6 +949,9 @@ namespace HullAndWhiteOneFactor
             var mr = sp.DataSource as ModelReference;
             var date = document.SimulationStartDate;
 
+            if (mr == null)
+                throw new RuntimeException("The stochastic process is not linked to a model reference");
+
             var keyCalibrationData = CreateKeyCalibrationDataCache(date, mr.TickerExpression, mr.MarketExpression);
 
             var isCalibrationDataAvailable = IsCalibrationDataAvailableInCache(keyCalibrationData);

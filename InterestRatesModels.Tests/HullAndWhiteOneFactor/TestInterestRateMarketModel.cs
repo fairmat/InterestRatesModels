@@ -35,6 +35,8 @@ using Mono.Addins;
 public class TestIRMarketModelPricer
 {
     static double atol = 1e-4;
+
+
     [SetUp]
     public void Init()
     {
@@ -77,18 +79,26 @@ public class TestIRMarketModelPricer
         ModelParameter Pr0 = new ModelParameter(r0, "r0");
         Pr0.VarName = "r0";
         rov1.Symbols.Add(Pr0);
-        
-        AFunction zerorate = new AFunction(rov1);
+
+
+
+        var tenors = (Vector)(new double[] { 0.5, 1, 2, 3, 4, 5, 6, 10 });
+        var rates = (Vector)(new double[] { 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045 });
+        Function zerorate = new PFunction(tenors, rates);
         zerorate.VarName = "ZeroRate";
-        zerorate.m_IndependentVariables = 1;
-        zerorate.m_Value = new RightValueExpression("exp(-ZeroRate(t)*t)");
         rov1.Symbols.Add(zerorate);
-        
+
         // Add to the project the created zero rate curve.
 
-        RiskFreeInfo rfi = rov1.GetDiscountingModel() as RiskFreeInfo;
-        rfi.ActualizationType = EActualizationType.ZeroCoupond;
-        rfi.m_deterministicRF.m_Value = (RightValue)"exp( -ZeroRate(t)*t)";
+        var rfi = rov1.GetDiscountingModel();
+
+        if (rfi is RiskFreeInfo rfiRiskInfo)
+        {
+            rfiRiskInfo.ActualizationType = EActualizationType.ZeroCoupond;
+            rfiRiskInfo.m_deterministicRF.m_Value =  (RightValue)("exp( -ZeroRate(t)*t)");
+        }
+
+
 
         ModelParameter Pstrike = new ModelParameter(strike, "strike");
         Pstrike.VarName = "strike";
@@ -101,7 +111,7 @@ public class TestIRMarketModelPricer
         var hw1 = new HW1(a1, sigma1, "@ZeroRate");
 
         StochasticProcessExtendible hw = new StochasticProcessExtendible(rov1, hw1);
-
+        
         rov1.Processes.AddProcess(hw);
 
         OptionTree ot = new OptionTree(rov1);
@@ -109,15 +119,17 @@ public class TestIRMarketModelPricer
         ot.PayoffInfo.PayoffExpression = payoff;
         
         ot.PayoffInfo.Timing.EndingTime.m_Value = (RightValue)maturity;
-        ot.PayoffInfo.European = true;
-        rfi.GetDeterministicDiscountFactor(rov1,0, maturity);
-        
+        ot.PayoffInfo.European = true;        
         rov1.Map.Root = ot;
         
 
         rov1.NMethods.Technology = ETechType.T_SIMULATION;
         rov1.NMethods.PathsNumber = nSim;
         rov1.NMethods.SimulationSteps = nSteps;
+
+
+        rov1.Initialize();
+        rov1.CreateSymbols();
         rov1.Parse();
         Project.ActiveProject = rov1;
         Option.CurrentSolving = ot;
@@ -125,18 +137,23 @@ public class TestIRMarketModelPricer
         var solver = new ROVSolver();
         solver.BindToProject(rov1);
         //solver.Solve(ot);
-       //Project.r_Project = 
-        
-        
+        //Project.r_Project = 2
+
+
         //ResultItem price = rov1.m_ResultList[0] as ResultItem;
         //double monteCarloPrice = price.value;
-
+        rfi = rov1.GetDiscountingModel();
+        var df = rfi.GetDeterministicDiscountFactor(rov1, 0, maturity);
+        var df_Expected = Math.Exp((-maturity * zerorate.Evaluate(maturity)));
+        Assert.AreEqual(df_Expected, df, 1e-5);
 
         // Calculate the caplet price using the Bachelier model
         var bachelierPrice = hw1.Caplet(0, strike, tau, maturity, maturity, ResetType.Arrears, InterestRateMarketModel.BachelierNormalModel, null);
 
         var theoreticalPrice = new CapHW1(zerorate).HWCap(a1, sigma1, maturity, maturity + tau, strike);
-        
+
+
+
         // Assert the monte carlo price
         Assert.AreEqual(theoreticalPrice, bachelierPrice.MarkToMarket, atol);
     }
