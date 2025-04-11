@@ -20,20 +20,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 using DVPLDOM;
 using DVPLI;
 using DVPLI.Enums;
-using DVPLI.MarketDataTypes;
-using DVPLUtils;
 using Fairmat.Finance;
 using Fairmat.MarketData;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Mono.Addins;
-using QLNet;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 using Vector = DVPLI.Vector;
 
 namespace HullAndWhiteOneFactor
@@ -947,10 +939,10 @@ namespace HullAndWhiteOneFactor
         }
 
         /// <summary>
-        /// Method used to retrieve market data information that will be used by the analysis
+        /// Method used to retrieve the correct market data information, which will be used by the analysis
         /// </summary>
-        /// <param name="modelType">it indicates what model will be used during the analysis and it can affect the information to retrieve from maket data</param>
-        MatrixMarketData RetrieveCalibrationData(InterestRateMarketModel modelType)
+        /// <param name="modelType">It indicates what model will be used during the analysis and it can affect the data retrieved from maket data</param>
+        private MatrixMarketData RetrieveCalibrationData(InterestRateMarketModel modelType)
         {
             var sp = Parent as StocasticProcess;
             var document = sp.Context.Container;
@@ -1010,7 +1002,7 @@ namespace HullAndWhiteOneFactor
        
             GreeksDerivatives result = PopulatePlainVanillaOptionResult(modelEngine, requestedResult, underlyingForwardRate, strike, interpolatedSigma[0], tenor, relevationTime, isCaplet: true, paymentTime, relevationType, discountFactorFunction);
        
-            return result; ;
+            return result;
         }
 
         public GreeksDerivatives Floorlet(int component, double strike, double tenor, double resetTime, double paymentTime, ResetType resetType, InterestRateMarketModel model, Dictionary<string, object> additionalInformation = null)
