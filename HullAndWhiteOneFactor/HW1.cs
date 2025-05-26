@@ -21,10 +21,12 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
 using DVPLDOM;
 using DVPLI;
-using Mono.Addins;
+using DVPLI.Enums;
+using Fairmat.Finance;
+using Fairmat.MarketData;
+using Vector = DVPLI.Vector;
 
 namespace HullAndWhiteOneFactor
 {
@@ -33,9 +35,10 @@ namespace HullAndWhiteOneFactor
     /// </summary>
     [Serializable]
     public class HW1 : IExtensibleProcessIR, IZeroRateReference, IMarkovSimulator/*IFullSimulator*/,
-                       IParsable, IEstimationResultPopulable, IGreeksDerivativesInfo,
-                       IOpenCLCode, IPostSimulationTransformation, IExportableContainer
+                       IParsable, IParentable, IEstimationResultPopulable, IGreeksDerivativesInfo,
+                       IOpenCLCode, IPostSimulationTransformation, IExportableContainer, IPlainVanillaPricingInterestRates
     {
+
         #region SerializedFields
 
         /// <summary>
@@ -95,6 +98,28 @@ namespace HullAndWhiteOneFactor
         }
 
         #endregion Properties
+
+        [NonSerialized]
+        Dictionary<string, MatrixMarketData> calibrationDataCache;
+
+        [NonSerialized]
+        StocasticProcess parent;
+
+        #region IParentable Members
+        public object Parent
+        {
+            get
+            {
+                return parent;
+            }
+
+            set
+            {
+                parent = value as StocasticProcess;
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Temporary zero rate function, used to optimize the simulation.
@@ -810,11 +835,353 @@ namespace HullAndWhiteOneFactor
             }
         }
 
+        private Func<double, double, double> GetDiscountFactorFunctionFromProject()
+        {
+            var prj = Project.ActiveProject;
+            var discountingModel = DVPLDOM.Option.CurrentSolving.GetDiscountingModel();
+
+            return (t, T) => discountingModel.GetDeterministicDiscountFactor(prj, t, T);
+        }
+
+
+        /// <summary>
+        /// Given a 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="data"></param>
+        private void CacheCalibrationData(string key, MatrixMarketData data)
+        {
+            if (!calibrationDataCache.ContainsKey(key))
+            {
+                calibrationDataCache.Add(key, data);
+            }
+        }
+
+        static string DateToStringWithHoursAndMinutes(DateTime date) => date.ToString("yyyy-MM-dd HH:mm");
+
+        /// <summary>
+        /// Given a set of parameters used to retrieve a specific data set of information from market data this method creates a key to linked at this information and returns it
+        /// </summary>
+        static string CreateKeyCalibrationDataCache(DateTime valuationDate, string underlying, string currency)
+        {
+            var dateAsString = DateToStringWithHoursAndMinutes(valuationDate);
+            var key = $"[{dateAsString}]-[{underlying}]-[{currency}]";
+            return key;
+        }
+
+        /// <summary>
+        /// Method used to spot if a specific key is present in the calibrationDataCache
+        /// </summary>
+        bool IsCalibrationDataAvailableInCache(string key)
+        {
+            return calibrationDataCache.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// Given a key this method returns the calibrated data linked to it. 
+        /// If it is present in the cache it returns an exception
+        /// </summary>
+        /// <param name="key">key related to the calibrated data that we are lookin for</param>
+        MatrixMarketData GetCachedCalibrationData(string key)
+        {
+            if (calibrationDataCache.ContainsKey(key))
+            {
+                return calibrationDataCache[key];
+            }
+            else
+            {
+                throw new RuntimeException("Calibration data not found in cache");
+            }
+        }
+
+        /// <summary>
+        /// Given a specific model type this method return the relative class that implement such a model
+        /// </summary>
+        /// <param name="modelType"></param>
+        BlackModel GetEngineModel(InterestRateMarketModel modelType)
+        {
+            BlackModel modelEngine;
+            switch (modelType)
+            {
+                case InterestRateMarketModel.BachelierNormalModel:
+                    return new BachelierNormalModel(zeroRateCurve);
+                
+                case InterestRateMarketModel.Black:
+                    return new BlackModel(zeroRateCurve);
+                
+                case InterestRateMarketModel.ShiftedBlack:
+                    return new DisplacedBlackModel(zeroRateCurve);
+                
+                default:
+                    throw new RuntimeException($"{modelType.ToString()} interest model cannot be used to make a mark to market evaluation");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Method used to link to a model the volatilty type that must be used when such a model is resorted  
+        /// </summary>
+        string FromModelToVolatilityType(InterestRateMarketModel modelType)
+        {
+            switch (modelType)
+            {
+                case InterestRateMarketModel.BachelierNormalModel:
+                    return "N";
+                
+                case InterestRateMarketModel.Black:
+                case InterestRateMarketModel.ShiftedBlack:
+                    return "LN";
+                
+                default:
+                    throw new RuntimeException($"For {modelType.ToString()} there is not volatility type to link");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Method used to retrieve the correct market data information, which will be used by the analysis
+        /// </summary>
+        /// <param name="modelType">It indicates what model will be used during the analysis and it can affect the data retrieved from maket data</param>
+        private MatrixMarketData RetrieveCalibrationData(InterestRateMarketModel modelType)
+        {
+            var sp = Parent as StocasticProcess;
+            var document = sp.Context.Container;
+            var mr = sp.DataSource as ModelReference;
+            var date = document.SimulationStartDate;
+
+            if (mr == null)
+                throw new RuntimeException("The stochastic process is not linked to a model reference");
+
+            var keyCalibrationData = CreateKeyCalibrationDataCache(date, mr.TickerExpression, mr.MarketExpression);
+
+            var isCalibrationDataAvailable = IsCalibrationDataAvailableInCache(keyCalibrationData);
+            if (!isCalibrationDataAvailable)
+            {
+                if (Engine.Verbose >= 1)
+                    Console.WriteLine($"Retrieving calibration data for {keyCalibrationData} from market data");
+                
+                var status = new RefreshStatus();
+                IMarketData data = null;
+
+                var volType = FromModelToVolatilityType(modelType);
+                var mdq = new MarketDataQuery() { Date = date, Ticker = mr.Ticker, Market = mr.MarketExpression, MarketDataType = typeof(MatrixMarketData).ToString(), Field = "Vol-ATM-" + volType };
+                status = MarketDataRequestManager.GetMarketData(mdq, out data);
+                if (status.HasErrors)
+                    throw new Exception(status.ErrorMessage);
+
+                var volMatrix = (MatrixMarketData)data;
+
+                if (Engine.Verbose >= 1)// log the retrieved date
+                    Console.WriteLine($"Retrieved date for Caplet Implied volatility Surface: {DateToStringWithHoursAndMinutes(status.RetrievedDate)}");
+                
+
+                CacheCalibrationData(keyCalibrationData, volMatrix);// save the calibration data in the cache
+            }
+            else
+            {
+                if (Engine.Verbose >= 1)
+                    Console.WriteLine($"Retrieving calibration data for {keyCalibrationData} from cache");
+            }
+
+            return GetCachedCalibrationData(keyCalibrationData);
+        }
+
+
+        public GreeksDerivatives Caplet(int component, double strike, double tenor, double resetTime, double paymentTime, ResetType resetType, InterestRateMarketModel model,  Dictionary<string, object> additionalInformation = null)
+        {
+            var discountFactorFunction = GetDiscountFactorFunctionFromProject();
+
+            var modelEngine = GetEngineModel(model);
+
+            var relevationType = (RelevationType)resetType;
+            var underlyingForwardRate = modelEngine.Fk2(resetTime, resetTime + tenor, tenor);
+
+            var volMatrix = RetrieveCalibrationData(model);
+
+            var relevationTime = modelEngine.GetFixingTimeRate(resetTime, tenor, relevationType);
+            var interpolatedSigma = UtilityVol.InterpVol(volMatrix.Values, volMatrix.ColumnValues, volMatrix.RowValues, new Vector() { strike }, new Vector() { relevationTime }, RateType.ShortRate);
+
+            AnalyticalPricingFunctionsValuationMode requestedResult = AttributesUtility.RetrieveAttributeOrDefaultValue(additionalInformation, AnalyticalPricingFunctions.GreekNameKey, AnalyticalPricingFunctionsValuationMode.Price);
+       
+            GreeksDerivatives result = PopulatePlainVanillaOptionResult(modelEngine, requestedResult, underlyingForwardRate, strike, interpolatedSigma[0], tenor, relevationTime, isCaplet: true, paymentTime, relevationType, discountFactorFunction);
+       
+            return result;
+        }
+
+        public GreeksDerivatives Floorlet(int component, double strike, double tenor, double resetTime, double paymentTime, ResetType resetType, InterestRateMarketModel model, Dictionary<string, object> additionalInformation = null)
+        {
+            var discountFactorFunction = GetDiscountFactorFunctionFromProject();
+
+            var modelEngine = GetEngineModel(model);
+
+            var relevationType = (RelevationType)resetType;
+            var underlyingForwardRate = modelEngine.Fk2(resetTime, resetTime + tenor, tenor);
+
+            var volMatrix = RetrieveCalibrationData(model);
+
+            var relevationTime = modelEngine.GetFixingTimeRate(resetTime, tenor, relevationType);
+            var interpolatedSigma = UtilityVol.InterpVol(volMatrix.Values, volMatrix.ColumnValues, volMatrix.RowValues, new Vector() { strike }, new Vector() { relevationTime }, RateType.ShortRate);
+
+            AnalyticalPricingFunctionsValuationMode requestedResult = AttributesUtility.RetrieveAttributeOrDefaultValue(additionalInformation, AnalyticalPricingFunctions.GreekNameKey, AnalyticalPricingFunctionsValuationMode.Price);
+
+            GreeksDerivatives result = PopulatePlainVanillaOptionResult(modelEngine, requestedResult, underlyingForwardRate, strike, interpolatedSigma[0], tenor, relevationTime, isCaplet: true, paymentTime, relevationType, discountFactorFunction);
+
+            return result;
+        }
+
+        public GreeksDerivatives DigitalCaplet(int component, double strike, double tenor, double resetTime, double paymentTime, ResetType resetType, InterestRateMarketModel model, Dictionary<string, object> additionalInformation = null)
+        {
+            var discountFactorFunction = GetDiscountFactorFunctionFromProject();
+
+            var modelEngine = GetEngineModel(model);
+
+            var relevationType = (RelevationType)resetType;
+            var underlyingForwardRate = modelEngine.Fk2(resetTime, resetTime + tenor, tenor);
+
+            var volMatrix = RetrieveCalibrationData(model);
+
+            var relevationTime = modelEngine.GetFixingTimeRate(resetTime, tenor, relevationType);
+            var interpolatedSigma = UtilityVol.InterpVol(volMatrix.Values, volMatrix.ColumnValues, volMatrix.RowValues, new Vector() { strike }, new Vector() { relevationTime }, RateType.ShortRate);
+
+            AnalyticalPricingFunctionsValuationMode requestedResult = AttributesUtility.RetrieveAttributeOrDefaultValue(additionalInformation, AnalyticalPricingFunctions.GreekNameKey, AnalyticalPricingFunctionsValuationMode.Price);
+
+            GreeksDerivatives result = PopulateDigitalOptionResult(modelEngine, requestedResult, underlyingForwardRate, strike, interpolatedSigma[0], tenor, relevationTime, isCaplet: true, paymentTime, relevationType, discountFactorFunction);
+
+            return result;
+        }
+
+        public GreeksDerivatives DigitalFloorlet(int component, double strike, double tenor, double resetTime, double paymentTime, ResetType resetType, InterestRateMarketModel model, Dictionary<string, object> additionalInformation = null)
+        {
+            var discountFactorFunction = GetDiscountFactorFunctionFromProject();
+
+            var modelEngine = GetEngineModel(model);
+
+            var relevationType = (RelevationType)resetType;
+            var underlyingForwardRate = modelEngine.Fk2(resetTime, resetTime + tenor, tenor);
+
+            var volMatrix = RetrieveCalibrationData(model);
+
+            var relevationTime = modelEngine.GetFixingTimeRate(resetTime, tenor, relevationType);
+            var interpolatedSigma = UtilityVol.InterpVol(volMatrix.Values, volMatrix.ColumnValues, volMatrix.RowValues, new Vector() { strike }, new Vector() { relevationTime }, RateType.ShortRate);
+
+            AnalyticalPricingFunctionsValuationMode requestedResult = AttributesUtility.RetrieveAttributeOrDefaultValue(additionalInformation, AnalyticalPricingFunctions.GreekNameKey, AnalyticalPricingFunctionsValuationMode.Price);
+
+            GreeksDerivatives result = PopulateDigitalOptionResult(modelEngine, requestedResult, underlyingForwardRate, strike, interpolatedSigma[0], tenor, relevationTime, isCaplet: false, paymentTime, relevationType, discountFactorFunction);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Given the features of a plain vanilla style option this method returns a GreeksDerivatives object whose items are populated consistently with the result request
+        /// </summary>
+        /// <param name="modelEngine">pricing model the analytical functions, used to pupulate the result, are related with</param>
+        /// <param name="requestedResult">used to spot which fields of GreeksDerivatives must be computed</param>       
+        /// <param name="isCaplet">if true it means we are computing a caplet option</param>
+        static GreeksDerivatives PopulatePlainVanillaOptionResult(BlackModel modelEngine, AnalyticalPricingFunctionsValuationMode requestedResult, double underlyingForwardRate, double strike, double interpolatedSigma, double tenor, double resetTime, bool isCaplet, double paymentTime, RelevationType relevationType, Func<double, double, double> discountFactorFunction)
+        {
+            var result = new GreeksDerivatives();
+
+            Func<double> pricingFuction;
+            if (isCaplet)
+                pricingFuction = () => modelEngine.Caplet(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, relevationType, discountFactorFunction, paymentTime);
+            else
+                pricingFuction = () => modelEngine.Floorlet(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, relevationType, discountFactorFunction, paymentTime);
+
+            switch (requestedResult)
+            {
+                default:
+                case AnalyticalPricingFunctionsValuationMode.Price:
+                    result.MarkToMarket = pricingFuction();
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Delta:
+                    result.Deltas = new Vector() { modelEngine.Delta(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Gamma:
+                    result.Gammas = new Vector() { modelEngine.Gamma(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Vega:
+                    result.Vegas = new Vector() { modelEngine.Vega(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Theta:
+                    result.Theta = modelEngine.Theta(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Rho:
+                    result.Rho = modelEngine.Rho(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.All:
+                    result.MarkToMarket = pricingFuction();
+                    result.Deltas = new Vector() { modelEngine.Delta(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    result.Gammas = new Vector() { modelEngine.Gamma(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    result.Vegas = new Vector() { modelEngine.Vega(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    result.Theta = modelEngine.Theta(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    result.Rho = modelEngine.Rho(underlyingForwardRate, strike, interpolatedSigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    break;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Given the features of a digital style option this method returns a GreeksDerivatives object whose items are populated consistently with the result request
+        /// </summary>
+        /// <param name="modelEngine">pricing model the analytical functions, used to pupulate the result, are related with</param>
+        /// <param name="requestedResult">used to spot which fields of GreeksDerivatives must be computed</param>       
+        /// <param name="isCaplet">if true it means we are computing a caplet option</param>
+        public static GreeksDerivatives PopulateDigitalOptionResult(BlackModel modelEngine, AnalyticalPricingFunctionsValuationMode requestedResult, double underlyingForwardRate, double strike, double sigma, double tenor, double resetTime, bool isCaplet, double paymentTime, RelevationType relevationType, Func<double, double, double> discountFactorFunction)
+        {
+            var result = new GreeksDerivatives();
+
+            switch (requestedResult)
+            {
+                default:
+                case AnalyticalPricingFunctionsValuationMode.Price:
+                    result.MarkToMarket = modelEngine.Digital(underlyingForwardRate, strike, sigma, resetTime, tenor, relevationType, isCaplet, discountFactorFunction, paymentTime);
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Delta:
+                    result.Deltas = new Vector() { modelEngine.DeltaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Gamma:
+                    result.Gammas = new Vector() { modelEngine.GammaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Vega:
+                    result.Vegas = new Vector() { modelEngine.VegaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Theta:
+                    result.Theta = modelEngine.ThetaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.Rho:
+                    result.Rho = modelEngine.RhoDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    break;
+
+                case AnalyticalPricingFunctionsValuationMode.All:
+                    result.MarkToMarket = modelEngine.Digital(underlyingForwardRate, strike, sigma, resetTime, tenor, relevationType, isCaplet, discountFactorFunction, paymentTime);
+                    result.Deltas = new Vector() { modelEngine.DeltaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    result.Gammas = new Vector() { modelEngine.GammaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    result.Vegas = new Vector() { modelEngine.VegaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction) };
+                    result.Theta = modelEngine.ThetaDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    result.Rho = modelEngine.RhoDigital(underlyingForwardRate, strike, sigma, resetTime, tenor, paymentTime, relevationType, isCaplet, discountFactorFunction);
+                    break;
+            }
+
+            return result;
+        }
+
+        public double GetDiscountFactor(int component, double t1, double t2)
+        {
+            return Math.Exp(ZR(t2 - t1) * (t2 - t1));
+        }
 
     }
-
-
-	
-    
 
 }
