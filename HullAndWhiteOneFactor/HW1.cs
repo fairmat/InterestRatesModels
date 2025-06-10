@@ -204,6 +204,9 @@ namespace HullAndWhiteOneFactor
             this.sigma1 = new ModelParameter(sigma, sigmaDescription);
             this.lambda0 = new ModelParameter(lambda, lambda0Description);
             this.zrReference = new ModelParameter(zeroRateReference, zeroRateDescription);
+
+            // initialize the cache for analytical data; 
+            ResetCalibrationDataCache(); 
         }
 
         /// <summary>
@@ -217,6 +220,12 @@ namespace HullAndWhiteOneFactor
         public HW1(double alpha, double sigma, string zeroRateReference)
             : this(alpha, sigma, 0.0, zeroRateReference)
         {
+        }
+
+
+        private void ResetCalibrationDataCache()
+        {
+            calibrationDataCache = new Dictionary<string, MatrixMarketData>();
         }
 
         /// <summary>
