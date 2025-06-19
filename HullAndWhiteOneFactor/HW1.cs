@@ -241,6 +241,8 @@ namespace HullAndWhiteOneFactor
                 this.driftAdjustment = new ModelParameter(0, driftAdjustmentDescription);
             if (this.lambda0 == null)
                 this.lambda0= new ModelParameter(0, lambda0Description);
+
+            ResetCalibrationDataCache();
         }
 
         #region IParsable Members
@@ -883,6 +885,11 @@ namespace HullAndWhiteOneFactor
         /// </summary>
         bool IsCalibrationDataAvailableInCache(string key)
         {
+            if(calibrationDataCache == null)
+            {
+                ResetCalibrationDataCache();
+            }
+
             return calibrationDataCache.ContainsKey(key);
         }
 
