@@ -1040,7 +1040,7 @@ namespace HullAndWhiteOneFactor
 
             AnalyticalPricingFunctionsValuationMode requestedResult = AttributesUtility.RetrieveAttributeOrDefaultValue(additionalInformation, AnalyticalPricingFunctions.GreekNameKey, AnalyticalPricingFunctionsValuationMode.Price);
 
-            GreeksDerivatives result = PopulatePlainVanillaOptionResult(modelEngine, requestedResult, underlyingForwardRate, strike, interpolatedSigma[0], tenor, relevationTime, isCaplet: true, paymentTime, relevationType, discountFactorFunction);
+            GreeksDerivatives result = PopulatePlainVanillaOptionResult(modelEngine, requestedResult, underlyingForwardRate, strike, interpolatedSigma[0], tenor, relevationTime, isCaplet: false, paymentTime, relevationType, discountFactorFunction);
 
             return result;
         }
