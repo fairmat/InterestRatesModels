@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using DVPLDOM;
 using DVPLI;
-using ParallelVectors;
 using System.Runtime.Serialization;
 namespace Pelsser
 {
