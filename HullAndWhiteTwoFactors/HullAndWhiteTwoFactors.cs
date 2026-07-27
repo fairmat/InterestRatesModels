@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using DVPLDOM;
 using DVPLI;
-using ParallelVectors;
 
 namespace HullAndWhiteTwoFactors
 {

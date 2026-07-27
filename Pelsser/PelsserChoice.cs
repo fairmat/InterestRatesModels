@@ -23,7 +23,6 @@ using System.Text;
 using DVPLDOM;
 using DVPLI;
 using Mono.Addins;
-using ParallelVectors;
 
 namespace Pelsser
 {
