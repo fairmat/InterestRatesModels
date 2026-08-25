@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CIR\CIR.csproj" />
     <ProjectReference Include="..\HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj" />
+    <ProjectReference Include="..\HullAndWhiteTwoFactors\HullAndWhiteTwoFactors.csproj" />
     <ProjectReference Include="..\Pelsser\Pelsser.csproj" />
   </ItemGroup>
   <ItemGroup>
