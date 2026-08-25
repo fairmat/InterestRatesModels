@@ -16,7 +16,10 @@
  */
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Mono.Addins;
+
+[assembly: InternalsVisibleTo("InterestRatesModels.Tests")]
 
 // The following lines tell that the assembly is an addin
 [assembly: Addin("CIR model", "1.0.9", Category = "Stochastic Process")]
