@@ -26,15 +26,9 @@ namespace Pelsser.Calibration
 
         private static InterestRateMarketData CreateMarketData()
         {
-            return new InterestRateMarketData
-            {
-                ZRMarketDates = new Vector(new double[] { 0, 1, 2, 5, 10 }),
-                ZRMarket = new Vector(new double[] { 0.01, 0.015, 0.017, 0.02, 0.025 }),
-                CapMaturity = new Vector(new double[] { 1, 2 }),
-                CapRate = new Vector(new double[] { 0.01, 0.02 }),
-                CapTenor = 0.5,
-                CapVolatility = new Matrix(new double[,] { { 0.20, 0.22 }, { 0.21, 0.23 } })
-            };
+            return TestCommon.TestMarketDataFactory.CreateCapMarketData(
+                new Vector(new double[] { 1, 2 }),
+                new Matrix(new double[,] { { 0.20, 0.22 }, { 0.21, 0.23 } }));
         }
 
         [Test]

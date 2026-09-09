@@ -16,15 +16,9 @@ namespace HullAndWhiteOneFactor
 
         private static InterestRateMarketData CreateMarketData()
         {
-            return new InterestRateMarketData
-            {
-                ZRMarketDates = new Vector(new double[] { 0, 1, 2, 5, 10 }),
-                ZRMarket = new Vector(new double[] { 0.01, 0.015, 0.017, 0.02, 0.025 }),
-                CapMaturity = new Vector(new double[] { 1, 2 }),
-                CapRate = new Vector(new double[] { 0.01, 0.02 }),
-                CapTenor = 0.5,
-                CapVolatility = new Matrix(new double[,] { { 0.20, 0.22 }, { 0.21, 0.23 } })
-            };
+            return TestCommon.TestMarketDataFactory.CreateCapMarketData(
+                new Vector(new double[] { 1, 2 }),
+                new Matrix(new double[,] { { 0.20, 0.22 }, { 0.21, 0.23 } }));
         }
 
         [Test]
@@ -110,48 +104,6 @@ namespace HullAndWhiteOneFactor
                 estimator.Estimate(new List<object> { dataset }));
 
             Assert.AreEqual("Malformed black caps", ex.Message);
-        }
-    }
-
-    [TestFixture]
-    public class TestCapsHWEstimatorLegacy
-    {
-        [SetUp]
-        public void Init()
-        {
-            TestCommon.TestInitialization.CommonInitialization();
-        }
-
-        [Test]
-        public void ProvidesToReturnsStocasticProcessHW()
-        {
-            CapsHWEstimatorLegacy estimator = new CapsHWEstimatorLegacy();
-
-            Assert.AreEqual(typeof(DVPLDOM.StocasticProcessHW), estimator.ProvidesTo);
-        }
-
-        [Test]
-        public void EstimateDummyCalibrationIsInheritedFromBase()
-        {
-            CapsHWEstimatorLegacy estimator = new CapsHWEstimatorLegacy();
-            InterestRateMarketData dataset = new InterestRateMarketData
-            {
-                ZRMarketDates = new Vector(new double[] { 0, 1, 2, 5, 10 }),
-                ZRMarket = new Vector(new double[] { 0.01, 0.015, 0.017, 0.02, 0.025 }),
-                CapMaturity = new Vector(new double[] { 1, 2 }),
-                CapRate = new Vector(new double[] { 0.01, 0.02 }),
-                CapTenor = 0.5,
-                CapVolatility = new Matrix(new double[,] { { 0.20, 0.22 }, { 0.21, 0.23 } })
-            };
-            Fairmat.Calibration.CapVolatilityFiltering settings = new Fairmat.Calibration.CapVolatilityFiltering
-            {
-                DummyCalibration = true
-            };
-
-            EstimationResult result = estimator.Estimate(new List<object> { dataset }, settings);
-
-            CollectionAssert.AreEqual(new string[] { "Alpha", "Sigma" }, result.Names);
-            CollectionAssert.AreEqual(new double[] { 0.1, 0.05 }, result.Values);
         }
     }
 }

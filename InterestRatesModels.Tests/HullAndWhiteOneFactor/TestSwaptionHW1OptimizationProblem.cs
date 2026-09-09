@@ -18,10 +18,7 @@ namespace HullAndWhiteOneFactor
 
         private static SwaptionHW1 CreateSwaptionHW1()
         {
-            Function zeroratecurve = new PFunction(null);
-            zeroratecurve.Expr = new double[,] { { 0, 0.02 }, { 50, 0.02 } };
-            (zeroratecurve as PFunction).m_Function.iType = EInterpolationType.LINEAR;
-            return new SwaptionHW1(zeroratecurve);
+            return new SwaptionHW1(TestCommon.TestCurveFactory.CreateFlatZeroCurve(0.02));
         }
 
         private static SwaptionHW1OptimizationProblem CreateProblem(out Matrix blackSwaption, out Vector swaptionMaturity, out Vector swapDuration, out SwaptionHW1 shw1)

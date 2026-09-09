@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using DVPLDOM;
 using DVPLI;
 using NUnit.Framework;
@@ -13,12 +12,6 @@ namespace CIRProcess
         public void Init()
         {
             TestCommon.TestInitialization.CommonInitialization();
-        }
-
-        private static double GetPrivateDouble(CIR cir, string fieldName)
-        {
-            FieldInfo field = typeof(CIR).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-            return (double)field.GetValue(cir);
         }
 
         [Test]
@@ -131,8 +124,8 @@ namespace CIRProcess
             double expectedD = Math.Sqrt(1.0 * 1.0 + 2.0 * 0.08 * 0.08);
             double expectedNu = 2.0 * 1.0 * 0.02 / (0.08 * 0.08);
 
-            Assert.AreEqual(expectedD, GetPrivateDouble(cir, "d"), 1e-12);
-            Assert.AreEqual(expectedNu, GetPrivateDouble(cir, "nu"), 1e-12);
+            Assert.AreEqual(expectedD, cir.d, 1e-12);
+            Assert.AreEqual(expectedNu, cir.nu, 1e-12);
         }
 
         [Test]
@@ -150,7 +143,7 @@ namespace CIRProcess
 
             // nu = 2 * k * theta / sigma^2, with sigma == 0 this is a division by
             // zero and yields a non-finite (infinite) value.
-            Assert.IsFalse(double.IsFinite(GetPrivateDouble(cir, "nu")));
+            Assert.IsFalse(double.IsFinite(cir.nu));
         }
 
         [Test]

@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using System.Runtime.Serialization;
 using DVPLDOM;
 using DVPLI;
@@ -14,12 +13,6 @@ namespace HullAndWhiteTwoFactors
         public void Init()
         {
             TestCommon.TestInitialization.CommonInitialization();
-        }
-
-        private static void SetPrivateField(HW2 hw2, string name, object value)
-        {
-            FieldInfo field = typeof(HW2).GetField(name, BindingFlags.NonPublic | BindingFlags.Instance);
-            field.SetValue(hw2, value);
         }
 
         [Test]
@@ -42,7 +35,7 @@ namespace HullAndWhiteTwoFactors
         public void OnDeserializedCreatesDriftAdjustmentWhenMissing()
         {
             HW2 hw2 = new HW2();
-            SetPrivateField(hw2, "driftAdjustment", null);
+            hw2.driftAdjustment = null;
 
             hw2.OnDeserialized(default(StreamingContext));
 
@@ -56,7 +49,7 @@ namespace HullAndWhiteTwoFactors
         {
             HW2 hw2 = new HW2();
             IModelParameter original = new ModelParameter(0.5);
-            SetPrivateField(hw2, "driftAdjustment", original);
+            hw2.driftAdjustment = original;
 
             hw2.OnDeserialized(default(StreamingContext));
 
@@ -212,8 +205,8 @@ namespace HullAndWhiteTwoFactors
             HW2 hw2 = new HW2();
             hw2.alpha1 = 1.0;
             hw2.alpha2 = 0.05;
-            SetPrivateField(hw2, "theta", new double[] { 0.03, 0.04 });
-            SetPrivateField(hw2, "driftAdjustment", new ModelParameter(0.0));
+            hw2.theta = new double[] { 0.03, 0.04 };
+            hw2.driftAdjustment = new ModelParameter(0.0);
 
             double[] x = new double[] { 0.02, 0.01 };
             double[] a = new double[2];
@@ -254,8 +247,8 @@ namespace HullAndWhiteTwoFactors
             hw2.alpha2 = 0.05;
             hw2.sigma1 = 0.02;
             hw2.sigma2 = 0.03;
-            SetPrivateField(hw2, "theta", new double[] { 0.03, 0.04 });
-            SetPrivateField(hw2, "driftAdjustment", new ModelParameter(0.0));
+            hw2.theta = new double[] { 0.03, 0.04 };
+            hw2.driftAdjustment = new ModelParameter(0.0);
 
             double[] x = new double[] { 0.02, 0.01 };
             double[] a = new double[2];
@@ -278,8 +271,8 @@ namespace HullAndWhiteTwoFactors
             HW2 hw2 = new HW2();
             Function zr = new PFunction(null);
             zr.Expr = new double[,] { { 0, 0.01 }, { 10, 0.03 } };
-            SetPrivateField(hw2, "zeroRateCurve", zr);
-            SetPrivateField(hw2, "mDates", new double[] { 0.0, 0.5, 1.0 });
+            hw2.zeroRateCurve = zr;
+            hw2.mDates = new double[] { 0.0, 0.5, 1.0 };
 
             double[] x0 = hw2.x0;
 

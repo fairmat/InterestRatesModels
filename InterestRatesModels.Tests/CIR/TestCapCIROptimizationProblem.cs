@@ -60,6 +60,40 @@ namespace CIRProcess
         }
 
         [Test]
+        public void ObjExcludesZeroBlackCapCellRegardlessOfModelValue()
+        {
+            Matrix blackCaps;
+            Vector capMaturity, capRate;
+            CapCIROptimizationProblem problem = CreateProblem(out blackCaps, out capMaturity, out capRate);
+
+            // blackCaps from CreateProblem is { {0.01, 0.0}, {0.02, 0.03} }: cell [0,1] is
+            // the only zero cell. Use two very different x vectors so the CIR-implied value
+            // at [0,1] differs substantially between them, then check Obj against a sum
+            // computed only from the three known non-zero cells (hardcoded, not derived from
+            // the same "!= 0.0" guard under test) - proving the zero cell is excluded from
+            // Obj regardless of what the model computes there.
+            Vector xLow = new Vector(new double[] { 1.0, 0.02, 0.05 });
+            Vector xHigh = new Vector(new double[] { 3.0, 0.10, 0.30 });
+
+            Matrix cirCapsLow = CIRCap.CIRCapMatrix(capMaturity, capRate, 0.5, 0.02, xLow);
+            Matrix cirCapsHigh = CIRCap.CIRCapMatrix(capMaturity, capRate, 0.5, 0.02, xHigh);
+
+            Assert.That(Math.Abs(cirCapsLow[0, 1] - cirCapsHigh[0, 1]), Is.GreaterThan(1e-3));
+
+            double expectedLow = Math.Sqrt(
+                Math.Pow(cirCapsLow[0, 0] - blackCaps[0, 0], 2) +
+                Math.Pow(cirCapsLow[1, 0] - blackCaps[1, 0], 2) +
+                Math.Pow(cirCapsLow[1, 1] - blackCaps[1, 1], 2));
+            double expectedHigh = Math.Sqrt(
+                Math.Pow(cirCapsHigh[0, 0] - blackCaps[0, 0], 2) +
+                Math.Pow(cirCapsHigh[1, 0] - blackCaps[1, 0], 2) +
+                Math.Pow(cirCapsHigh[1, 1] - blackCaps[1, 1], 2));
+
+            Assert.AreEqual(expectedLow, problem.Obj(xLow), 1e-12);
+            Assert.AreEqual(expectedHigh, problem.Obj(xHigh), 1e-12);
+        }
+
+        [Test]
         public void BoundsAreFixed()
         {
             Matrix blackCaps;
@@ -105,20 +139,14 @@ namespace CIRProcess
 
         private static InterestRateMarketData CreateMarketData()
         {
-            return new InterestRateMarketData
-            {
-                ZRMarketDates = new Vector(new double[] { 0, 1, 2, 5, 10 }),
-                ZRMarket = new Vector(new double[] { 0.01, 0.015, 0.017, 0.02, 0.025 }),
-                CapMaturity = new Vector(new double[] { 1, 2, 5 }),
-                CapRate = new Vector(new double[] { 0.01, 0.02 }),
-                CapTenor = 0.5,
-                CapVolatility = new Matrix(new double[,]
+            return TestCommon.TestMarketDataFactory.CreateCapMarketData(
+                new Vector(new double[] { 1, 2, 5 }),
+                new Matrix(new double[,]
                 {
                     { 0.20, 0.22 },
                     { 0.21, 0.23 },
                     { 0.19, 0.20 },
-                })
-            };
+                }));
         }
 
         [Test]

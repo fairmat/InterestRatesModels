@@ -69,7 +69,7 @@ namespace HullAndWhiteTwoFactors
         /// Drift adjustment: can be used for adding risk premium or quanto adjustments.
         /// </summary>
         [OptionalField(VersionAdded = 2)]
-        private IModelParameter driftAdjustment;
+        internal IModelParameter driftAdjustment;
 
         #endregion Serialized Parameters
 
@@ -89,7 +89,7 @@ namespace HullAndWhiteTwoFactors
         /// Reference to the parsed zero rate function.
         /// </summary>
         [NonSerialized]
-        private Function zeroRateCurve;
+        internal Function zeroRateCurve;
 
         /// <summary>
         /// Describe how the simulator should treat the HW2 process. Kept for compatibility.
@@ -112,7 +112,7 @@ namespace HullAndWhiteTwoFactors
         /// Pre-calculated theta. Available after Setup.
         /// </summary>
         [NonSerialized]
-        private double[] theta;
+        internal double[] theta;
 
         /// <summary>
         /// Simulated horizon, caches Project.GetTotalTime().
@@ -124,7 +124,7 @@ namespace HullAndWhiteTwoFactors
         /// Simulation dates. Available after setup.
         /// </summary>
         [NonSerialized]
-        private double[] mDates = null;
+        internal double[] mDates = null;
 
         /// <summary>
         /// Keeps the readable description of the a1 model variable.
@@ -299,14 +299,14 @@ namespace HullAndWhiteTwoFactors
             this.context = p_Context as Project;
             bool errors = false;
 
-            BoolHelper.AddBool(errors, this._a1.Parse(p_Context));
-            BoolHelper.AddBool(errors, this._a2.Parse(p_Context));
+            errors = BoolHelper.AddBool(errors, this._a1.Parse(p_Context));
+            errors = BoolHelper.AddBool(errors, this._a2.Parse(p_Context));
 
-            BoolHelper.AddBool(errors, this._s1.Parse(p_Context));
-            BoolHelper.AddBool(errors, this._s2.Parse(p_Context));
-            BoolHelper.AddBool(errors, this._rho.Parse(p_Context));
+            errors = BoolHelper.AddBool(errors, this._s1.Parse(p_Context));
+            errors = BoolHelper.AddBool(errors, this._s2.Parse(p_Context));
+            errors = BoolHelper.AddBool(errors, this._rho.Parse(p_Context));
 
-            BoolHelper.AddBool(errors, this.driftAdjustment.Parse(p_Context));
+            errors = BoolHelper.AddBool(errors, this.driftAdjustment.Parse(p_Context));
 
             if (this._zr.Expression.IndexOf("@") == -1)
             {
