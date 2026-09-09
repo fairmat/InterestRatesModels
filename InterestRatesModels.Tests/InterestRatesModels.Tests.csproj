@@ -11,10 +11,12 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\CIR\CIR.csproj" />
     <ProjectReference Include="..\HullAndWhiteOneFactor\HullAndWhiteOneFactor.csproj" />
+    <ProjectReference Include="..\HullAndWhiteTwoFactors\HullAndWhiteTwoFactors.csproj" />
     <ProjectReference Include="..\Pelsser\Pelsser.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -24,6 +26,7 @@
     <PackageReference Include="Mono.Addins.CecilReflector" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="coverlet.collector" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit.Analyzers" />
     <PackageReference Include="NUnit3TestAdapter" />

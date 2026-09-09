@@ -80,13 +80,13 @@ namespace CIRProcess
         /// Temporary value used in many calculations <see cref="Setup"/> method.
         /// </summary>
         [NonSerialized]
-        private double d;
+        internal double d;
 
         /// <summary>
         /// Temporary value used in many calculations <see cref="Setup"/> method.
         /// </summary>
         [NonSerialized]
-        private double nu;
+        internal double nu;
 
         /// <summary>
         /// A list of the parameter names to be shown to the user.
@@ -133,10 +133,10 @@ namespace CIRProcess
         public bool Parse(IProject context)
         {
             bool errors = false;
-            BoolHelper.AddBool(errors, this.k.Parse(context));
-            BoolHelper.AddBool(errors, this.theta.Parse(context));
-            BoolHelper.AddBool(errors, this.sigma.Parse(context));
-            BoolHelper.AddBool(errors, this.r0.Parse(context));
+            errors = BoolHelper.AddBool(errors, this.k.Parse(context));
+            errors = BoolHelper.AddBool(errors, this.theta.Parse(context));
+            errors = BoolHelper.AddBool(errors, this.sigma.Parse(context));
+            errors = BoolHelper.AddBool(errors, this.r0.Parse(context));
 
             if (!errors)
             {
