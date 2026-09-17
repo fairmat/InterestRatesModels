@@ -156,5 +156,37 @@ namespace Pelsser.Calibration
             Assert.Throws<InvalidCastException>(() =>
                 estimator.Estimate(new List<object> { dataset, "not a matrix market data" }));
         }
+
+        [Test]
+        public void ToolTipText_ReturnsExpectedText()
+        {
+            CapletEstimator estimator = new CapletEstimator();
+
+            Assert.AreEqual("Caplet Estimator", estimator.ToolTipText);
+        }
+
+        [Test]
+        public void Description_ReturnsExpectedText()
+        {
+            CapletEstimator estimator = new CapletEstimator();
+
+            Assert.AreEqual("Calibrate against Caplet prices", estimator.Description);
+        }
+
+        [Test]
+        public void ProvidesTo_ReturnsSquaredGaussianModelType()
+        {
+            CapletEstimator estimator = new CapletEstimator();
+
+            Assert.AreEqual(typeof(Pelsser.SquaredGaussianModel), estimator.ProvidesTo);
+        }
+
+        [Test]
+        public void DefaultSettings_ReturnsCapVolatilityFiltering()
+        {
+            CapletEstimator estimator = new CapletEstimator();
+
+            Assert.IsInstanceOf<Fairmat.Calibration.CapVolatilityFiltering>(estimator.DefaultSettings);
+        }
     }
 }
