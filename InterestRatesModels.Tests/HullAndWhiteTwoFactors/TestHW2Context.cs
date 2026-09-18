@@ -48,24 +48,17 @@ namespace HullAndWhiteTwoFactors
             return this.BHat(t, s, dt);
         }
 
-        public double CallChat(double t, double s, double dt)
-        {
-            return this.Chat(t, s, dt);
-        }
-
         public double CallCHat(double t, double s, double dt, double bHat)
         {
             return this.CHat(t, s, dt, bHat);
         }
+
+        public double CallChat(double t, double s, double dt)
+        {
+            return this.Chat(t, s, dt);
+        }
     }
 
-    /// <summary>
-    /// Numeric-oracle tests for <see cref="HW2Context"/>. Expected values were derived
-    /// independently (outside this codebase) from the closed-form Eta/BHat/CHat formulas
-    /// documented in Documentation/HullAndWhiteTwoFactors.tex (Hull-White 1994 two-factor
-    /// numerical procedures), not by calling into this implementation, so these tests can
-    /// actually catch a wrong formula rather than just re-confirming whatever the code outputs.
-    /// </summary>
     [TestFixture]
     public class TestHW2Context
     {
@@ -170,9 +163,6 @@ namespace HullAndWhiteTwoFactors
             Assert.That(result, Is.EqualTo(2.584814583271093).Within(1e-9));
         }
 
-        // Chat (lowercase 'h') recomputes bHat internally and is otherwise identical to
-        // CHat. It appears unused anywhere else in the codebase (only CHat is called, from
-        // HullAndWhiteTwoFactors.cs's BondHW2) - worth flagging as removable dead code.
         [Test]
         public void Chat_MatchesCHatGivenComputedBHat()
         {
