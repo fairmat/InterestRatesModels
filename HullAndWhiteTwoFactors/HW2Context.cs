@@ -69,12 +69,6 @@ namespace HullAndWhiteTwoFactors
         /// The value of the function Eta depending on the
         /// current context and the valuation and maturity date.
         /// </returns>
-        /// <remarks>
-        /// Known limitation: this closed-form expression divides by (alpha1 - alpha2) and has a
-        /// removable singularity there; when alpha1 == alpha2 the result is NaN/Infinity instead of
-        /// the correct limiting value. Pre-existing behavior, not fixed here — see
-        /// Eta_WhenAlphasAreEqual_ProducesNonFiniteResult in TestHW2Context.cs.
-        /// </remarks>
         protected internal double Eta(double t, double s)
         {
             double a_2 = this.alpha1 * this.alpha1;
@@ -129,12 +123,6 @@ namespace HullAndWhiteTwoFactors
         /// The difference between one approximated time steps and the previous one.
         /// </param>
         /// <returns>The result of the Chat function.</returns>
-        /// <remarks>
-        /// Known limitation: this closed-form expression divides by (alpha1 - alpha2) and has a
-        /// removable singularity there; when alpha1 == alpha2 the result is NaN/Infinity instead of
-        /// the correct limiting value. Pre-existing behavior, not fixed here — see
-        /// Eta_WhenAlphasAreEqual_ProducesNonFiniteResult in TestHW2Context.cs.
-        /// </remarks>
         protected internal double Chat(double t, double s, double dt)
         {
             double a_a_b = this.alpha1 * (this.alpha1 - this.alpha2);
@@ -155,12 +143,6 @@ namespace HullAndWhiteTwoFactors
         /// </param>
         /// <param name="bHat">The pre-calculated value of method Bhat.</param>
         /// <returns>The result of the CHat function.</returns>
-        /// <remarks>
-        /// Known limitation: this closed-form expression divides by (alpha1 - alpha2) and has a
-        /// removable singularity there; when alpha1 == alpha2 the result is NaN/Infinity instead of
-        /// the correct limiting value. Pre-existing behavior, not fixed here — see
-        /// Eta_WhenAlphasAreEqual_ProducesNonFiniteResult in TestHW2Context.cs.
-        /// </remarks>
         protected internal double CHat(double t, double s, double dt, double bHat)
         {
             double a_a_b = this.alpha1 * (this.alpha1 - this.alpha2);
