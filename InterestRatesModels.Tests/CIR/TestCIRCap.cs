@@ -8,7 +8,7 @@ namespace CIRProcess
     /// Tests for <see cref="CIRCap.BondPut"/> and <see cref="CIRCap.CIRCapMatrix"/>.
     /// BondPut's expected value is derived independently from the CIR zero-coupon bond
     /// price formula (P(t,S) and P(t,T)), reusing the exact r0/k/theta/sigma/T/S/X used by
-    /// TestBondCall.cs's already-verified BondCall benchmark, via put-call parity:
+    /// TestCIR.cs's already-verified BondCall benchmark, via put-call parity:
     /// BondPut = BondCall - P(t,S) + X*P(t,T).
     /// </summary>
     [TestFixture]
