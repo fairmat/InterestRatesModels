@@ -184,6 +184,8 @@ namespace HullAndWhiteTwoFactors
         [Test]
         public void Eta_WhenAlphasAreEqual_ProducesNonFiniteResult()
         {
+            // Pins a pre-existing div-by-zero bug (removable singularity at alpha1 == alpha2), not
+            // introduced by this change. See the remarks on HW2Context.Eta for details.
             TestableHW2Context context = new TestableHW2Context();
             context.Alpha1 = 0.1;
             context.Alpha2 = 0.1;
